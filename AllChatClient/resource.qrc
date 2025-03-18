@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Icon/comment.png</file>
+        <file>Icon/user-add.png</file>
+        <file>Icon/users.png</file>
+    </qresource>
+</RCC>

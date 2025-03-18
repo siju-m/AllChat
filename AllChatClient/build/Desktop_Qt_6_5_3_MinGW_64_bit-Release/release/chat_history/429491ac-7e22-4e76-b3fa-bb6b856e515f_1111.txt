@@ -1,0 +1,4 @@
+{"data":{"message":"1","name":"1","time":"17:40:16"},"kinds":"text"}
+{"data":{"message":"666","name":"1","time":"17:40:16"},"kinds":"text"}
+{"data":{"imagePath":"D:/data/Code/Qt/AllChat/AllChatClient/build/Desktop_Qt_6_5_3_MinGW_64_bit-Release/release/chat_history/image/b4037867-8e54-4f6d-98b8-21b93ff262cf.jpeg","name":"1111","time":"17:40:23"},"kinds":"image"}
+{"data":{"message":"1","name":"1","time":"18:01:57"},"kinds":"text"}
