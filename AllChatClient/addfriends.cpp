@@ -23,7 +23,7 @@ void AddFriends::updateListView(QMap<QString, QString> id_name)
     QList<QString> ids = id_name.keys();
     for(auto &id:ids){
         //在列表显示
-        m_stranger_model->addFriends_ToList(id_name[id],id,"1");
+        m_stranger_model->addFriends_ToList(id_name[id],id,"1","");
     }
 
 }

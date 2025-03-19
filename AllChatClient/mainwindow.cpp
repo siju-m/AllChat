@@ -128,7 +128,7 @@ void MainWindow::handle_addFriend(QDataStream &in)
     //                               QMessageBox::Yes | QMessageBox::No);
 
     // send_addFriend_result(reply == QMessageBox::Yes,senderId);
-    friendsApply_model->addFriends_ToList(senderName,senderId,"请求添加好友");
+    friendsApply_model->addFriends_ToList(senderName,senderId,"请求添加好友","");
 
 }
 
@@ -458,7 +458,7 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
     // 添加新用户
     for (const QString &userId : usersToAdd) {
         m_userList[userId].userName = newUserList[userId];
-        friends_model->addFriends_ToList(newUserList[userId],userId,"还没实现");
+        friends_model->addFriends_ToList(newUserList[userId],userId,"还没实现",new_idAvatar[userId].size()?storeImage(newUserList[userId],new_idAvatar[userId]):"");
         qDebug()<<"添加了"<<userId;
     }
 

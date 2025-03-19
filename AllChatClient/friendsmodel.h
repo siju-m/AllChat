@@ -7,7 +7,7 @@ struct Friends{
     QString userName;
     QString id;
     QString lastMessage;
-    //todo 头像
+    QString avatarPath;
 };
 
 class FriendsModel: public QAbstractListModel {
@@ -19,13 +19,14 @@ public:
         UserNameRole = Qt::UserRole + 1,
         IdRole,
         LastMessageRole,
+        AvatarRole
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
 
-    void addFriends_ToList(const QString &userName,const QString &id,const QString &lastMessage);
+    void addFriends_ToList(const QString &userName,const QString &id,const QString &lastMessage, const QString &avatarPath="");
 
     void removeItem(int row);
 

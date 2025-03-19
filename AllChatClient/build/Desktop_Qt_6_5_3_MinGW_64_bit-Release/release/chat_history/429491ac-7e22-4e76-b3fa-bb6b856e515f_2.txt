@@ -1,3 +1,0 @@
-{"data":{"message":"1","name":"1","time":"10:46:17"},"kinds":"text"}
-{"data":{"imagePath":"D:/data/Code/Qt/AllChat/AllChatClient/build/Desktop_Qt_6_5_3_MinGW_64_bit-Release/release/chat_history/image/aa8a7d6d-6cb0-49c7-bd37-c0417b47f017.jpeg","name":"1","time":"10:46:17"},"kinds":"image"}
-{"data":{"message":"1","name":"1","time":"17:12:32"},"kinds":"text"}

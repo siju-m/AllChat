@@ -22,14 +22,15 @@ QVariant FriendsModel::data(const QModelIndex &index, int role) const
     case UserNameRole: return msg.userName;
     case IdRole: return msg.id;
     case LastMessageRole: return msg.lastMessage;
+    case AvatarRole: return msg.avatarPath;
     default: return QVariant();
     }
 }
 
-void FriendsModel::addFriends_ToList( const QString &userName,const QString &id,const QString &lastMessage)
+void FriendsModel::addFriends_ToList( const QString &userName,const QString &id,const QString &lastMessage, const QString &avatarPath)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_friends.append({userName, id, lastMessage});
+    m_friends.append({userName, id, lastMessage,avatarPath});
     endInsertRows();
 }
 

@@ -15,6 +15,7 @@ void FriendsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     painter->setRenderHint(QPainter::Antialiasing, true);          // 抗锯齿
     QString userName = index.data(FriendsModel::UserNameRole).toString();
     QString lastMessage = index.data(FriendsModel::LastMessageRole).toString();
+    const QString avatarPath = index.data(FriendsModel::AvatarRole).toString();
 
     // 绘制选中状态背景
     if (option.state & QStyle::State_Selected) {
@@ -38,9 +39,45 @@ void FriendsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 
     //绘制头像
     QRect avatarRect =  QRect(itemRect.left() + 10, itemRect.top()+10, 40, 40);
-    painter->setBrush(QColor(200, 200, 200));
-    painter->setPen(Qt::NoPen);
-    painter->drawEllipse(avatarRect);
+    if(avatarPath.isEmpty()){
+        painter->setBrush(QColor(200, 200, 200));
+        painter->setPen(Qt::NoPen);
+        painter->drawEllipse(avatarRect);
+    }else{
+        QPixmap pixmap(avatarPath);
+        if (pixmap.isNull()) {
+            qDebug() << "Failed to load avatar:" << avatarPath;
+        } else {
+            // 获取设备像素比（处理高DPI屏幕）
+            qreal dpr = painter->device()->devicePixelRatio();
+            QSize targetSize = avatarRect.size() * dpr;
+
+            // 使用高质量缩放并扩展至目标区域
+            QPixmap scaled = pixmap.scaled(
+                targetSize,
+                Qt::KeepAspectRatioByExpanding, // 保持比例并扩展至目标尺寸
+                Qt::SmoothTransformation       // 平滑处理
+                );
+            scaled.setDevicePixelRatio(dpr);
+
+            // 设置圆形剪裁路径（确保头像显示为椭圆）
+            QPainterPath clipPath;
+            clipPath.addEllipse(avatarRect);
+            painter->setClipPath(clipPath);
+
+            // 计算居中绘制位置（避免缩放后图像偏移）
+            QPoint drawPos = avatarRect.topLeft();
+            if (scaled.width() > targetSize.width()) {
+                drawPos.setX(drawPos.x() - (scaled.width() / dpr - avatarRect.width()) / 2);
+            }
+            if (scaled.height() > targetSize.height()) {
+                drawPos.setY(drawPos.y() - (scaled.height() / dpr - avatarRect.height()) / 2);
+            }
+
+            painter->drawPixmap(drawPos, scaled);
+            painter->setClipping(false); // 关闭剪裁以免影响后续绘制
+        }
+    }
 
 
     // 绘制用户名
