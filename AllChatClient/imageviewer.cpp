@@ -67,11 +67,13 @@ bool ImageViewer::event(QEvent *event) {
 
 void ImageViewer::updateImageDisplay() {
     QSize newSize = m_originalImage.size() * m_scaleFactor;
+    qreal dpr = m_imageLabel->devicePixelRatio();//高dpi适配
     m_currentImage = m_originalImage.scaled(
-        newSize,
+        newSize*dpr,
         Qt::KeepAspectRatio,
         Qt::SmoothTransformation
         );
+    m_currentImage.setDevicePixelRatio(dpr);
     m_imageLabel->setPixmap(m_currentImage);
     m_imageLabel->resize(newSize); // 必须调整QLabel尺寸
 }

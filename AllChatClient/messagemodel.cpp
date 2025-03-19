@@ -19,19 +19,20 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const{
     case ImageRole: return msg.imagePath;
     case IsOutgoingRole: return msg.isOutgoing;
     case UserNameRole: return msg.userName;
+    case AvatarRole: return msg.avatarPath;
     default: return QVariant();
     }
 }
 
-void MessageModel::addTextMessage(const QString &text, bool isOutgoing, const QString &userName) {
+void MessageModel::addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath) {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_messages.append({MessageType::Text, text, "", isOutgoing, userName});
+    m_messages.append({MessageType::Text, text, "", isOutgoing, userName,avatarPath});
     endInsertRows();
 }
 
-void MessageModel::addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName) {
+void MessageModel::addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath) {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_messages.append({MessageType::Image, "", imagePath, isOutgoing, userName});
+    m_messages.append({MessageType::Image, "", imagePath, isOutgoing, userName,avatarPath});
     endInsertRows();
 }
 

@@ -6,7 +6,7 @@
 Server::Server(QObject *parent)
     : QTcpServer(parent) ,dataBase(new DataBase(this)){
     dataBase->initDatabase();
-    // QFile file("D:/msiju/Downloads/study.jpg");
+    // QFile file("D:/msiju/Downloads/1.jpg");
     // if (!file.open(QIODevice::ReadOnly)) {
     //     qDebug() << "Failed to open file" ;
     // }else{
@@ -169,14 +169,17 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
     QDataStream out(&packet, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_15);
     out << (success ? LOGIN_SUCCESS : LOGIN_FAILED);
-    qDebug()<<"用户登录";
-    senderSocket->write(packet);
+    qDebug()<<"用户登录"<<avatar.size();
     if(success){
         //todo 没有返回登录结果就转发用户表会崩溃
         //发送头像
-        // out<<static_cast<qint32>(avatar.size());
-        // out.writeRawData(avatar.constData(),avatar.size());
+        out<<static_cast<qint32>(avatar.size());
+        if(avatar.size())
+            out.writeRawData(avatar.constData(),avatar.size());
+    }
 
+    senderSocket->write(packet);
+    if(success){
         //向登录用户发送他的最新好友列表
         updateFriendsList(m_clients_userId[senderSocket]);
 
@@ -236,6 +239,7 @@ void Server::handleAddFriend_Result(QDataStream &in, QTcpSocket *senderSocket)
     dataBase->addFriends(id,m_clients_userId[senderSocket]);
     updateFriendsList(m_clients_userId[senderSocket]);//更新同意者的好友列表
     updateFriendsList(id);//更新请求者的好友列表
+    broadcast_userOnlineList();//更新在线状态
     m_alreadyApply.remove(qMakePair(id,m_clients_userId[senderSocket]));
 }
 
@@ -253,10 +257,16 @@ void Server::send_forwardContents(const QString &userId)
 void Server::updateFriendsList(const QString &userId)
 {
     QMap<QString,QString> id_name = dataBase->selectFriendsId_name(userId);
-    QByteArray packet = getPacket(USER_LIST , id_name);
+    QMap<QString,QByteArray> id_avatar = dataBase->getFriendsAvatar(userId);
+    QByteArray packet1 = getPacket(id_name,id_avatar);
+    QByteArray packet2;
+    QDataStream out2(&packet2, QIODevice::WriteOnly);
+    out2.setVersion(QDataStream::Qt_5_15);
+    out2 << USER_LIST << static_cast<qint32>(packet1.size());
+    out2.writeRawData(packet1.constData(), packet1.size());
     if(m_userIds_client.contains(userId))
-        m_userIds_client[userId]->write(packet);
-    else store_forwardContents(packet,userId);
+        m_userIds_client[userId]->write(packet2);
+    else store_forwardContents(packet2,userId);
 }
 
 void Server::handle_slelectByName(QDataStream &in, QTcpSocket *senderSocket)

@@ -11,14 +11,14 @@ void DataBase::initDatabase() {
         return;
     }
 
-    QSqlQuery query;
-    QString createTable = "CREATE TABLE IF NOT EXISTS users ("
-                          "id TEXT PRIMARY KEY, "
-                          "username TEXT UNIQUE, "
-                          "password TEXT)";
-    if (!query.exec(createTable)) {
-        qWarning() << "创建用户表失败：" << query.lastError().text();
-    }
+    // QSqlQuery query;
+    // QString createTable = "CREATE TABLE IF NOT EXISTS users ("
+    //                       "id TEXT PRIMARY KEY, "
+    //                       "username TEXT UNIQUE, "
+    //                       "password TEXT)";
+    // if (!query.exec(createTable)) {
+    //     qWarning() << "创建用户表失败：" << query.lastError().text();
+    // }
 }
 
 bool DataBase::registerUser(const QString &username, const QString &password) {
@@ -154,5 +154,24 @@ QByteArray DataBase::getAvatar(const QString &userId)
         return imageData;
     }
     return QByteArray();
+}
+
+QMap<QString, QByteArray> DataBase::getFriendsAvatar(const QString &userId)
+{
+    QMap<QString, QByteArray> userId_avatar;
+    QSqlQuery query;
+    query.prepare("SELECT users.id, users.avatar "
+                  "FROM users "
+                  "JOIN friends ON users.id = friends.friendId "
+                  "WHERE friends.userId = :userId");
+    query.bindValue(":userId", userId);
+    if (query.exec()) {
+        while (query.next()) {  // 遍历查询结果
+            userId_avatar[query.value(0).toString()]=query.value(1).toByteArray();
+        }
+    } else {
+        qDebug() << "好友头像查询失败:" << query.lastError().text();
+    }
+    return userId_avatar;
 }
 

@@ -14,6 +14,7 @@ struct Message {
     QString imagePath;
     bool isOutgoing;
     QString userName;
+    QString avatarPath;
 };
 
 class MessageModel : public QAbstractListModel {
@@ -25,15 +26,16 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const override;
 
-    void addTextMessage(const QString &text, bool isOutgoing, const QString &userName);
-    void addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName);
+    void addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath);
+    void addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath);
 
     enum Roles {
         TypeRole = Qt::UserRole + 1,
         TextRole,
         ImageRole,
         IsOutgoingRole,
-        UserNameRole
+        UserNameRole,
+        AvatarRole
     };
 
     void clear();

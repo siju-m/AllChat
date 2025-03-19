@@ -34,7 +34,6 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    QString userName;
     void ConnectServer();    // 连接服务器
 public slots:
     void registerUser(const QString &username, const QString &password);
@@ -52,6 +51,9 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;//可以换成QSslSocket来加密连接
+
+    QString m_avatarPath;
+    QString m_userName;
 
     enum ReceivingState {
         WaitingForHeader, // 等待接收数据头
@@ -73,22 +75,23 @@ private:
     struct userInfo{
         QString userName = "";
         bool state = false;
-        QString avatar = "";
+        QString avatarPath = "";
     };
-
-    QMap<QString, userInfo> userList; // 用于存储好友列表 id和userName
-    void updateUserList(const QMap<QString, QString> &newUserList); //更新用户列表
+    QMap<QString, userInfo> m_userList; // 用于存储好友列表 id和userName
+    void updateUserList(const QMap<QString, QString> &newUserList ,const QMap<QString,QByteArray> &new_idAvatar); //更新用户列表
+    void handle_userList(QDataStream &in);//接收好友数据
     void handle_onlineFriendsList(QDataStream &in);//接收在线用户列表
-    void handle_userAvatar(QDataStream &in);
+    void handle_userAvatar(QDataStream &in);//接收用户头像
     QString getChatHistoryFilePath();//获取聊天记录在文件中的路径
     void storeMessageToFile(const QString &targetId, const QString &sender, const QString &message);//将聊天记录存在文件中
     QString storeImageToFile(const QString &targetId, const QString &sender, const QByteArray &imageData);
+    QString storeImage(QString imageName,const QByteArray &imageData);
 
     MessageModel *message_model;//存储消息数据
     MessageDelegate *message_delegate;//绘制消息
     void initMessageList();
-    void addMessage_toList(QString text,bool isOutgoing,QString userName);//添加消息到聊天界面
-    void addImage_toList(QString imagePath,bool isOutgoing,QString userName);//添加图片到聊天界面
+    void addMessage_toList(const QString &text,const bool &isOutgoing,const QString &userName,const QString &avatarPath="");//添加消息到聊天界面
+    void addImage_toList(const QString &imagePath,const bool &isOutgoing,const QString &userName,const QString &avatarPath="");//添加图片到聊天界面
 
     FriendsModel *friends_model;//存储好友数据
     FriendsDelegate *friends_delegate;//绘制好友项

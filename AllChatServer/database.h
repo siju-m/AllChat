@@ -26,6 +26,7 @@ public:
 
     bool updateAvatar(const QString &userId, const QByteArray &imageData);//更新头像
     QByteArray getAvatar(const QString &userId);//获取头像
+    QMap<QString,QByteArray> getFriendsAvatar(const QString &userId);
 };
 
 #endif // DATABASE_H
