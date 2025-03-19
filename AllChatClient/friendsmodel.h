@@ -28,6 +28,8 @@ public:
 
     void addFriends_ToList(const QString &userName,const QString &id,const QString &lastMessage, const QString &avatarPath="");
 
+    void updateLastMessage(QString targetId,const QString &message);
+
     void removeItem(int row);
 
     void clear();

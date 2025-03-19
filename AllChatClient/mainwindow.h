@@ -46,7 +46,6 @@ private slots:
     void onDisconnected();      // 处理断开连接
     void sendImage(); //发送图片
 
-    // void loadChatHistory(QListWidgetItem *item);//从内存中加载聊天记录
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
 private:
     Ui::MainWindow *ui;
@@ -86,6 +85,7 @@ private:
     void storeMessageToFile(const QString &targetId, const QString &sender, const QString &message);//将聊天记录存在文件中
     QString storeImageToFile(const QString &targetId, const QString &sender, const QByteArray &imageData);
     QString storeImage(QString imageName,const QByteArray &imageData);
+    QString getLastMessage(const QString &targetId);
 
     MessageModel *message_model;//存储消息数据
     MessageDelegate *message_delegate;//绘制消息

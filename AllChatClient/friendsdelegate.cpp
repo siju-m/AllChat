@@ -98,8 +98,11 @@ void FriendsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     int messageWidth = doc.idealWidth(); // 获取文本的实际宽度
 
     QRect messageRect = QRect(itemRect.left()+60, itemRect.top()+35, messageWidth, 20);
-    painter->setPen(Qt::gray);
-    font = QFont("Arial", 10, QFont::Medium);
+    if (option.state & QStyle::State_Selected)
+        painter->setPen(Qt::white);
+    else
+        painter->setPen(Qt::gray);
+    font = QFont("Arial", 10, QFont::Bold);
     painter->setFont(font);
     painter->drawText(messageRect, Qt::AlignLeft | Qt::AlignTop, lastMessage);
 

@@ -194,7 +194,7 @@ void MainWindow::onReadyRead() {
     while (!in.atEnd()) {
         if(currentReceivingState == WaitingForHeader)
             in >> messageType;
-        qDebug()<<messageType;
+        // qDebug()<<messageType;
         switch(messageType){
         case CommonEnum::IMAGE:{
             //接收图片
@@ -202,7 +202,6 @@ void MainWindow::onReadyRead() {
         }break;
         case CommonEnum::USER_LIST:{
             handle_userList(in);
-            qDebug()<<"用户列表更新";
         }break;
         case CommonEnum::CHAT:{
             handle_message(in);
@@ -269,7 +268,7 @@ void MainWindow::receiveImage(QDataStream &in)
 
             QString imagePath = storeImageToFile(id,m_userList[id].userName,imageData);
             if(ui->friendsList->currentIndex().data(FriendsModel::IdRole).toString()==id)
-                addImage_toList(imagePath,m_userList[id].userName==m_userName,m_userList[id].userName,m_userList[id].userName==m_userName?m_avatarPath:m_userList[id].avatarPath);
+                addImage_toList(imagePath,false,m_userList[id].userName,m_userList[id].avatarPath);
             resetState();
         }
     }
@@ -289,6 +288,7 @@ QString MainWindow::getChatHistoryFilePath() {
 }
 
 void MainWindow::storeMessageToFile(const QString &targetId, const QString &sender, const QString &message) {
+    friends_model->updateLastMessage(targetId,message);
     QString filePath = getChatHistoryFilePath();
     filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_userName);
     qDebug()<<filePath;
@@ -310,6 +310,7 @@ void MainWindow::storeMessageToFile(const QString &targetId, const QString &send
 
 QString MainWindow::storeImageToFile(const QString &targetId, const QString &sender,const QByteArray &imageData)
 {
+    friends_model->updateLastMessage(targetId,"图片");
     QString filePath = getChatHistoryFilePath();
     QString textFilePath = QString("%1/%2_%3.txt").arg(filePath).arg(targetId).arg(m_userName);
 
@@ -371,6 +372,29 @@ QString MainWindow::storeImage(QString imageName, const QByteArray &imageData)
     QString imageFilePath = QString("%1/%2/%3.%4").arg(filePath).arg("image").arg(imageName).arg(format);
     image.save(imageFilePath);
     return imageFilePath;
+}
+
+QString MainWindow::getLastMessage(const QString &targetId)
+{
+    QString filePath = getChatHistoryFilePath();//因为多个个客户端会运行在同一台机器上，需要接收端id加发送端用户名来作为文件名
+    filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_userName);
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "无法打开文件";
+        return "";
+    }
+    QString lastLine;
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        lastLine = in.readLine();
+    }
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(lastLine.toUtf8());
+    QJsonObject format = doc.object();
+    QJsonObject obj = format["data"].toObject();
+    // 此时 lastLine 就是文件的最后一行文本
+    // qDebug() << "最后一行:" << lastLine;
+    return obj["message"].toString();
 }
 
 void MainWindow::loadChatHistoryFromFile(QString targetId) {
@@ -458,7 +482,8 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
     // 添加新用户
     for (const QString &userId : usersToAdd) {
         m_userList[userId].userName = newUserList[userId];
-        friends_model->addFriends_ToList(newUserList[userId],userId,"还没实现",new_idAvatar[userId].size()?storeImage(newUserList[userId],new_idAvatar[userId]):"");
+        QString lastMessage = getLastMessage(userId);
+        friends_model->addFriends_ToList(newUserList[userId],userId,lastMessage,new_idAvatar[userId].size()?storeImage(newUserList[userId],new_idAvatar[userId]):"");
         qDebug()<<"添加了"<<userId;
     }
 

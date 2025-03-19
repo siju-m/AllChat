@@ -34,6 +34,17 @@ void FriendsModel::addFriends_ToList( const QString &userName,const QString &id,
     endInsertRows();
 }
 
+void FriendsModel::updateLastMessage(QString targetId,const QString &message)
+{
+    for(int i=0;i<m_friends.size();++i){
+        if(m_friends[i].id == targetId){
+            m_friends[i].lastMessage = message;
+            QModelIndex index = this->index(i,0);
+            emit dataChanged(index,index);
+        }
+    }
+}
+
 void FriendsModel::removeItem(int row)
 {
     if (row < 0 || row >= m_friends.size()) return;

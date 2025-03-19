@@ -35,7 +35,6 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
             // 获取设备像素比（处理高DPI屏幕）
             qreal dpr = painter->device()->devicePixelRatio();
             QSize targetSize = avatarRect.size() * dpr;
-
             // 使用高质量缩放并扩展至目标区域
             QPixmap scaled = pixmap.scaled(
                 targetSize,
