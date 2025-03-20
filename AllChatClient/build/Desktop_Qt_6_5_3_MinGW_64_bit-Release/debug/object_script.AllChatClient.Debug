@@ -1,3 +1,4 @@
+debug/datatransfer.o
 debug/addfriends.o
 debug/applydelegate.o
 debug/friendsdelegate.o
@@ -12,6 +13,7 @@ debug/messagemodel.o
 debug/regist.o
 debug/strangerdelegate.o
 debug/qrc_resource.o
+debug/moc_datatransfer.o
 debug/moc_addfriends.o
 debug/moc_applydelegate.o
 debug/moc_friendsmodel.o

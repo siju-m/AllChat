@@ -9,7 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
     socket(new QTcpSocket(this)),
-    m_avatarPath("")
+    m_avatarPath(""),
+    m_dataTransfer(new DataTransfer(this))
 {
 
     ui->setupUi(this);
@@ -19,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->btnSend, &QPushButton::clicked, this, &MainWindow::onSendClicked);
     connect(ui->btnImage, &QPushButton::clicked, this, &MainWindow::sendImage);
     connect(socket, &QTcpSocket::readyRead, this, &MainWindow::onReadyRead);
+    connect(m_dataTransfer,&DataTransfer::handleData,this,&MainWindow::handleData);
     connect(socket, &QTcpSocket::disconnected, this, &MainWindow::onDisconnected);
 
     initMessageList();
@@ -187,91 +189,162 @@ void MainWindow::send_slelectByName(const QString &username)
         sendData(CommonEnum::FIND_NEW_FRIEND,username);
 }
 
-void MainWindow::onReadyRead() {
-    QDataStream in(socket);
+
+
+void MainWindow::handleData(QByteArray data)
+{
+    QDataStream in(data);
     in.setVersion(QDataStream::Qt_5_15);
 
-    while (!in.atEnd()) {
-        if(currentReceivingState == WaitingForHeader)
-            in >> messageType;
-        // qDebug()<<messageType;
-        switch(messageType){
-        case CommonEnum::IMAGE:{
-            //接收图片
-            receiveImage(in);
-        }break;
-        case CommonEnum::USER_LIST:{
-            handle_userList(in);
-        }break;
-        case CommonEnum::CHAT:{
-            handle_message(in);
-        }break;
-        case CommonEnum::LOGIN_SUCCESS:
-        case CommonEnum::LOGIN_FAILED:{
-            if(currentReceivingState == WaitingForHeader)
-                emit loginResult(messageType);
-            if(messageType == CommonEnum::LOGIN_SUCCESS){
-                handle_userAvatar(in);
-            }
-        }break;
-        case CommonEnum::REGISTER_SUCCESS:
-        case CommonEnum::REGISTER_FAILED:{
-            emit registResult(messageType);
-        }break;
-        case CommonEnum::ADD_FRIEND:{
-            handle_addFriend(in);
-        }break;
-        case CommonEnum::AGREE_FRIEND:{
-            handle_addFriend_result(in);
-        }break;
-        case CommonEnum::NEW_FRIEND_REULT:{
-            handle_selectByName_reuslt(in);
-        }break;
-        case CommonEnum::ONLINE_LIST:{
-            handle_onlineFriendsList(in);
-        }break;
-        default:qDebug() << "未知消息类型!";break;
+    in >> messageType;
+    switch(messageType){
+    case CommonEnum::IMAGE:{
+        //接收图片
+        qDebug()<<"IMAGE";
+        receiveImage(in);
+    }break;
+    case CommonEnum::USER_LIST:{
+        qDebug()<<"USER_LIST";
+        handle_userList(in);
+    }break;
+    case CommonEnum::CHAT:{
+        qDebug()<<"CHAT";
+        handle_message(in);
+    }break;
+    case CommonEnum::LOGIN_SUCCESS:
+    case CommonEnum::LOGIN_FAILED:{
+        emit loginResult(messageType);
+        if(messageType == CommonEnum::LOGIN_SUCCESS){
+            qDebug()<<"LOGIN_SUCCESS";
+            handle_userAvatar(in);
         }
-
+    }break;
+    case CommonEnum::REGISTER_SUCCESS:
+    case CommonEnum::REGISTER_FAILED:{
+        emit registResult(messageType);
+    }break;
+    case CommonEnum::ADD_FRIEND:{
+        qDebug()<<"ADD_FRIEND";
+        handle_addFriend(in);
+    }break;
+    case CommonEnum::AGREE_FRIEND:{
+        qDebug()<<"AGREE_FRIEND";
+        handle_addFriend_result(in);
+    }break;
+    case CommonEnum::NEW_FRIEND_REULT:{
+        qDebug()<<"NEW_FRIEND_REULT";
+        handle_selectByName_reuslt(in);
+    }break;
+    case CommonEnum::ONLINE_LIST:{
+        qDebug()<<"ONLINE_LIST";
+        handle_onlineFriendsList(in);
+    }break;
+    default:qDebug() << "未知消息类型!";break;
     }
 }
 
+void MainWindow::onReadyRead() {
+    // QByteArray inData = m_dataTransfer->receiveData(socket);
+    // qDebug()<<"inData:"<<inData.size();
+    // if(!inData.size()) return;
+    m_dataTransfer->receiveData(socket);
+
+
+    // QDataStream in(socket);
+    // in.setVersion(QDataStream::Qt_5_15);
+
+    // while (!in.atEnd()) {
+    //     if(currentReceivingState == WaitingForHeader)
+    //         in >> messageType;
+    //     // qDebug()<<messageType;
+    //     switch(messageType){
+    //     case CommonEnum::IMAGE:{
+    //         //接收图片
+    //         receiveImage(in);
+    //     }break;
+    //     case CommonEnum::USER_LIST:{
+    //         handle_userList(in);
+    //     }break;
+    //     case CommonEnum::CHAT:{
+    //         handle_message(in);
+    //     }break;
+    //     case CommonEnum::LOGIN_SUCCESS:
+    //     case CommonEnum::LOGIN_FAILED:{
+    //         if(currentReceivingState == WaitingForHeader)
+    //             emit loginResult(messageType);
+    //         if(messageType == CommonEnum::LOGIN_SUCCESS){
+    //             handle_userAvatar(in);
+    //         }
+    //     }break;
+    //     case CommonEnum::REGISTER_SUCCESS:
+    //     case CommonEnum::REGISTER_FAILED:{
+    //         emit registResult(messageType);
+    //     }break;
+    //     case CommonEnum::ADD_FRIEND:{
+    //         handle_addFriend(in);
+    //     }break;
+    //     case CommonEnum::AGREE_FRIEND:{
+    //         handle_addFriend_result(in);
+    //     }break;
+    //     case CommonEnum::NEW_FRIEND_REULT:{
+    //         handle_selectByName_reuslt(in);
+    //     }break;
+    //     case CommonEnum::ONLINE_LIST:{
+    //         handle_onlineFriendsList(in);
+    //     }break;
+    //     default:qDebug() << "未知消息类型!";break;
+    //     }
+
+    // }
+}
+
+// void MainWindow::receiveImage(QDataStream &in)
+// {
+//     //处理图片接收
+//     if (currentReceivingState == WaitingForHeader) {
+//         if (socket->bytesAvailable() < static_cast<qint64>(sizeof(qint32) * 2)) return; // 数据不足，等待下次读取
+//         in >> currentDataLength;
+//         // qDebug()<<messageType << currentDataLength;
+//         if (currentDataLength <= 0 || currentDataLength > 10 * 1024 * 1024) {
+//             qWarning() << "Invalid data length:" << currentDataLength;
+//             resetState();
+//             return;
+//         }
+//         dataBuffer.clear();
+//         dataBuffer.reserve(currentDataLength);
+//         currentReceivingState = ReceivingData;
+//     }
+//     if (currentReceivingState == ReceivingData) {
+//         int bytesToRead = qMin(socket->bytesAvailable(), currentDataLength - receivedBytes);
+//         QByteArray chunk = socket->read(bytesToRead);
+//         dataBuffer.append(chunk);
+//         receivedBytes += chunk.size();
+//         if (receivedBytes == currentDataLength) {
+//             // qDebug()<<messageType;
+//             // qDebug()<<dataBuffer.size();
+//             QDataStream stream(dataBuffer);
+//             QByteArray imageData;
+//             QString id;
+//             stream >> id>> imageData;
+//             // qDebug()<<"来自："<<id<<imageData.size();
+
+//             QString imagePath = storeImageToFile(id,m_userList[id].userName,imageData);
+//             if(ui->friendsList->currentIndex().data(FriendsModel::IdRole).toString()==id)
+//                 addImage_toList(imagePath,false,m_userList[id].userName,m_userList[id].avatarPath);
+//             resetState();
+//         }
+//     }
+// }
+
 void MainWindow::receiveImage(QDataStream &in)
 {
-    //处理图片接收
-    if (currentReceivingState == WaitingForHeader) {
-        if (socket->bytesAvailable() < static_cast<qint64>(sizeof(qint32) * 2)) return; // 数据不足，等待下次读取
-        in >> currentDataLength;
-        // qDebug()<<messageType << currentDataLength;
-        if (currentDataLength <= 0 || currentDataLength > 10 * 1024 * 1024) {
-            qWarning() << "Invalid data length:" << currentDataLength;
-            resetState();
-            return;
-        }
-        dataBuffer.clear();
-        dataBuffer.reserve(currentDataLength);
-        currentReceivingState = ReceivingData;
-    }
-    if (currentReceivingState == ReceivingData) {
-        int bytesToRead = qMin(socket->bytesAvailable(), currentDataLength - receivedBytes);
-        QByteArray chunk = socket->read(bytesToRead);
-        dataBuffer.append(chunk);
-        receivedBytes += chunk.size();
-        if (receivedBytes == currentDataLength) {
-            // qDebug()<<messageType;
-            // qDebug()<<dataBuffer.size();
-            QDataStream stream(dataBuffer);
-            QByteArray imageData;
-            QString id;
-            stream >> id>> imageData;
-            // qDebug()<<"来自："<<id<<imageData.size();
+    QByteArray imageData;
+    QString id;
+    in >> id>> imageData;
 
-            QString imagePath = storeImageToFile(id,m_userList[id].userName,imageData);
-            if(ui->friendsList->currentIndex().data(FriendsModel::IdRole).toString()==id)
-                addImage_toList(imagePath,false,m_userList[id].userName,m_userList[id].avatarPath);
-            resetState();
-        }
-    }
+    QString imagePath = storeImageToFile(id,m_userList[id].userName,imageData);
+    if(ui->friendsList->currentIndex().data(FriendsModel::IdRole).toString()==id)
+        addImage_toList(imagePath,false,m_userList[id].userName,m_userList[id].avatarPath);
 }
 
 QString MainWindow::getChatHistoryFilePath() {
@@ -291,7 +364,7 @@ void MainWindow::storeMessageToFile(const QString &targetId, const QString &send
     friends_model->updateLastMessage(targetId,message);
     QString filePath = getChatHistoryFilePath();
     filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_userName);
-    qDebug()<<filePath;
+    // qDebug()<<filePath;
     QFile file(filePath);
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         //以json格式存储，适合结构化数据
@@ -314,21 +387,6 @@ QString MainWindow::storeImageToFile(const QString &targetId, const QString &sen
     QString filePath = getChatHistoryFilePath();
     QString textFilePath = QString("%1/%2_%3.txt").arg(filePath).arg(targetId).arg(m_userName);
 
-    // QImage image;
-    // image.loadFromData(imageData);
-    // QBuffer buffer;
-    // buffer.setData(imageData);
-    // buffer.open(QIODevice::ReadOnly);  // 以只读模式打开
-    // QImageReader reader(&buffer);
-    // reader.setDecideFormatFromContent(true);
-    // QString format = QString(reader.format());
-    // QDir dir(QString("%1/%2").arg(filePath).arg("image"));
-    // if (!dir.exists()) {
-    //     dir.mkpath(".");
-    // }
-    // QString imageName = QUuid::createUuid().toString(QUuid::WithoutBraces);
-    // QString imageFilePath = QString("%1/%2/%3.%4").arg(filePath).arg("image").arg(imageName).arg(format);
-    // image.save(imageFilePath);
     QString imageFilePath = storeImage("",imageData);
 
     //todo 在文字消息记录中把图片路径存进去，之后使用图片全部都用路径，避免直接传递图片占用内存
@@ -380,7 +438,7 @@ QString MainWindow::getLastMessage(const QString &targetId)
     filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_userName);
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "无法打开文件";
+        qDebug() << "没有聊天记录";
         return "";
     }
     QString lastLine;
@@ -430,6 +488,7 @@ void MainWindow::handle_message(QDataStream &in)
     QString textMessage;
     QString id;
     in >> id>> textMessage;
+    qDebug()<<id<<textMessage;
     if(ui->friendsList->currentIndex().data(FriendsModel::IdRole).toString()==id)//接收的消息和当前聊天对象是同一个才在窗口显示
         addMessage_toList(textMessage,m_userList[id].userName==m_userName,m_userList[id].userName,m_userList[id].userName==m_userName?m_avatarPath:m_userList[id].avatarPath);
     storeMessageToFile(id,m_userList[id].userName,textMessage);
@@ -489,7 +548,7 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
 
     const auto &keys = m_userList.keys();
     for(auto &it:keys){
-        m_userList[it].avatarPath = storeImage(m_userList[it].userName,new_idAvatar[it]);
+        m_userList[it].avatarPath = new_idAvatar[it].size()?storeImage(m_userList[it].userName,new_idAvatar[it]):"";
     }
 
     // 默认选择第一行
@@ -505,33 +564,10 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
 
 void MainWindow::handle_userList(QDataStream &in)
 {
-    if (currentReceivingState == WaitingForHeader) {
-        if (socket->bytesAvailable() < static_cast<qint64>(sizeof(qint32) * 2)) return; // 数据不足，等待下次读取
-        in >> currentDataLength;
-        qDebug()<<messageType << currentDataLength;
-        if (currentDataLength <= 0 || currentDataLength > 10 * 1024 * 1024) {
-            qWarning() << "Invalid data length:" << currentDataLength;
-            resetState();
-            return;
-        }
-        dataBuffer.clear();
-        dataBuffer.reserve(currentDataLength);
-        currentReceivingState = ReceivingData;
-    }
-    if (currentReceivingState == ReceivingData) {
-        int bytesToRead = qMin(socket->bytesAvailable(), currentDataLength - receivedBytes);
-        QByteArray chunk = socket->read(bytesToRead);
-        dataBuffer.append(chunk);
-        receivedBytes += chunk.size();
-        if (receivedBytes == currentDataLength) {
-            QDataStream stream(dataBuffer);
-            QMap<QString,QString> id_name ;
-            QMap<QString,QByteArray> id_avatar;
-            stream>>id_name>>id_avatar;
-            updateUserList(id_name,id_avatar);
-            resetState();
-        }
-    }
+    QMap<QString,QString> id_name ;
+    QMap<QString,QByteArray> id_avatar;
+    in>>id_name>>id_avatar;
+    updateUserList(id_name,id_avatar);
 }
 
 void MainWindow::handle_onlineFriendsList(QDataStream &in)
@@ -548,49 +584,58 @@ void MainWindow::handle_onlineFriendsList(QDataStream &in)
     ui->friendState->setText(m_userList[id].state?"在线":"离线");
 }
 
+// void MainWindow::handle_userAvatar(QDataStream &in)
+// {
+//     if (currentReceivingState == WaitingForHeader) {
+//         if (socket->bytesAvailable() < static_cast<qint64>(sizeof(qint32) * 2)) return; // 数据不足，等待下次读取
+//         in >> currentDataLength;
+//         qDebug()<<messageType << currentDataLength;
+//         if (currentDataLength <= 0 || currentDataLength > 10 * 1024 * 1024) {
+//             qWarning() << "Invalid data length:" << currentDataLength;
+//             resetState();
+//             return;
+//         }
+//         dataBuffer.clear();
+//         dataBuffer.reserve(currentDataLength);
+//         currentReceivingState = ReceivingData;
+//     }
+//     if (currentReceivingState == ReceivingData) {
+//         int bytesToRead = qMin(socket->bytesAvailable(), currentDataLength - receivedBytes);
+//         QByteArray chunk = socket->read(bytesToRead);
+//         dataBuffer.append(chunk);
+//         receivedBytes += chunk.size();
+//         if (receivedBytes == currentDataLength) {
+//             QDataStream stream(dataBuffer);
+//             // QByteArray imageData;
+//             // stream >> imageData;
+
+//             qDebug()<<"存入头像"<<dataBuffer.size();
+//             QString avatarPath = storeImage(m_userName,dataBuffer);
+//             m_avatarPath = avatarPath;
+//             // m_avatar.loadFromData(imageData);
+//             // storeImageToFile("1","1",dataBuffer);
+//             resetState();
+//         }
+//     }
+// }
 void MainWindow::handle_userAvatar(QDataStream &in)
 {
-    if (currentReceivingState == WaitingForHeader) {
-        if (socket->bytesAvailable() < static_cast<qint64>(sizeof(qint32) * 2)) return; // 数据不足，等待下次读取
-        in >> currentDataLength;
-        qDebug()<<messageType << currentDataLength;
-        if (currentDataLength <= 0 || currentDataLength > 10 * 1024 * 1024) {
-            qWarning() << "Invalid data length:" << currentDataLength;
-            resetState();
-            return;
-        }
-        dataBuffer.clear();
-        dataBuffer.reserve(currentDataLength);
-        currentReceivingState = ReceivingData;
-    }
-    if (currentReceivingState == ReceivingData) {
-        int bytesToRead = qMin(socket->bytesAvailable(), currentDataLength - receivedBytes);
-        QByteArray chunk = socket->read(bytesToRead);
-        dataBuffer.append(chunk);
-        receivedBytes += chunk.size();
-        if (receivedBytes == currentDataLength) {
-            QDataStream stream(dataBuffer);
-            // QByteArray imageData;
-            // stream >> imageData;
-
-            qDebug()<<"存入头像"<<dataBuffer.size();
-            QString avatarPath = storeImage(m_userName,dataBuffer);
-            m_avatarPath = avatarPath;
-            // m_avatar.loadFromData(imageData);
-            // storeImageToFile("1","1",dataBuffer);
-            resetState();
-        }
-    }
+    QByteArray imageData;
+    in >> imageData;
+    if(imageData.isEmpty()) return;
+    qDebug()<<"存入头像"<<imageData.size();
+    QString avatarPath = storeImage(m_userName,imageData);
+    m_avatarPath = avatarPath;
 }
 
 
-void MainWindow::resetState() {//重置连续传输的变量状态
-    currentReceivingState = WaitingForHeader;
-    // messageType = "";
-    currentDataLength = 0;
-    receivedBytes = 0;
-    dataBuffer.clear();
-}
+// void MainWindow::resetState() {//重置连续传输的变量状态
+//     currentReceivingState = WaitingForHeader;
+//     // messageType = "";
+//     currentDataLength = 0;
+//     receivedBytes = 0;
+//     dataBuffer.clear();
+// }
 
 void MainWindow::onDisconnected() {//断开连接的槽函数
     qDebug()<<"和服务器断开连接";

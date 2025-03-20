@@ -1,3 +1,4 @@
+release/datatransfer.o
 release/addfriends.o
 release/applydelegate.o
 release/friendsdelegate.o
@@ -12,6 +13,7 @@ release/messagemodel.o
 release/regist.o
 release/strangerdelegate.o
 release/qrc_resource.o
+release/moc_datatransfer.o
 release/moc_addfriends.o
 release/moc_applydelegate.o
 release/moc_friendsmodel.o

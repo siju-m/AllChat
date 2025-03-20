@@ -1,3 +1,5 @@
+debug/datatransfer.o
+debug/addfriends.o
 debug/applydelegate.o
 debug/friendsdelegate.o
 debug/friendsmodel.o
@@ -9,7 +11,10 @@ debug/messagedelegate.o
 debug/messagelistview.o
 debug/messagemodel.o
 debug/regist.o
+debug/strangerdelegate.o
 debug/qrc_resource.o
+debug/moc_datatransfer.o
+debug/moc_addfriends.o
 debug/moc_applydelegate.o
 debug/moc_friendsmodel.o
 debug/moc_login.o
@@ -18,3 +23,4 @@ debug/moc_messagedelegate.o
 debug/moc_messagelistview.o
 debug/moc_messagemodel.o
 debug/moc_regist.o
+debug/moc_strangerdelegate.o

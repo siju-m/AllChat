@@ -90,6 +90,7 @@ private:
 
     template <typename... Args>
     QByteArray getPacket(Args... args);
+    void sendData(const QString &targetId,QByteArray &packet);
 };
 
 #endif // SERVER_H

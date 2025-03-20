@@ -23,6 +23,7 @@
 #include "friendsmodel.h"
 #include "applydelegate.h"
 #include "addfriends.h"
+#include "Utils/datatransfer.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -47,6 +48,7 @@ private slots:
     void sendImage(); //发送图片
 
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
+    void handleData(QByteArray data);
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;//可以换成QSslSocket来加密连接
@@ -54,22 +56,24 @@ private:
     QString m_avatarPath;
     QString m_userName;
 
-    enum ReceivingState {
-        WaitingForHeader, // 等待接收数据头
-        ReceivingData     // 接收数据中
-    };
+    DataTransfer *m_dataTransfer;
+
+    // enum ReceivingState {
+    //     WaitingForHeader, // 等待接收数据头
+    //     ReceivingData     // 接收数据中
+    // };
 
     CommonEnum::message_type messageType;
-    ReceivingState currentReceivingState = WaitingForHeader; // 当前状态初始化为等待数据头
+    // ReceivingState currentReceivingState = WaitingForHeader; // 当前状态初始化为等待数据头
 
     void handle_message(QDataStream &in);
     void receiveImage(QDataStream &in);
 
     // QString messageType;
-    qint32 currentDataLength = 0;    // 数据长度
-    qint32 receivedBytes = 0;        // 已接收字节数
-    QByteArray dataBuffer;           // 用于暂存接收到的数据
-    void resetState();
+    // qint32 currentDataLength = 0;    // 数据长度
+    // qint32 receivedBytes = 0;        // 已接收字节数
+    // QByteArray dataBuffer;           // 用于暂存接收到的数据
+    // void resetState();
 
     struct userInfo{
         QString userName = "";

@@ -29,6 +29,60 @@ bool Server::loginUser(QTcpSocket *socket,const QString &username, const QString
     return !userId.isNull();
 }
 
+void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
+{
+    QString username, password;
+    in >> username >> password;
+    bool success = loginUser(senderSocket,username, password);
+
+    QByteArray avatar = dataBase->getAvatar(m_clients_userId[senderSocket]);
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out << (success ? LOGIN_SUCCESS : LOGIN_FAILED);
+    qDebug()<<"用户登录"<<avatar.size();
+    if(success){
+        //发送头像
+            // out.writeRawData(avatar.constData(),avatar.size());
+        out<<avatar;
+    }
+    QByteArray outData;
+    QDataStream out1(&outData,QIODevice::WriteOnly);
+    out1.setVersion(QDataStream::Qt_5_15);
+    out1<<static_cast<qint32>(packet.size());
+    out1.writeRawData(packet.constData(),packet.size());
+    senderSocket->write(outData);
+    if(success){
+        //向登录用户发送他的最新好友列表
+        updateFriendsList(m_clients_userId[senderSocket]);
+
+        // 更新并广播在线用户列表
+        broadcast_userOnlineList();
+
+        //判断是否有待转发的消息
+        if(m_forward_contents.contains(m_clients_userId[senderSocket]))
+            send_forwardContents(m_clients_userId[senderSocket]);
+    }
+
+}
+
+void Server::handleRegist(QDataStream &in, QTcpSocket *senderSocket)
+{
+    QString username, password;
+    in >> username >> password;
+    bool success = dataBase->registerUser(username, password);
+    QByteArray packet = getPacket(success ? REGISTER_SUCCESS : REGISTER_FAILED);
+    qDebug()<<"用户注册";
+    //todo 后面看能不能封装
+    QByteArray outData;
+    QDataStream out(&outData,QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out<<static_cast<qint32>(packet.size());
+    out.writeRawData(packet.constData(),packet.size());
+    senderSocket->write(outData);
+    // senderSocket->write(packet);
+}
+
 
 void Server::incomingConnection(qintptr socketDescriptor) {
     auto *clientSocket = new QTcpSocket(this);
@@ -92,35 +146,15 @@ void Server::privateMessage(QTcpSocket *socket, QDataStream &stream){
 
     QString textMessage,id;
     stream>>id>>textMessage;
-    // QString userName = m_clients_name[socket];
-    // qDebug() << "私聊信息：" << userName << ": " << textMessage;
     QByteArray packet = getPacket(CHAT , m_clients_userId[socket] , textMessage);
-     if(m_userIds_client.contains(id)){
-        QTcpSocket *socketClient = m_userIds_client[id];
-        if(socketClient)
-            socketClient->write(packet);
-     }else store_forwardContents(packet,id);
-        qDebug() << "private image from " << m_clients_name[socket];
+    sendData(id,packet);
 }
 
 void Server::privateImage(QTcpSocket *socket,QString id)
 {
     // 转发图片数据给其他用户
-    QByteArray packet1 = getPacket(m_clients_userId[socket] , dataBuffer);
-    QByteArray packet2;
-    QDataStream out2(&packet2, QIODevice::WriteOnly);
-    out2.setVersion(QDataStream::Qt_5_15);
-    out2 << IMAGE << static_cast<qint32>(packet1.size());
-    out2.writeRawData(packet1.constData(), packet1.size());
-
-    //判断是否在线，不在线就先存起来
-    if(m_userIds_client.contains(id)){
-        QTcpSocket *socketClient = m_userIds_client[id];
-        if(socketClient)
-            socketClient->write(packet2);
-    }else store_forwardContents(packet2,id);
-
-    qDebug() << "private image from " << m_clients_name[socket] << ": " << packet2.size();
+    QByteArray packet1 = getPacket(IMAGE,m_clients_userId[socket] , dataBuffer);
+    sendData(id,packet1);
 }
 
 void Server::receiveImage(QDataStream &in,QTcpSocket *senderSocket)
@@ -158,50 +192,7 @@ void Server::receiveImage(QDataStream &in,QTcpSocket *senderSocket)
     }
 }
 
-void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
-{
-    QString username, password;
-    in >> username >> password;
-    bool success = loginUser(senderSocket,username, password);
 
-    QByteArray avatar = dataBase->getAvatar(m_clients_userId[senderSocket]);
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15);
-    out << (success ? LOGIN_SUCCESS : LOGIN_FAILED);
-    qDebug()<<"用户登录"<<avatar.size();
-    if(success){
-        //todo 没有返回登录结果就转发用户表会崩溃
-        //发送头像
-        out<<static_cast<qint32>(avatar.size());
-        if(avatar.size())
-            out.writeRawData(avatar.constData(),avatar.size());
-    }
-
-    senderSocket->write(packet);
-    if(success){
-        //向登录用户发送他的最新好友列表
-        updateFriendsList(m_clients_userId[senderSocket]);
-
-        // 更新并广播在线用户列表
-        broadcast_userOnlineList();
-
-        //判断是否有待转发的消息
-        if(m_forward_contents.contains(m_clients_userId[senderSocket]))
-            send_forwardContents(m_clients_userId[senderSocket]);
-    }
-
-}
-
-void Server::handleRegist(QDataStream &in, QTcpSocket *senderSocket)
-{
-    QString username, password;
-    in >> username >> password;
-    bool success = dataBase->registerUser(username, password);
-    QByteArray packet = getPacket(success ? REGISTER_SUCCESS : REGISTER_FAILED);
-    qDebug()<<"用户注册";
-    senderSocket->write(packet);
-}
 
 void Server::handleAddFriend(QDataStream &in, QTcpSocket *senderSocket)
 {
@@ -215,13 +206,7 @@ void Server::handleAddFriend(QDataStream &in, QTcpSocket *senderSocket)
         //还需要判断对方是否在线
         m_alreadyApply.insert(qMakePair(m_clients_userId[senderSocket],id));
         QByteArray packet= getPacket(ADD_FRIEND,m_clients_name[senderSocket],m_clients_userId[senderSocket]);
-        if(confirm_isOnline(id)){
-            m_userIds_client[id]->write(packet);
-        }else{
-            //存起来等用户上线再转发
-            store_forwardContents(packet,id);
-        }
-
+        sendData(id,packet);
     }
 
 }
@@ -232,9 +217,7 @@ void Server::handleAddFriend_Result(QDataStream &in, QTcpSocket *senderSocket)
     in>>id;
     QByteArray packet = getPacket(messageType,m_clients_name[senderSocket],id);
     //todo 转发和存储的判断可以封装一下
-    if(m_userIds_client.contains(id))
-        m_userIds_client[id]->write(packet);
-    else store_forwardContents(packet,id);
+    sendData(id,packet);
     dataBase->addFriends(m_clients_userId[senderSocket],id);
     dataBase->addFriends(id,m_clients_userId[senderSocket]);
     updateFriendsList(m_clients_userId[senderSocket]);//更新同意者的好友列表
@@ -258,15 +241,8 @@ void Server::updateFriendsList(const QString &userId)
 {
     QMap<QString,QString> id_name = dataBase->selectFriendsId_name(userId);
     QMap<QString,QByteArray> id_avatar = dataBase->getFriendsAvatar(userId);
-    QByteArray packet1 = getPacket(id_name,id_avatar);
-    QByteArray packet2;
-    QDataStream out2(&packet2, QIODevice::WriteOnly);
-    out2.setVersion(QDataStream::Qt_5_15);
-    out2 << USER_LIST << static_cast<qint32>(packet1.size());
-    out2.writeRawData(packet1.constData(), packet1.size());
-    if(m_userIds_client.contains(userId))
-        m_userIds_client[userId]->write(packet2);
-    else store_forwardContents(packet2,userId);
+    QByteArray packet1 = getPacket(USER_LIST,id_name,id_avatar);
+    sendData(userId,packet1);
 }
 
 void Server::handle_slelectByName(QDataStream &in, QTcpSocket *senderSocket)
@@ -277,7 +253,22 @@ void Server::handle_slelectByName(QDataStream &in, QTcpSocket *senderSocket)
     if(id_name.contains(m_clients_userId[senderSocket]))
         id_name.remove(m_clients_userId[senderSocket]);
     QByteArray result = getPacket(NEW_FRIEND_REULT,id_name);
-    senderSocket->write(result);
+    // senderSocket->write(result);
+    sendData(m_clients_userId[senderSocket],result);
+}
+
+void Server::sendData(const QString &targetId, QByteArray &packet)
+{
+    QByteArray outData;
+    QDataStream out(&outData,QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out<<static_cast<qint32>(packet.size());
+    out.writeRawData(packet.constData(),packet.size());
+    if(m_userIds_client.contains(targetId)){
+        // qDebug()<<"向 "+targetId+" 发送数据";
+        m_userIds_client[targetId]->write(outData);
+    }
+    else store_forwardContents(outData,targetId);
 }
 
 void Server::store_forwardContents(const QByteArray &content,const QString &userId)
@@ -295,9 +286,10 @@ void Server::broadcast_userOnlineList() {
     for (auto it = m_userIds_client.begin(); it != m_userIds_client.end(); ++it) {
         userId.insert(it.key());
     }
-    QByteArray packet = getPacket(ONLINE_LIST , userId);
-    for (auto it = m_clients_name.begin(); it != m_clients_name.end(); ++it) {
-        (it.key())->write(packet);
+    QByteArray packet = getPacket(ONLINE_LIST,userId);
+    for (auto it = m_userIds_client.begin(); it != m_userIds_client.end(); ++it) {
+        qDebug()<<"更新"+it.key()+"的在线列表";
+        sendData(it.key(),packet);
     }
 
     qDebug() << "Broadcasted user list.";
