@@ -12,42 +12,42 @@ QT += sql
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    Utils/datatransfer.cpp \
-    addfriends.cpp \
-    applydelegate.cpp \
-    friendsdelegate.cpp \
-    friendsmodel.cpp \
-    imageviewer.cpp \
-    login.cpp \
+    Core/datatransfer.cpp \
+    View\addfriends.cpp \
+    Delegate\applydelegate.cpp \
+    Delegate\friendsdelegate.cpp \
+    Model\friendsmodel.cpp \
+    View\imageviewer.cpp \
+    View\login.cpp \
     main.cpp \
     mainwindow.cpp \
-    messagedelegate.cpp \
-    messagelistview.cpp \
-    messagemodel.cpp \
-    regist.cpp \
-    strangerdelegate.cpp
+    Delegate\messagedelegate.cpp \
+    View\messagelistview.cpp \
+    Model\messagemodel.cpp \
+    View\regist.cpp \
+    Delegate\strangerdelegate.cpp
 
 HEADERS += \
     CommonEnum.h \
-    Utils/datatransfer.h \
-    addfriends.h \
-    applydelegate.h \
-    friendsdelegate.h \
-    friendsmodel.h \
-    imageviewer.h \
-    login.h \
+    Core/datatransfer.h \
+    View\addfriends.h \
+    Delegate\applydelegate.h \
+    Delegate\friendsdelegate.h \
+    Model\friendsmodel.h \
+    View\imageviewer.h \
+    View\login.h \
     mainwindow.h \
-    messagedelegate.h \
-    messagelistview.h \
-    messagemodel.h \
-    regist.h \
-    strangerdelegate.h
+    Delegate\messagedelegate.h \
+    View\messagelistview.h \
+    Model\messagemodel.h \
+    View\regist.h \
+    Delegate\strangerdelegate.h
 
 FORMS += \
-    addfriends.ui \
-    login.ui \
+    View\addfriends.ui \
+    View\login.ui \
     mainwindow.ui \
-    regist.ui
+    View\regist.ui
 QMAKE_CXXFLAGS += -static-libgcc
 QMAKE_CXXFLAGS += -static-libstdc++
 

@@ -6,12 +6,9 @@
 #include <QMap>
 #include <QSet>
 #include <QUuid>
+#include <Core/datatransfer.h>
 #include "database.h"
 
-enum ReceivingState {
-    WaitingForHeader, // 等待接收数据头
-    ReceivingData     // 接收数据中
-};
 enum message_type{
     IMAGE,
     LOGIN,
@@ -61,19 +58,9 @@ private:
 
     message_type messageType;
 
-    ReceivingState currentReceivingState = WaitingForHeader; // 当前状态初始化为等待数据头
+    void privateMessage(QDataStream &in,QTcpSocket *senderSocket);//转发私聊信息
+    void privateImage(QDataStream &in,QTcpSocket *senderSocket);//转发私聊图片
 
-
-    // QString messageType;
-    qint32 currentDataLength = 0;    // 数据长度
-    qint32 receivedBytes = 0;        // 已接收字节数
-    QByteArray dataBuffer;           // 用于暂存接收到的数据
-    void resetState();
-
-    void privateMessage(QTcpSocket *socket, QDataStream &stream);//转发私聊信息
-    void privateImage(QTcpSocket *socket, QString id);//转发私聊图片
-
-    void receiveImage(QDataStream &in,QTcpSocket *senderSocket);//接受图片
     void handleLogin(QDataStream &in,QTcpSocket *senderSocket);//处理登录请求
     void handleRegist(QDataStream &in,QTcpSocket *senderSocket);//处理注册请求
 
@@ -91,6 +78,10 @@ private:
     template <typename... Args>
     QByteArray getPacket(Args... args);
     void sendData(const QString &targetId,QByteArray &packet);
+    void sendData(QTcpSocket *senderSocket,QByteArray &packet);
+
+    DataTransfer *m_dataTransfer;
+    void handleData(QByteArray data,QTcpSocket *senderSocket);
 };
 
 #endif // SERVER_H

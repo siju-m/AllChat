@@ -4,8 +4,12 @@
 #include <QFile>
 
 Server::Server(QObject *parent)
-    : QTcpServer(parent) ,dataBase(new DataBase(this)){
+    : QTcpServer(parent) ,dataBase(new DataBase(this)),
+    m_dataTransfer(new DataTransfer(this))
+{
     dataBase->initDatabase();
+
+    connect(m_dataTransfer,&DataTransfer::handleData,this,&Server::handleData);
     // QFile file("D:/msiju/Downloads/1.jpg");
     // if (!file.open(QIODevice::ReadOnly)) {
     //     qDebug() << "Failed to open file" ;
@@ -20,50 +24,41 @@ Server::Server(QObject *parent)
 bool Server::loginUser(QTcpSocket *socket,const QString &username, const QString &password) {
     QString userId = dataBase->loginUser(username,password);
 
-    if(!userId.isNull()){
+    if(!userId.isEmpty() && !m_userIds_client.contains(userId)){
         m_clients_name[socket] = username;
         m_userIds_client[userId] = socket;
         m_clients_userId[socket] = userId;
         qDebug() << "User logged in: " << username << " with ID: " << userId;
+        return true;
     }
-    return !userId.isNull();
+    return false;
 }
 
 void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
 {
+
     QString username, password;
     in >> username >> password;
     bool success = loginUser(senderSocket,username, password);
+    qDebug()<<"用户登录"<<username<<success;
+    if(!success){//避免重复登录
+        QByteArray packet = getPacket(LOGIN_FAILED);
+        sendData(senderSocket,packet);
+        return;
+    }
 
     QByteArray avatar = dataBase->getAvatar(m_clients_userId[senderSocket]);
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15);
-    out << (success ? LOGIN_SUCCESS : LOGIN_FAILED);
-    qDebug()<<"用户登录"<<avatar.size();
-    if(success){
-        //发送头像
-            // out.writeRawData(avatar.constData(),avatar.size());
-        out<<avatar;
-    }
-    QByteArray outData;
-    QDataStream out1(&outData,QIODevice::WriteOnly);
-    out1.setVersion(QDataStream::Qt_5_15);
-    out1<<static_cast<qint32>(packet.size());
-    out1.writeRawData(packet.constData(),packet.size());
-    senderSocket->write(outData);
-    if(success){
-        //向登录用户发送他的最新好友列表
-        updateFriendsList(m_clients_userId[senderSocket]);
+    QByteArray packet = getPacket(LOGIN_SUCCESS,avatar);
+    sendData(m_clients_userId[senderSocket],packet);
+    //向登录用户发送他的最新好友列表
+    updateFriendsList(m_clients_userId[senderSocket]);
 
-        // 更新并广播在线用户列表
-        broadcast_userOnlineList();
+    // 更新并广播在线用户列表
+    broadcast_userOnlineList();
 
-        //判断是否有待转发的消息
-        if(m_forward_contents.contains(m_clients_userId[senderSocket]))
-            send_forwardContents(m_clients_userId[senderSocket]);
-    }
-
+    //判断是否有待转发的消息
+    if(m_forward_contents.contains(m_clients_userId[senderSocket]))
+        send_forwardContents(m_clients_userId[senderSocket]);
 }
 
 void Server::handleRegist(QDataStream &in, QTcpSocket *senderSocket)
@@ -73,14 +68,7 @@ void Server::handleRegist(QDataStream &in, QTcpSocket *senderSocket)
     bool success = dataBase->registerUser(username, password);
     QByteArray packet = getPacket(success ? REGISTER_SUCCESS : REGISTER_FAILED);
     qDebug()<<"用户注册";
-    //todo 后面看能不能封装
-    QByteArray outData;
-    QDataStream out(&outData,QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15);
-    out<<static_cast<qint32>(packet.size());
-    out.writeRawData(packet.constData(),packet.size());
-    senderSocket->write(outData);
-    // senderSocket->write(packet);
+    sendData(senderSocket,packet);
 }
 
 
@@ -90,7 +78,7 @@ void Server::incomingConnection(qintptr socketDescriptor) {
         connect(clientSocket, &QTcpSocket::readyRead, this, &Server::onReadyRead);
         connect(clientSocket, &QTcpSocket::disconnected, this, &Server::onClientDisconnected);
 
-        m_clients_name[clientSocket]="";
+        // m_clients_name[clientSocket]="";
         qDebug() << "新连接成功建立.";
     } else {
         delete clientSocket;
@@ -101,95 +89,60 @@ void Server::incomingConnection(qintptr socketDescriptor) {
 void Server::onReadyRead() {
     auto *senderSocket = qobject_cast<QTcpSocket *>(sender());
     if (!senderSocket) return;
+    m_dataTransfer->receiveData(senderSocket);
+}
 
 
-    QDataStream in(senderSocket);
+void Server::handleData(QByteArray data,QTcpSocket *senderSocket)
+{
+    QDataStream in(data);
     in.setVersion(QDataStream::Qt_5_15);
 
-    while (!in.atEnd()) {
-        if(currentReceivingState == WaitingForHeader)
-            in >> messageType;
-        switch(messageType){
-        case message_type::IMAGE:{
-            receiveImage(in,senderSocket);
-        }break;
-        case message_type::LOGIN:{
-            handleLogin(in,senderSocket);
-        }break;
-        case message_type::REGISTER:{
-            handleRegist(in,senderSocket);
-        }break;
-        case message_type::CHAT:{
-            privateMessage(senderSocket,in);
-        }break;
-        case message_type::ADD_FRIEND:{
-            handleAddFriend(in,senderSocket);
-        }break;
-        case message_type::AGREE_FRIEND:{
-            handleAddFriend_Result(in,senderSocket);
-        }break;
-        case message_type::FIND_NEW_FRIEND:{
-            handle_slelectByName(in,senderSocket);
-        }break;
-            default :  qDebug() << "Unknown message type received!";break;
-        }
+    in >> messageType;
+    switch(messageType){
+    case message_type::IMAGE:{
+        privateImage(in,senderSocket);
+    }break;
+    case message_type::LOGIN:{
+        handleLogin(in,senderSocket);
+    }break;
+    case message_type::REGISTER:{
+        handleRegist(in,senderSocket);
+    }break;
+    case message_type::CHAT:{
+        privateMessage(in,senderSocket);
+    }break;
+    case message_type::ADD_FRIEND:{
+        handleAddFriend(in,senderSocket);
+    }break;
+    case message_type::AGREE_FRIEND:{
+        handleAddFriend_Result(in,senderSocket);
+    }break;
+    case message_type::FIND_NEW_FRIEND:{
+        handle_slelectByName(in,senderSocket);
+    }break;
+    default :  qDebug() << "接收到未知消息类型!";break;
     }
 }
-void Server::resetState() {
-    currentReceivingState = WaitingForHeader;
-    currentDataLength = 0;
-    receivedBytes = 0;
-    dataBuffer.clear();
-}
 
-void Server::privateMessage(QTcpSocket *socket, QDataStream &stream){
+void Server::privateMessage(QDataStream &in,QTcpSocket *senderSocket){
 
     QString textMessage,id;
-    stream>>id>>textMessage;
-    QByteArray packet = getPacket(CHAT , m_clients_userId[socket] , textMessage);
+    in>>id>>textMessage;
+    QByteArray packet = getPacket(CHAT , m_clients_userId[senderSocket] , textMessage);
     sendData(id,packet);
 }
 
-void Server::privateImage(QTcpSocket *socket,QString id)
-{
-    // 转发图片数据给其他用户
-    QByteArray packet1 = getPacket(IMAGE,m_clients_userId[socket] , dataBuffer);
-    sendData(id,packet1);
-}
 
-void Server::receiveImage(QDataStream &in,QTcpSocket *senderSocket)
+void Server::privateImage(QDataStream &in,QTcpSocket *senderSocket)
 {
-    if (currentReceivingState == WaitingForHeader) {
-        if (senderSocket->bytesAvailable() < static_cast<qint64>(sizeof(qint32) * 2)) return; // 数据不足，等待下次读取
-        in >> currentDataLength;
-        qDebug()<<messageType << currentDataLength;
-        if (currentDataLength <= 0 || currentDataLength > 10 * 1024 * 1024) {
-            qWarning() << "Invalid data length:" << currentDataLength;
-            resetState();
-            return;
-        }
-        dataBuffer.clear();
-        dataBuffer.reserve(currentDataLength);
-        currentReceivingState = ReceivingData;
-    }
-    if (currentReceivingState == ReceivingData) {
-        int bytesToRead = qMin(senderSocket->bytesAvailable(), currentDataLength - receivedBytes);
-        QByteArray chunk = senderSocket->read(bytesToRead);
-        dataBuffer.append(chunk);
-        receivedBytes += chunk.size();
-        if (receivedBytes == currentDataLength) {
-            QDataStream stream(dataBuffer);
-            QByteArray imageData;
-            QString id;
-            qDebug()<<"处理接收图片"<<id;
-            stream >> id>> imageData;
-            dataBuffer = imageData;
-            qDebug()<<"messageType:"<<messageType;
-            qDebug()<<"dataBuffer.size():"<<dataBuffer.size();
-            privateImage(senderSocket,id);
-            resetState();
-        }
-    }
+    QByteArray imageData;
+    QString id;
+    qDebug()<<"处理接收图片"<<id;
+    in >> id>> imageData;
+    qDebug()<<"dataBuffer.size():"<<imageData.size();
+    QByteArray packet1 = getPacket(IMAGE,m_clients_userId[senderSocket] , imageData);
+    sendData(id,packet1);
 }
 
 
@@ -270,6 +223,17 @@ void Server::sendData(const QString &targetId, QByteArray &packet)
     }
     else store_forwardContents(outData,targetId);
 }
+
+void Server::sendData(QTcpSocket *senderSocket, QByteArray &packet)
+{
+    QByteArray outData;
+    QDataStream out(&outData,QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out<<static_cast<qint32>(packet.size());
+    out.writeRawData(packet.constData(),packet.size());
+    senderSocket->write(outData);
+}
+
 
 void Server::store_forwardContents(const QByteArray &content,const QString &userId)
 {

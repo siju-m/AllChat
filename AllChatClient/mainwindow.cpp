@@ -10,12 +10,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui(new Ui::MainWindow),
     socket(new QTcpSocket(this)),
     m_avatarPath(""),
+    sideBar_btnGroup(new QButtonGroup(this)),
     m_dataTransfer(new DataTransfer(this))
 {
 
     ui->setupUi(this);
     setWindowTitle("AllChat");
-
+    ui->stackedList->setCurrentIndex(0);//默认显示聊天列表
     // 绑定按钮槽函数
     connect(ui->btnSend, &QPushButton::clicked, this, &MainWindow::onSendClicked);
     connect(ui->btnImage, &QPushButton::clicked, this, &MainWindow::sendImage);
@@ -27,27 +28,18 @@ MainWindow::MainWindow(QWidget *parent)
     initFriendsList();
 
     //添加好友
+    initAddFriends();
+    initSideBar();
 
-    connect(ui->addFriends,&QPushButton::clicked,this,[=](){
-        add_friends.exec();
-    });
-    connect(&add_friends,&AddFriends::send_slelectByName,this,&MainWindow::send_slelectByName);
-    connect(&add_friends,&AddFriends::sendData,this,[=](const QString &id){
-        this->sendData(CommonEnum::ADD_FRIEND,id);
-    });
-
-    connect(ui->messageGroup,&QAction::triggered,this,[=](){
-        ui->stackedList->setCurrentIndex(0);
-        qDebug()<<ui->stackedList->currentIndex();
-    });
-    connect(ui->friendsGroup,&QAction::triggered,this,[=](){
-        ui->stackedList->setCurrentIndex(1);
-        qDebug()<<ui->stackedList->currentIndex();
-    });
-    ui->stackedList->setCurrentIndex(0);//默认显示聊天列表
     initFriendApplyList();
 }
 
+MainWindow::~MainWindow() {
+    delete ui;
+    delete socket;
+}
+
+//todo 封装到messageListView里面
 void MainWindow::initMessageList()
 {
     message_model = new MessageModel(this);
@@ -97,13 +89,38 @@ void MainWindow::initFriendsList()
     });
 }
 
+void MainWindow::initAddFriends()
+{
+    connect(ui->addFriends,&QPushButton::clicked,this,[=](){
+        add_friends.exec();
+    });
+    connect(&add_friends,&AddFriends::send_slelectByName,this,&MainWindow::send_slelectByName);
+    connect(&add_friends,&AddFriends::sendData,this,[=](const QString &id){
+        // this->sendData(CommonEnum::ADD_FRIEND,id);
+        QByteArray data = getPacket(CommonEnum::ADD_FRIEND,id);
+        sendData(data);
+    });
+}
+
+void MainWindow::initSideBar()
+{
+    sideBar_btnGroup->addButton(ui->switchMessageList,0);
+    sideBar_btnGroup->addButton(ui->switchaddList,1);
+    sideBar_btnGroup->addButton(ui->switchFriendsList,2);
+    connect(sideBar_btnGroup,&QButtonGroup::buttonClicked,this,[=](QAbstractButton *button){
+        int index = sideBar_btnGroup->id(button);
+        ui->stackedList->setCurrentIndex(index);
+    });
+
+    sideBar_btnGroup->button(0)->setChecked(true);
+}
+
 void MainWindow::initFriendApplyList()
 {
     friendsApply_model = new FriendsModel(this);
     friendsApply_delegate = new ApplyDelegate(this);
     ui->friendApplyList->setModel(friendsApply_model);
     ui->friendApplyList->setItemDelegate(friendsApply_delegate);
-    // friendsApply_model->addFriends_ToList("1","1","1");
 
     connect(friendsApply_delegate,&ApplyDelegate::applyResult,this,[=](const QString &id,const int &row){
         send_addFriend_result(id);
@@ -136,7 +153,9 @@ void MainWindow::handle_addFriend(QDataStream &in)
 
 void MainWindow::send_addFriend_result(QString id)
 {
-    sendData(CommonEnum::AGREE_FRIEND,id);
+    // sendData(CommonEnum::AGREE_FRIEND,id);
+    QByteArray data = getPacket(CommonEnum::AGREE_FRIEND,id);
+    sendData(data);
 }
 
 void MainWindow::handle_addFriend_result(QDataStream &in)
@@ -146,12 +165,6 @@ void MainWindow::handle_addFriend_result(QDataStream &in)
     //todo 提醒已经同意添加
     // friends_model->addFriends_ToList(senderName,senderId,"未实现");
     // userList[senderId] = senderName;
-}
-
-
-MainWindow::~MainWindow() {
-    delete ui;
-    delete socket;
 }
 
 void MainWindow::ConnectServer() {
@@ -171,22 +184,29 @@ void MainWindow::ConnectServer() {
 
 void MainWindow::registerUser(const QString &username, const QString &password) {
     if (username.isEmpty() || password.isEmpty()) return;
-    sendData(CommonEnum::message_type::REGISTER,username,password);
+    // sendData(CommonEnum::message_type::REGISTER,username,password);
+    QByteArray data = getPacket(CommonEnum::message_type::REGISTER,username,password);
+    sendData(data);
 }
 
 void MainWindow::loginUser(const QString &username, const QString &password) {
     this->m_userName = username;
     ui->statusBar->showMessage("服务器IP：127.0.0.1 服务器端口：12345 用户名："+m_userName);
 
-    sendData(CommonEnum::message_type::LOGIN,username,password);
+    // sendData(CommonEnum::message_type::LOGIN,username,password);
+    QByteArray data = getPacket(CommonEnum::message_type::LOGIN,username,password);
+    sendData(data);
     qDebug()<<"登录";
 
 }
 
 void MainWindow::send_slelectByName(const QString &username)
 {
-    if(!username.isEmpty())
-        sendData(CommonEnum::FIND_NEW_FRIEND,username);
+    if(!username.isEmpty()){
+        // sendData(CommonEnum::FIND_NEW_FRIEND,username);
+        QByteArray data = getPacket(CommonEnum::FIND_NEW_FRIEND,username);
+        sendData(data);
+    }
 }
 
 
@@ -200,22 +220,21 @@ void MainWindow::handleData(QByteArray data)
     switch(messageType){
     case CommonEnum::IMAGE:{
         //接收图片
-        qDebug()<<"IMAGE";
+        // qDebug()<<"IMAGE";
         receiveImage(in);
     }break;
     case CommonEnum::USER_LIST:{
-        qDebug()<<"USER_LIST";
+        // qDebug()<<"USER_LIST";
         handle_userList(in);
     }break;
     case CommonEnum::CHAT:{
-        qDebug()<<"CHAT";
+        // qDebug()<<"CHAT";
         handle_message(in);
     }break;
     case CommonEnum::LOGIN_SUCCESS:
     case CommonEnum::LOGIN_FAILED:{
         emit loginResult(messageType);
         if(messageType == CommonEnum::LOGIN_SUCCESS){
-            qDebug()<<"LOGIN_SUCCESS";
             handle_userAvatar(in);
         }
     }break;
@@ -224,19 +243,19 @@ void MainWindow::handleData(QByteArray data)
         emit registResult(messageType);
     }break;
     case CommonEnum::ADD_FRIEND:{
-        qDebug()<<"ADD_FRIEND";
+        // qDebug()<<"ADD_FRIEND";
         handle_addFriend(in);
     }break;
     case CommonEnum::AGREE_FRIEND:{
-        qDebug()<<"AGREE_FRIEND";
+        // qDebug()<<"AGREE_FRIEND";
         handle_addFriend_result(in);
     }break;
     case CommonEnum::NEW_FRIEND_REULT:{
-        qDebug()<<"NEW_FRIEND_REULT";
+        // qDebug()<<"NEW_FRIEND_REULT";
         handle_selectByName_reuslt(in);
     }break;
     case CommonEnum::ONLINE_LIST:{
-        qDebug()<<"ONLINE_LIST";
+        // qDebug()<<"ONLINE_LIST";
         handle_onlineFriendsList(in);
     }break;
     default:qDebug() << "未知消息类型!";break;
@@ -244,97 +263,8 @@ void MainWindow::handleData(QByteArray data)
 }
 
 void MainWindow::onReadyRead() {
-    // QByteArray inData = m_dataTransfer->receiveData(socket);
-    // qDebug()<<"inData:"<<inData.size();
-    // if(!inData.size()) return;
     m_dataTransfer->receiveData(socket);
-
-
-    // QDataStream in(socket);
-    // in.setVersion(QDataStream::Qt_5_15);
-
-    // while (!in.atEnd()) {
-    //     if(currentReceivingState == WaitingForHeader)
-    //         in >> messageType;
-    //     // qDebug()<<messageType;
-    //     switch(messageType){
-    //     case CommonEnum::IMAGE:{
-    //         //接收图片
-    //         receiveImage(in);
-    //     }break;
-    //     case CommonEnum::USER_LIST:{
-    //         handle_userList(in);
-    //     }break;
-    //     case CommonEnum::CHAT:{
-    //         handle_message(in);
-    //     }break;
-    //     case CommonEnum::LOGIN_SUCCESS:
-    //     case CommonEnum::LOGIN_FAILED:{
-    //         if(currentReceivingState == WaitingForHeader)
-    //             emit loginResult(messageType);
-    //         if(messageType == CommonEnum::LOGIN_SUCCESS){
-    //             handle_userAvatar(in);
-    //         }
-    //     }break;
-    //     case CommonEnum::REGISTER_SUCCESS:
-    //     case CommonEnum::REGISTER_FAILED:{
-    //         emit registResult(messageType);
-    //     }break;
-    //     case CommonEnum::ADD_FRIEND:{
-    //         handle_addFriend(in);
-    //     }break;
-    //     case CommonEnum::AGREE_FRIEND:{
-    //         handle_addFriend_result(in);
-    //     }break;
-    //     case CommonEnum::NEW_FRIEND_REULT:{
-    //         handle_selectByName_reuslt(in);
-    //     }break;
-    //     case CommonEnum::ONLINE_LIST:{
-    //         handle_onlineFriendsList(in);
-    //     }break;
-    //     default:qDebug() << "未知消息类型!";break;
-    //     }
-
-    // }
 }
-
-// void MainWindow::receiveImage(QDataStream &in)
-// {
-//     //处理图片接收
-//     if (currentReceivingState == WaitingForHeader) {
-//         if (socket->bytesAvailable() < static_cast<qint64>(sizeof(qint32) * 2)) return; // 数据不足，等待下次读取
-//         in >> currentDataLength;
-//         // qDebug()<<messageType << currentDataLength;
-//         if (currentDataLength <= 0 || currentDataLength > 10 * 1024 * 1024) {
-//             qWarning() << "Invalid data length:" << currentDataLength;
-//             resetState();
-//             return;
-//         }
-//         dataBuffer.clear();
-//         dataBuffer.reserve(currentDataLength);
-//         currentReceivingState = ReceivingData;
-//     }
-//     if (currentReceivingState == ReceivingData) {
-//         int bytesToRead = qMin(socket->bytesAvailable(), currentDataLength - receivedBytes);
-//         QByteArray chunk = socket->read(bytesToRead);
-//         dataBuffer.append(chunk);
-//         receivedBytes += chunk.size();
-//         if (receivedBytes == currentDataLength) {
-//             // qDebug()<<messageType;
-//             // qDebug()<<dataBuffer.size();
-//             QDataStream stream(dataBuffer);
-//             QByteArray imageData;
-//             QString id;
-//             stream >> id>> imageData;
-//             // qDebug()<<"来自："<<id<<imageData.size();
-
-//             QString imagePath = storeImageToFile(id,m_userList[id].userName,imageData);
-//             if(ui->friendsList->currentIndex().data(FriendsModel::IdRole).toString()==id)
-//                 addImage_toList(imagePath,false,m_userList[id].userName,m_userList[id].avatarPath);
-//             resetState();
-//         }
-//     }
-// }
 
 void MainWindow::receiveImage(QDataStream &in)
 {
@@ -438,7 +368,7 @@ QString MainWindow::getLastMessage(const QString &targetId)
     filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_userName);
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "没有聊天记录";
+        // qDebug() << "没有聊天记录";
         return "";
     }
     QString lastLine;
@@ -452,7 +382,13 @@ QString MainWindow::getLastMessage(const QString &targetId)
     QJsonObject obj = format["data"].toObject();
     // 此时 lastLine 就是文件的最后一行文本
     // qDebug() << "最后一行:" << lastLine;
-    return obj["message"].toString();
+    QString lastMessage;
+    if(format["kinds"].toString()=="text"){
+        lastMessage = obj["message"].toString();
+    }else if(format["kinds"].toString()=="image"){
+        lastMessage = "图片";
+    }
+    return lastMessage;
 }
 
 void MainWindow::loadChatHistoryFromFile(QString targetId) {
@@ -508,8 +444,13 @@ void MainWindow::addImage_toList(const QString &imagePath,const bool &isOutgoing
     ui->messageList->scrollToBottom(); // 自动滚动到底部
 }
 
-
-
+void MainWindow::handle_userList(QDataStream &in)
+{
+    QMap<QString,QString> id_name ;
+    QMap<QString,QByteArray> id_avatar;
+    in>>id_name>>id_avatar;
+    updateUserList(id_name,id_avatar);
+}
 
 void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const QMap<QString,QByteArray> &new_idAvatar) {
 
@@ -542,8 +483,11 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
     for (const QString &userId : usersToAdd) {
         m_userList[userId].userName = newUserList[userId];
         QString lastMessage = getLastMessage(userId);
-        friends_model->addFriends_ToList(newUserList[userId],userId,lastMessage,new_idAvatar[userId].size()?storeImage(newUserList[userId],new_idAvatar[userId]):"");
-        qDebug()<<"添加了"<<userId;
+        QString avatarPath = new_idAvatar[userId].size()?storeImage(newUserList[userId],new_idAvatar[userId]):"";
+        friends_model->addFriends_ToList(newUserList[userId],
+                                         userId,
+                                         lastMessage,
+                                         avatarPath);
     }
 
     const auto &keys = m_userList.keys();
@@ -562,80 +506,32 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
 
 }
 
-void MainWindow::handle_userList(QDataStream &in)
-{
-    QMap<QString,QString> id_name ;
-    QMap<QString,QByteArray> id_avatar;
-    in>>id_name>>id_avatar;
-    updateUserList(id_name,id_avatar);
-}
-
 void MainWindow::handle_onlineFriendsList(QDataStream &in)
 {
     QSet<QString> onlineList;
     in>>onlineList;
-    const auto userIdList = m_userList.keys();
-    for(auto &it :userIdList){
-        m_userList[it].state=onlineList.contains(it);
-    }
-    //更新当前聊天对象的在线状态
-    QModelIndex index = ui->friendsList->currentIndex();
-    QString id = index.data(FriendsModel::IdRole).toString();
-    ui->friendState->setText(m_userList[id].state?"在线":"离线");
+        const auto userIdList = m_userList.keys();
+        for(auto &it :userIdList){
+            if(m_userList.contains(it))
+                m_userList[it].state=onlineList.contains(it);
+        }
+        //更新当前聊天对象的在线状态
+        QModelIndex index = ui->friendsList->currentIndex();
+        if(index.row()!=-1){
+            QString id = index.data(FriendsModel::IdRole).toString();
+            ui->friendState->setText(m_userList[id].state?"在线":"离线");
+        }
 }
 
-// void MainWindow::handle_userAvatar(QDataStream &in)
-// {
-//     if (currentReceivingState == WaitingForHeader) {
-//         if (socket->bytesAvailable() < static_cast<qint64>(sizeof(qint32) * 2)) return; // 数据不足，等待下次读取
-//         in >> currentDataLength;
-//         qDebug()<<messageType << currentDataLength;
-//         if (currentDataLength <= 0 || currentDataLength > 10 * 1024 * 1024) {
-//             qWarning() << "Invalid data length:" << currentDataLength;
-//             resetState();
-//             return;
-//         }
-//         dataBuffer.clear();
-//         dataBuffer.reserve(currentDataLength);
-//         currentReceivingState = ReceivingData;
-//     }
-//     if (currentReceivingState == ReceivingData) {
-//         int bytesToRead = qMin(socket->bytesAvailable(), currentDataLength - receivedBytes);
-//         QByteArray chunk = socket->read(bytesToRead);
-//         dataBuffer.append(chunk);
-//         receivedBytes += chunk.size();
-//         if (receivedBytes == currentDataLength) {
-//             QDataStream stream(dataBuffer);
-//             // QByteArray imageData;
-//             // stream >> imageData;
-
-//             qDebug()<<"存入头像"<<dataBuffer.size();
-//             QString avatarPath = storeImage(m_userName,dataBuffer);
-//             m_avatarPath = avatarPath;
-//             // m_avatar.loadFromData(imageData);
-//             // storeImageToFile("1","1",dataBuffer);
-//             resetState();
-//         }
-//     }
-// }
 void MainWindow::handle_userAvatar(QDataStream &in)
 {
     QByteArray imageData;
     in >> imageData;
     if(imageData.isEmpty()) return;
-    qDebug()<<"存入头像"<<imageData.size();
+    // qDebug()<<"存入头像"<<imageData.size();
     QString avatarPath = storeImage(m_userName,imageData);
     m_avatarPath = avatarPath;
 }
-
-
-// void MainWindow::resetState() {//重置连续传输的变量状态
-//     currentReceivingState = WaitingForHeader;
-//     // messageType = "";
-//     currentDataLength = 0;
-//     receivedBytes = 0;
-//     dataBuffer.clear();
-// }
 
 void MainWindow::onDisconnected() {//断开连接的槽函数
     qDebug()<<"和服务器断开连接";
@@ -650,11 +546,12 @@ void MainWindow::onSendClicked() {//发送按钮的槽函数
     }else return;
 
     if(m_userList[userId].userName != m_userName){
-        sendData(CommonEnum::message_type::CHAT,userId,ui->lineEditMessage->toPlainText());
+        // sendData(CommonEnum::message_type::CHAT,userId,ui->lineEditMessage->toPlainText());
+        QByteArray data = getPacket(CommonEnum::message_type::CHAT,userId,ui->lineEditMessage->toPlainText());
+        sendData(data);
     }
     QString textMessage = ui->lineEditMessage->toPlainText();
     addMessage_toList(textMessage,true,m_userName,m_avatarPath);
-    // storeMessage(userId,userName,ui->lineEditMessage->text());//保存聊天记录在内存中
     storeMessageToFile(userId,m_userName,textMessage);//保存聊天记录在硬盘中
     ui->lineEditMessage->clear(); // 清空输入框
 }
@@ -678,18 +575,8 @@ void MainWindow::sendImage() {//发送图片的槽函数
 
     if(m_userList[userId].userName != m_userName){
         // 数据包封装
-        QByteArray packet;
-        QDataStream stream(&packet, QIODevice::WriteOnly);
-        stream.setVersion(QDataStream::Qt_5_15);
-
-        // qDebug()<<imageData.size();
-        stream << userId<< imageData;
-        QByteArray packet1;
-        QDataStream out(&packet1, QIODevice::WriteOnly);
-        out.setVersion(QDataStream::Qt_5_15);
-        out<<CommonEnum::IMAGE<<static_cast<qint32>(packet.size());
-        out.writeRawData(packet.constData(), packet.size()); // 图片数据
-        socket->write(packet1);
+        QByteArray packet = getPacket(CommonEnum::IMAGE,userId, imageData);
+        sendData(packet);
     }
 
     addImage_toList(imagePath,true,m_userName,m_avatarPath);
@@ -698,7 +585,7 @@ void MainWindow::sendImage() {//发送图片的槽函数
 }
 
 template<typename... Args>
-void MainWindow::sendData(Args... args)
+QByteArray MainWindow::getPacket(Args... args)
 {
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
@@ -707,5 +594,15 @@ void MainWindow::sendData(Args... args)
     // 使用 C++17 折叠表达式，将所有参数依次写入 stream
     (out << ... << args);
 
-    socket->write(packet);
+    return packet;
+}
+
+void MainWindow::sendData(QByteArray &packet)
+{
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out<<static_cast<qint32>(packet.size());
+    out.writeRawData(packet.constData(),packet.size());
+    socket->write(data);
 }
