@@ -11,20 +11,20 @@
 #include <QStandardPaths>
 #include <QLabel>
 #include <QBuffer>
-#include "Model\messagemodel.h"
+#include "Model/messagemodel.h"
 #include <QTimer>
 #include <QScrollBar>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QButtonGroup>
-#include "Delegate\messagedelegate.h"
-#include "View\imageviewer.h"
-#include "CommonEnum.h"
-#include "Delegate\friendsdelegate.h"
-#include "Model\friendsmodel.h"
-#include "Delegate\applydelegate.h"
-#include "View\addfriends.h"
-#include "Core\datatransfer.h"
+#include "Delegate/messagedelegate.h"
+#include "Utils/CustomTypes.h"
+#include "Delegate/friendsdelegate.h"
+#include "Model/friendsmodel.h"
+#include "Delegate/applydelegate.h"
+#include "View/addfriends.h"
+#include "Core/datatransfer.h"
+#include <View/updateavatar.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -50,15 +50,19 @@ private slots:
 
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
     void handleData(QByteArray data);
+    void send_updateAvatar(const QString &path);
+    void setAvatar(const QString &path);
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;//可以换成QSslSocket来加密连接
 
     QString m_avatarPath;
     QString m_userName;
-    QButtonGroup *sideBar_btnGroup;//管理侧边栏按钮
+    QButtonGroup *m_sideBar_btnGroup;//管理侧边栏按钮
+    UpdateAvatar *m_updateAvatar;
 
     void initSideBar();
+    void showAvatar(const QString &path);//绘制侧边栏的头像
 
     DataTransfer *m_dataTransfer;
     CommonEnum::message_type messageType;

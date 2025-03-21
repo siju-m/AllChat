@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QMessageBox>
-#include "CommonEnum.h"
+#include "Utils/CustomTypes.h"
 
 namespace Ui {
 class Login;

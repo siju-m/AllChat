@@ -39,7 +39,7 @@ public:
     {
         if (Regist->objectName().isEmpty())
             Regist->setObjectName("Regist");
-        Regist->resize(194, 145);
+        Regist->resize(340, 274);
         verticalLayout = new QVBoxLayout(Regist);
         verticalLayout->setObjectName("verticalLayout");
         horizontalLayout = new QHBoxLayout();
@@ -98,6 +98,39 @@ public:
 
         btnRegist = new QPushButton(Regist);
         btnRegist->setObjectName("btnRegist");
+        btnRegist->setStyleSheet(QString::fromUtf8("/**\346\255\243\345\270\270\346\203\205\345\206\265\344\270\213\346\240\267\345\274\217**/\n"
+"QPushButton{\n"
+"	font: 10pt \"\345\276\256\350\275\257\351\233\205\351\273\221\";\n"
+"    color: white;\n"
+"    background-color: gray;\n"
+"    border-color: #2f3640;\n"
+"    border-radius: 5px;\n"
+"    border-style: none;\n"
+"    border-width: 1px;\n"
+"    padding: 5px;\n"
+"}\n"
+"\n"
+"/**\351\274\240\346\240\207\345\201\234\347\225\231\345\234\250\346\214\211\351\222\256\344\270\212\347\232\204\346\240\267\345\274\217**/\n"
+"QPushButton::hover{	\n"
+"    color: #FFFFFF;\n"
+"    background-color: #718093;\n"
+"    border-color: #2f3640;\n"
+"}\n"
+"\n"
+"/**\351\274\240\346\240\207\346\214\211\345\216\213\344\270\213\345\216\273\347\232\204\346\240\267\345\274\217**/\n"
+"QPushButton::pressed,QPushButton::checked{\n"
+"    color: #FFFFFF;\n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);\n"
+"}\n"
+"\n"
+"/**\346\214\211\351\222\256\345\244\261\350\203\275\346\203\205"
+                        "\345\206\265\344\270\213\346\240\267\345\274\217**/\n"
+"QPushButton::disabled{\n"
+"    color: #FFFFFF;\n"
+"    background-color: #dcdde1;\n"
+"    border-color: #dcdde1;\n"
+"}\n"
+""));
 
         verticalLayout->addWidget(btnRegist);
 

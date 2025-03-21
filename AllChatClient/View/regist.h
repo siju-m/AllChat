@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QMessageBox>
-#include "CommonEnum.h"
+#include "Utils/CustomTypes.h"
 
 namespace Ui {
 class Regist;

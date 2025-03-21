@@ -10,13 +10,13 @@ CONFIG += c++17
 
 SOURCES += \
     Core/datatransfer.cpp \
-    database.cpp \
+    Core/database.cpp \
     main.cpp \
     server.cpp
 
 HEADERS += \
     Core/datatransfer.h \
-    database.h \
+    Core/database.h \
     server.h
 
 FORMS +=

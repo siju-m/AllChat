@@ -41,15 +41,23 @@ static constexpr auto qt_meta_stringdata_CLASSServerENDCLASS = QtMocHelpers::str
     "Server",
     "onReadyRead",
     "",
+    "handleData",
+    "data",
+    "QTcpSocket*",
+    "senderSocket",
     "onClientDisconnected"
 );
 #else  // !QT_MOC_HAS_STRING_DATA
 struct qt_meta_stringdata_CLASSServerENDCLASS_t {
-    uint offsetsAndSizes[8];
+    uint offsetsAndSizes[16];
     char stringdata0[7];
     char stringdata1[12];
     char stringdata2[1];
-    char stringdata3[21];
+    char stringdata3[11];
+    char stringdata4[5];
+    char stringdata5[12];
+    char stringdata6[13];
+    char stringdata7[21];
 };
 #define QT_MOC_LITERAL(ofs, len) \
     uint(sizeof(qt_meta_stringdata_CLASSServerENDCLASS_t::offsetsAndSizes) + ofs), len 
@@ -58,11 +66,19 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSServerENDCLASS_t qt_meta_string
         QT_MOC_LITERAL(0, 6),  // "Server"
         QT_MOC_LITERAL(7, 11),  // "onReadyRead"
         QT_MOC_LITERAL(19, 0),  // ""
-        QT_MOC_LITERAL(20, 20)   // "onClientDisconnected"
+        QT_MOC_LITERAL(20, 10),  // "handleData"
+        QT_MOC_LITERAL(31, 4),  // "data"
+        QT_MOC_LITERAL(36, 11),  // "QTcpSocket*"
+        QT_MOC_LITERAL(48, 12),  // "senderSocket"
+        QT_MOC_LITERAL(61, 20)   // "onClientDisconnected"
     },
     "Server",
     "onReadyRead",
     "",
+    "handleData",
+    "data",
+    "QTcpSocket*",
+    "senderSocket",
     "onClientDisconnected"
 };
 #undef QT_MOC_LITERAL
@@ -75,7 +91,7 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSServerENDCLASS[] = {
       11,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -83,11 +99,13 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSServerENDCLASS[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   26,    2, 0x08,    1 /* Private */,
-       3,    0,   27,    2, 0x08,    2 /* Private */,
+       1,    0,   32,    2, 0x08,    1 /* Private */,
+       3,    2,   33,    2, 0x08,    2 /* Private */,
+       7,    0,   38,    2, 0x08,    5 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
+    QMetaType::Void, QMetaType::QByteArray, 0x80000000 | 5,    4,    6,
     QMetaType::Void,
 
        0        // eod
@@ -104,6 +122,10 @@ Q_CONSTINIT const QMetaObject Server::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<Server, std::true_type>,
         // method 'onReadyRead'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'handleData'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<QByteArray, std::false_type>,
+        QtPrivate::TypeAndForceComplete<QTcpSocket *, std::false_type>,
         // method 'onClientDisconnected'
         QtPrivate::TypeAndForceComplete<void, std::false_type>
     >,
@@ -117,11 +139,22 @@ void Server::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         (void)_t;
         switch (_id) {
         case 0: _t->onReadyRead(); break;
-        case 1: _t->onClientDisconnected(); break;
+        case 1: _t->handleData((*reinterpret_cast< std::add_pointer_t<QByteArray>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QTcpSocket*>>(_a[2]))); break;
+        case 2: _t->onClientDisconnected(); break;
         default: ;
         }
+    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        switch (_id) {
+        default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
+        case 1:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
+            case 1:
+                *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType::fromType< QTcpSocket* >(); break;
+            }
+            break;
+        }
     }
-    (void)_a;
 }
 
 const QMetaObject *Server::metaObject() const
@@ -143,13 +176,13 @@ int Server::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 3;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
-            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 2;
+        if (_id < 3)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 3;
     }
     return _id;
 }

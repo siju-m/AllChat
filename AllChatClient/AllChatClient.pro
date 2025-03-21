@@ -13,41 +13,46 @@ QT += sql
 
 SOURCES += \
     Core/datatransfer.cpp \
-    View\addfriends.cpp \
-    Delegate\applydelegate.cpp \
-    Delegate\friendsdelegate.cpp \
-    Model\friendsmodel.cpp \
-    View\imageviewer.cpp \
-    View\login.cpp \
+    View/onlinestatelabel.cpp \
+    View/updateavatar.cpp \
+    View/addfriends.cpp \
+    Delegate/applydelegate.cpp \
+    Delegate/friendsdelegate.cpp \
+    Model/friendsmodel.cpp \
+    View/imageviewer.cpp \
+    View/login.cpp \
     main.cpp \
     mainwindow.cpp \
     Delegate\messagedelegate.cpp \
-    View\messagelistview.cpp \
-    Model\messagemodel.cpp \
-    View\regist.cpp \
-    Delegate\strangerdelegate.cpp
+    View/messagelistview.cpp \
+    Model/messagemodel.cpp \
+    View/regist.cpp \
+    Delegate/strangerdelegate.cpp
 
 HEADERS += \
-    CommonEnum.h \
     Core/datatransfer.h \
-    View\addfriends.h \
-    Delegate\applydelegate.h \
-    Delegate\friendsdelegate.h \
-    Model\friendsmodel.h \
-    View\imageviewer.h \
-    View\login.h \
+    Utils/CustomTypes.h \
+    View/onlinestatelabel.h \
+    View/updateavatar.h \
+    View/addfriends.h \
+    Delegate/applydelegate.h \
+    Delegate/friendsdelegate.h \
+    Model/friendsmodel.h \
+    View/imageviewer.h \
+    View/login.h \
     mainwindow.h \
-    Delegate\messagedelegate.h \
-    View\messagelistview.h \
-    Model\messagemodel.h \
-    View\regist.h \
-    Delegate\strangerdelegate.h
+    Delegate/messagedelegate.h \
+    View/messagelistview.h \
+    Model/messagemodel.h \
+    View/regist.h \
+    Delegate/strangerdelegate.h
 
 FORMS += \
-    View\addfriends.ui \
-    View\login.ui \
+    View/updateavatar.ui \
+    View/addfriends.ui \
+    View/login.ui \
     mainwindow.ui \
-    View\regist.ui
+    View/regist.ui
 QMAKE_CXXFLAGS += -static-libgcc
 QMAKE_CXXFLAGS += -static-libstdc++
 

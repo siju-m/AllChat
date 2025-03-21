@@ -7,7 +7,7 @@
 #include <QSet>
 #include <QUuid>
 #include <Core/datatransfer.h>
-#include "database.h"
+#include "Core/database.h"
 
 enum message_type{
     IMAGE,
@@ -21,7 +21,9 @@ enum message_type{
     AGREE_FRIEND,
     FIND_NEW_FRIEND,
     NEW_FRIEND_REULT,
-    ONLINE_LIST
+    ONLINE_LIST,
+    UPDATE_AVATAR,
+    UPDATE_AVATAR_RESULT
 };
 
 class Server : public QTcpServer {
@@ -35,6 +37,7 @@ protected:
 
 private slots:
     void onReadyRead();
+    void handleData(QByteArray data,QTcpSocket *senderSocket);
     void onClientDisconnected();
 
 private:
@@ -48,13 +51,12 @@ private:
     QHash<QString,QByteArray> m_forward_contents;//如果过大就存起来
 
     DataBase *dataBase;
-    bool loginUser(QTcpSocket *socket,const QString &username, const QString &password);
+
+    DataTransfer *m_dataTransfer;
 
     QString generateUniqueId();              // 生成唯一 ID
-    //todo 改为广播在线状态
     void broadcast_userOnlineList();                // 广播在线用户列表
     void broadcastMessage(const QString &sender, const QString &message); // 广播消息
-    void addClient(QTcpSocket *client, const QString &userName);
 
     message_type messageType;
 
@@ -62,6 +64,7 @@ private:
     void privateImage(QDataStream &in,QTcpSocket *senderSocket);//转发私聊图片
 
     void handleLogin(QDataStream &in,QTcpSocket *senderSocket);//处理登录请求
+    bool loginUser(QTcpSocket *socket,const QString &username, const QString &password);//确认是否可以登录
     void handleRegist(QDataStream &in,QTcpSocket *senderSocket);//处理注册请求
 
     void handleAddFriend(QDataStream &in,QTcpSocket *senderSocket);//处理添加好友请求
@@ -77,11 +80,10 @@ private:
 
     template <typename... Args>
     QByteArray getPacket(Args... args);
-    void sendData(const QString &targetId,QByteArray &packet);
-    void sendData(QTcpSocket *senderSocket,QByteArray &packet);
+    void sendData(const QString &targetId,QByteArray &packet);//用于发送可以等待对方上线的消息
+    void sendData(QTcpSocket *senderSocket,QByteArray &packet);//用于发送实时信息
 
-    DataTransfer *m_dataTransfer;
-    void handleData(QByteArray data,QTcpSocket *senderSocket);
+    void handle_updateAvatar(QDataStream &in,QTcpSocket *senderSocket);
 };
 
 #endif // SERVER_H

@@ -121,6 +121,9 @@ void Server::handleData(QByteArray data,QTcpSocket *senderSocket)
     case message_type::FIND_NEW_FRIEND:{
         handle_slelectByName(in,senderSocket);
     }break;
+    case message_type::UPDATE_AVATAR:{
+        handle_updateAvatar(in,senderSocket);
+    }break;
     default :  qDebug() << "接收到未知消息类型!";break;
     }
 }
@@ -232,6 +235,15 @@ void Server::sendData(QTcpSocket *senderSocket, QByteArray &packet)
     out<<static_cast<qint32>(packet.size());
     out.writeRawData(packet.constData(),packet.size());
     senderSocket->write(outData);
+}
+
+void Server::handle_updateAvatar(QDataStream &in, QTcpSocket *senderSocket)
+{
+    QByteArray avatar;
+    in>>avatar;
+    bool success = dataBase->updateAvatar(m_clients_userId[senderSocket],avatar);
+    QByteArray packet = getPacket(UPDATE_AVATAR_RESULT,success);
+    sendData(senderSocket,packet);
 }
 
 
