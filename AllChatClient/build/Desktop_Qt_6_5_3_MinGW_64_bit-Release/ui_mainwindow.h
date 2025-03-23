@@ -442,13 +442,14 @@ public:
         widget_3->setMaximumSize(QSize(16777215, 150));
         verticalLayout_4 = new QVBoxLayout(widget_3);
         verticalLayout_4->setObjectName("verticalLayout_4");
+        verticalLayout_4->setContentsMargins(0, 0, 0, 0);
         widget = new QWidget(widget_3);
         widget->setObjectName("widget");
         widget->setMinimumSize(QSize(0, 30));
         widget->setMaximumSize(QSize(16777215, 20));
         horizontalLayout_2 = new QHBoxLayout(widget);
         horizontalLayout_2->setObjectName("horizontalLayout_2");
-        horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_2->setContentsMargins(10, 0, 0, 0);
         btnImage = new QPushButton(widget);
         btnImage->setObjectName("btnImage");
         btnImage->setMaximumSize(QSize(60, 16777215));
@@ -498,8 +499,40 @@ public:
         lineEditMessage = new QPlainTextEdit(widget_3);
         lineEditMessage->setObjectName("lineEditMessage");
         lineEditMessage->setMaximumSize(QSize(16777215, 16777215));
-        lineEditMessage->setStyleSheet(QString::fromUtf8("background-color: rgb(241, 241, 241);\n"
+        lineEditMessage->setStyleSheet(QString::fromUtf8("QPlainTextEdit{\n"
+"background-color: rgb(241, 241, 241);\n"
 "border:none;\n"
+"}\n"
+"QScrollBar:vertical {\n"
+"    border: none;\n"
+"    background: #f0f0f0;\n"
+"    width: 10px;\n"
+"    margin: 0px 0px 0px 0px;\n"
+"}\n"
+"QScrollBar::handle:vertical {\n"
+"    background: #888;\n"
+"    min-height: 20px;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical:hover {\n"
+"    background: #666;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical:pressed {\n"
+"    background: #444;\n"
+"}\n"
+"\n"
+"QScrollBar::add-line:vertical, \n"
+"QScrollBar::sub-line:vertical {\n"
+"    background: none;\n"
+"    border: none;\n"
+"}\n"
+"\n"
+"QScrollBar::add-page:vertical, \n"
+"QScrollBar::sub-page:vertical {\n"
+"    background: none;\n"
+"}\n"
 ""));
 
         verticalLayout_4->addWidget(lineEditMessage);
@@ -509,7 +542,7 @@ public:
         widget_2->setMinimumSize(QSize(0, 30));
         horizontalLayout_3 = new QHBoxLayout(widget_2);
         horizontalLayout_3->setObjectName("horizontalLayout_3");
-        horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_3->setContentsMargins(0, 0, 10, 0);
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_3->addItem(horizontalSpacer_2);

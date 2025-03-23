@@ -113,20 +113,20 @@ void MainWindow::initChatList()
         QString id = index.data(FriendsModel::IdRole).toString();
         loadChatHistoryFromFile(id);
         chat_model->set_currentChatId(id);
+        chat_model->clear_unreadMsgNum(id);
     });
-    //todo 其实应该接收消息时仍然保持当前聊天对象的窗口，发送时才切换到最前面
     connect(chat_model,&ChatModel::sortEnd,this,[=](){
         //将当前聊天对象的选择设为排序后的当前聊天对象
         //QTimer的作用 使得排序完成后的其他事件先处理，再更新选择状态
         QTimer::singleShot(0, this, [=]() {
             if(ui->chatList->model()->rowCount() > 0){
                 int row = chat_model->get_currentChatRow();
-                QModelIndex firstIndex = ui->chatList->model()->index(row, 0);
-                if(ui->chatList->currentIndex() == firstIndex)
+                QModelIndex index = ui->chatList->model()->index(row, 0);
+                if(ui->chatList->currentIndex() == index)
                     return;
                 qDebug() << "设定";
-                ui->chatList->setCurrentIndex(firstIndex);
-                QString id = firstIndex.data(FriendsModel::IdRole).toString();
+                ui->chatList->setCurrentIndex(index);
+                QString id = index.data(FriendsModel::IdRole).toString();
                 loadChatHistoryFromFile(id);
             }
         });
@@ -390,6 +390,7 @@ void MainWindow::receiveImage(QDataStream &in)
     QString imagePath = storeImageToFile(id,m_friendList[id].userName,imageData,msgTime);
     if(ui->chatList->currentIndex().data(FriendsModel::IdRole).toString()==id)
         addImage_toList(imagePath,id,id,msgTime);
+    else chat_model->add_unreadMsgNum(id);
 }
 
 QString MainWindow::getChatHistoryFilePath() {
@@ -551,8 +552,10 @@ void MainWindow::handle_message(QDataStream &in)
     QString msgTime;
     in>>id>>textMessage>>msgTime;
     // qDebug()<<id<<textMessage;
+
     if(ui->chatList->currentIndex().data(FriendsModel::IdRole).toString()==id)//接收的消息和当前聊天对象是同一个才在窗口显示
         addMessage_toList(textMessage,id,id,msgTime);
+    else chat_model->add_unreadMsgNum(id);
     storeMessageToFile(id,m_friendList[id].userName,textMessage,msgTime);
 }
 
@@ -631,7 +634,7 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
                                    userId,
                                    lastMessage.first,
                                    lastMessage.second,
-                                   0,
+                                   9,
                                    avatarPath);
     }
 

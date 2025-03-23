@@ -12,6 +12,13 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+private:
+    void draw_background(QPainter *painter, const QStyleOptionViewItem &option) const;
+    void draw_avatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void draw_userName(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void draw_lastMsg(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void draw_lastMsgTime(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void draw_unreadMsgNum(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
 #endif // CHATDELEGATE_H

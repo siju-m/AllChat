@@ -97,7 +97,8 @@ void MessageDelegate::drawTextMessage(QPainter *painter, const QStyleOptionViewI
     QString text = index.data(MessageModel::TextRole).toString();
 
     // 计算气泡区域
-            int maxBubbleWidth = option.rect.width() - 60; // 留出头像和边距
+            // int maxBubbleWidth = option.rect.width() - 60; // 留出头像和边距
+            int maxBubbleWidth = 200;
 
             // 使用 QTextDocument 来计算文本的实际宽度
             QTextDocument doc;

@@ -271,11 +271,10 @@ void Server::broadcast_userOnlineList() {
     }
     QByteArray packet = getPacket(ONLINE_LIST,userId);
     for (auto it = m_userIds_client.begin(); it != m_userIds_client.end(); ++it) {
-        qDebug()<<"更新"+it.key()+"的在线列表";
+        // qDebug()<<"更新"+it.key()+"的在线列表";
         sendData(it.key(),packet);
     }
 
-    qDebug() << "Broadcasted user list.";
 }
 
 void Server::onClientDisconnected() {

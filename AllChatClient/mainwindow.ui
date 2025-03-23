@@ -678,6 +678,18 @@ QScrollBar::sub-page:vertical {
            </size>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QWidget" name="widget" native="true">
              <property name="minimumSize">
@@ -694,7 +706,7 @@ QScrollBar::sub-page:vertical {
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <property name="leftMargin">
-               <number>0</number>
+               <number>10</number>
               </property>
               <property name="topMargin">
                <number>0</number>
@@ -777,8 +789,40 @@ QPushButton::disabled{
               </size>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color: rgb(241, 241, 241);
+              <string notr="true">QPlainTextEdit{
+background-color: rgb(241, 241, 241);
 border:none;
+}
+QScrollBar:vertical {
+    border: none;
+    background: #f0f0f0;
+    width: 10px;
+    margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle:vertical {
+    background: #888;
+    min-height: 20px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #666;
+}
+
+QScrollBar::handle:vertical:pressed {
+    background: #444;
+}
+
+QScrollBar::add-line:vertical, 
+QScrollBar::sub-line:vertical {
+    background: none;
+    border: none;
+}
+
+QScrollBar::add-page:vertical, 
+QScrollBar::sub-page:vertical {
+    background: none;
+}
 </string>
              </property>
             </widget>
@@ -799,7 +843,7 @@ border:none;
                <number>0</number>
               </property>
               <property name="rightMargin">
-               <number>0</number>
+               <number>10</number>
               </property>
               <property name="bottomMargin">
                <number>0</number>

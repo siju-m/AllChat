@@ -42,6 +42,9 @@ public:
 
     int get_currentChatRow();
     void set_currentChatId(const QString &id);
+
+    void add_unreadMsgNum(const QString &id);
+    void clear_unreadMsgNum(const QString &id);//清除未读消息
 signals:
     void sortEnd();
 private:

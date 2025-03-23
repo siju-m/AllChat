@@ -123,3 +123,21 @@ void ChatModel::set_currentChatId(const QString &id)
     m_current_chatId = id;
 }
 
+void ChatModel::add_unreadMsgNum(const QString &id)
+{
+    if(!m_id_chats.contains(id)) return;
+    ++m_id_chats[id].unreadMsgNum;
+    int row = m_ids.indexOf(id);
+    QModelIndex index = this->index(row,0);
+    emit dataChanged(index,index,{row});
+}
+
+void ChatModel::clear_unreadMsgNum(const QString &id)
+{
+    if(!m_id_chats.contains(id)) return;
+    m_id_chats[id].unreadMsgNum = 0;
+    int row = m_ids.indexOf(id);
+    QModelIndex index = this->index(row,0);
+    emit dataChanged(index,index,{row});
+}
+

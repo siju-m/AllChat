@@ -15,10 +15,32 @@ void ChatDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     painter->save();
 
     painter->setRenderHint(QPainter::Antialiasing, true);          // 抗锯齿
-    QString userName = index.data(ChatModel::UserNameRole).toString();
-    QString lastMessage = index.data(ChatModel::LastMessageRole).toString();
-    const QString avatarPath = index.data(ChatModel::AvatarRole).toString();
 
+
+    draw_background(painter,option);
+
+    draw_avatar(painter,option,index);
+
+    draw_userName(painter,option,index);
+
+    draw_lastMsg(painter,option,index);
+
+    draw_lastMsgTime(painter,option,index);
+
+    draw_unreadMsgNum(painter,option,index);
+
+
+    painter->restore();
+}
+
+QSize ChatDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    (void)index;
+    return QSize(option.rect.width(),60);
+}
+
+void ChatDelegate::draw_background(QPainter *painter, const QStyleOptionViewItem &option) const
+{
     // 绘制选中状态背景
     if (option.state & QStyle::State_Selected) {
         QPainterPath path;
@@ -36,9 +58,12 @@ void ChatDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         painter->setPen(pen);
         painter->drawPath(path);
     }
+}
 
+void ChatDelegate::draw_avatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    const QString avatarPath = index.data(ChatModel::AvatarRole).toString();
     QRect itemRect = option.rect;
-
     //绘制头像
     QRect avatarRect =  QRect(itemRect.left() + 10, itemRect.top()+10, 40, 40);
     if(avatarPath.isEmpty()){
@@ -80,39 +105,92 @@ void ChatDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
             painter->setClipping(false); // 关闭剪裁以免影响后续绘制
         }
     }
+}
 
+void ChatDelegate::draw_userName(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QRect itemRect = option.rect;
+    QString userName = index.data(ChatModel::UserNameRole).toString();
 
     // 绘制用户名
-    QTextDocument doc;
-    doc.setHtml(userName);
-    doc.setTextWidth(itemRect.width()); // 设置最大宽度
-    int nameWidth = doc.idealWidth(); // 获取文本的实际宽度
-    QRect usernameRect = QRect(itemRect.left()+60, itemRect.top()+10, nameWidth, 20);
-    painter->setPen(Qt::black);
     QFont font("Arial", 12, QFont::Bold); // 字体为 Arial，大小为 20，加粗
+    QFontMetrics metrics(font);
+    int nameWidth = metrics.horizontalAdvance(userName); // 获取文本宽度
+    int nameHeight = metrics.height(); // 获取文本高度
+    QRect usernameRect = QRect(itemRect.left()+60, itemRect.top()+10, nameWidth, nameHeight);
+
+    painter->setPen(Qt::black);
     painter->setFont(font);
     painter->drawText(usernameRect, Qt::AlignLeft | Qt::AlignTop, userName);
+}
+
+void ChatDelegate::draw_lastMsg(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QString lastMessage = index.data(ChatModel::LastMessageRole).toString();
+    QRect itemRect = option.rect;
 
     //绘制最新消息
-    lastMessage = (lastMessage.size()>10? lastMessage.last(10)+"...":lastMessage);
-    doc.setHtml(lastMessage);//只显示消息前面部分内容
-    doc.setTextWidth(itemRect.width()); // 设置最大宽度
-    int messageWidth = doc.idealWidth(); // 获取文本的实际宽度
+    lastMessage = (lastMessage.size()>6? lastMessage.left(6)+"...":lastMessage);//截取过长消息
+    QFont font("Arial", 10, QFont::Bold);
+    QFontMetrics metrics(font);
+    int msgWidth = metrics.horizontalAdvance(lastMessage); // 获取文本宽度
+    int msgHeight = metrics.height(); // 获取文本高度
 
-    QRect messageRect = QRect(itemRect.left()+60, itemRect.top()+35, messageWidth, 20);
+    QRect messageRect = QRect(itemRect.left()+60, itemRect.top()+35, msgWidth, msgHeight);
     if (option.state & QStyle::State_Selected)
         painter->setPen(Qt::white);
     else
         painter->setPen(Qt::gray);
-    font = QFont("Arial", 10, QFont::Bold);
+
     painter->setFont(font);
     painter->drawText(messageRect, Qt::AlignLeft | Qt::AlignTop, lastMessage);
-
-    painter->restore();
 }
 
-QSize ChatDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+void ChatDelegate::draw_lastMsgTime(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    (void)index;
-    return QSize(option.rect.width(),60);
+    QRect itemRect = option.rect;
+    const QString lastMsgTime = index.data(ChatModel::LastMessageTimeRole).toString();
+
+    QFont font("Arial", 8, QFont::Bold);
+    QFontMetrics metrics(font);
+    int timeWidth = metrics.horizontalAdvance(lastMsgTime); // 获取文本宽度
+    int timeHeight = metrics.height(); // 获取文本高度
+    QRect timeRect = QRect(itemRect.right()-timeWidth-5,itemRect.top()+12,timeWidth,timeHeight);
+
+    if (option.state & QStyle::State_Selected)
+        painter->setPen(Qt::white);
+    else
+        painter->setPen(Qt::gray);
+    painter->setFont(font);
+    painter->drawText(timeRect, Qt::AlignLeft | Qt::AlignTop, lastMsgTime);
+}
+
+void ChatDelegate::draw_unreadMsgNum(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QRect itemRect = option.rect;
+    const int unreadMsgNum = index.data(ChatModel::UnreadMsgNumRole).toInt();
+    if(!unreadMsgNum) return;
+
+    //绘制未读消息数
+    QString unreadNum = QString::number(unreadMsgNum);
+    QFont font("Arial", 10, QFont::Bold);
+    QFontMetrics metrics(font);
+    int numWidth = metrics.horizontalAdvance(unreadNum); // 获取文本宽度
+    int numeHeight = metrics.height(); // 获取文本高度
+    QRect numRect = QRect(itemRect.right()-numWidth-15,itemRect.top()+34,numWidth<numeHeight?numeHeight:numWidth,numeHeight);
+
+    //todo 气泡和文字对不准
+    //气泡
+    QColor bubbleColor = Qt::red;
+    painter->setBrush(bubbleColor);
+    painter->setPen(Qt::NoPen);
+    // int bubbleWidth = numWidth+4;
+    int spacing = 2;
+    int bubbleHeiht = numeHeight+spacing;
+    // QRect bubbleRect = QRect(numRect.left()-4,numRect.top()-2,bubbleWidth<bubbleHeiht?bubbleHeiht:bubbleWidth,bubbleHeiht);
+    painter->drawRoundedRect(numRect.adjusted(-spacing,-spacing,spacing,spacing), bubbleHeiht, bubbleHeiht);
+    //数字
+    painter->setFont(font);
+    painter->setPen(Qt::white);
+    painter->drawText(numRect, Qt::AlignLeft | Qt::AlignTop, unreadNum);
 }
