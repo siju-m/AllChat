@@ -634,7 +634,7 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
                                    userId,
                                    lastMessage.first,
                                    lastMessage.second,
-                                   9,
+                                   0,
                                    avatarPath);
     }
 

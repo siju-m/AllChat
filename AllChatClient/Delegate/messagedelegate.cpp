@@ -97,17 +97,17 @@ void MessageDelegate::drawTextMessage(QPainter *painter, const QStyleOptionViewI
     QString text = index.data(MessageModel::TextRole).toString();
 
     // 计算气泡区域
-            // int maxBubbleWidth = option.rect.width() - 60; // 留出头像和边距
-            int maxBubbleWidth = 200;
+    // int maxBubbleWidth = option.rect.width() - 60; // 留出头像和边距
+    int maxBubbleWidth = qMin(300,option.rect.width()-60);
 
-            // 使用 QTextDocument 来计算文本的实际宽度
-            QTextDocument doc;
-            doc.setHtml(text);
-            doc.setTextWidth(maxBubbleWidth+60); // 设置最大宽度
-            int textWidth = doc.idealWidth(); // 获取文本的实际宽度
+    // 使用 QTextDocument 来计算文本的实际宽度
+    QTextDocument doc;
+    doc.setHtml(text);
+    doc.setTextWidth(maxBubbleWidth); // 设置最大宽度
+    int textWidth = doc.idealWidth(); // 获取文本的实际宽度
 
-            // 动态设置气泡宽度
-            int bubbleWidth = qMin(textWidth + 16, maxBubbleWidth); // 加上边距
+    // 动态设置气泡宽度
+    int bubbleWidth = qMin(textWidth + 16, maxBubbleWidth+16); // 加上边距
     QRect bubbleRect = isOutgoing
                                  ? QRect(option.rect.right() - bubbleWidth - 60, option.rect.top() + 15, bubbleWidth, option.rect.height() - 10)
                                  : QRect(option.rect.left() + 60, option.rect.top() + 15, bubbleWidth, option.rect.height() - 10);
@@ -277,11 +277,11 @@ QSize MessageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
     switch(type){
     case MessageType::Text:{
         // 文本高度计算
-        int maxWidth =option.rect.width() - 60;// 头像+边距
+        int maxWidth =qMin(option.rect.width() - 60,300);// 头像+边距
         QString text = index.data(MessageModel::TextRole).toString();
         QTextDocument doc;
         doc.setHtml(text);
-        doc.setTextWidth(maxWidth-60); // 与气泡宽度一致
+        doc.setTextWidth(maxWidth); // 与气泡宽度一致
         return QSize(option.rect.width(), doc.size().height() + verticalSpacing);
     }
     case MessageType::Image:{
