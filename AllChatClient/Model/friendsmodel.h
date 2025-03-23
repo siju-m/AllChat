@@ -10,6 +10,7 @@ struct Friends{
     QString avatarPath;
 };
 
+//好友数据
 class FriendsModel: public QAbstractListModel {
     Q_OBJECT
 public:

@@ -1,4 +1,6 @@
 release/datatransfer.o
+release/chatdelegate.o
+release/chatmodel.o
 release/onlinestatelabel.o
 release/updateavatar.o
 release/addfriends.o
@@ -16,6 +18,8 @@ release/regist.o
 release/strangerdelegate.o
 release/qrc_resource.o
 release/moc_datatransfer.o
+release/moc_chatdelegate.o
+release/moc_chatmodel.o
 release/moc_updateavatar.o
 release/moc_addfriends.o
 release/moc_applydelegate.o

@@ -54,15 +54,15 @@ public:
     QToolButton *switchaddList;
     QSpacerItem *verticalSpacer;
     QStackedWidget *stackedList;
+    QWidget *page;
+    QVBoxLayout *verticalLayout_7;
+    QListView *chatList;
     QWidget *page_3;
     QVBoxLayout *verticalLayout_3;
-    QListView *chatList;
+    QListView *friendList;
     QWidget *page_4;
     QVBoxLayout *verticalLayout_5;
     QListView *friendApplyList;
-    QWidget *page;
-    QVBoxLayout *verticalLayout_7;
-    QListView *listView;
     QVBoxLayout *verticalLayout;
     QWidget *widget_4;
     QHBoxLayout *horizontalLayout;
@@ -239,19 +239,34 @@ public:
         stackedList->setObjectName("stackedList");
         stackedList->setMinimumSize(QSize(200, 0));
         stackedList->setMaximumSize(QSize(200, 16777215));
-        page_3 = new QWidget();
-        page_3->setObjectName("page_3");
-        verticalLayout_3 = new QVBoxLayout(page_3);
-        verticalLayout_3->setObjectName("verticalLayout_3");
-        verticalLayout_3->setContentsMargins(0, 0, 0, 0);
-        chatList = new QListView(page_3);
+        page = new QWidget();
+        page->setObjectName("page");
+        verticalLayout_7 = new QVBoxLayout(page);
+        verticalLayout_7->setObjectName("verticalLayout_7");
+        verticalLayout_7->setContentsMargins(0, 0, 0, 0);
+        chatList = new QListView(page);
         chatList->setObjectName("chatList");
         chatList->setStyleSheet(QString::fromUtf8("QListView { \n"
 "border: none;\n"
 "border-right: 1px solid gray;  /*\345\217\252\344\277\235\347\225\231\345\217\263\350\276\271\350\276\271\346\241\206 */\n"
 "}"));
 
-        verticalLayout_3->addWidget(chatList);
+        verticalLayout_7->addWidget(chatList);
+
+        stackedList->addWidget(page);
+        page_3 = new QWidget();
+        page_3->setObjectName("page_3");
+        verticalLayout_3 = new QVBoxLayout(page_3);
+        verticalLayout_3->setObjectName("verticalLayout_3");
+        verticalLayout_3->setContentsMargins(0, 0, 0, 0);
+        friendList = new QListView(page_3);
+        friendList->setObjectName("friendList");
+        friendList->setStyleSheet(QString::fromUtf8("QListView { \n"
+"border: none;\n"
+"border-right: 1px solid gray;  /*\345\217\252\344\277\235\347\225\231\345\217\263\350\276\271\350\276\271\346\241\206 */\n"
+"}"));
+
+        verticalLayout_3->addWidget(friendList);
 
         stackedList->addWidget(page_3);
         page_4 = new QWidget();
@@ -270,21 +285,6 @@ public:
         verticalLayout_5->addWidget(friendApplyList);
 
         stackedList->addWidget(page_4);
-        page = new QWidget();
-        page->setObjectName("page");
-        verticalLayout_7 = new QVBoxLayout(page);
-        verticalLayout_7->setObjectName("verticalLayout_7");
-        verticalLayout_7->setContentsMargins(0, 0, 0, 0);
-        listView = new QListView(page);
-        listView->setObjectName("listView");
-        listView->setStyleSheet(QString::fromUtf8("QListView { \n"
-"border: none;\n"
-"border-right: 1px solid gray;  /*\345\217\252\344\277\235\347\225\231\345\217\263\350\276\271\350\276\271\346\241\206 */\n"
-"}"));
-
-        verticalLayout_7->addWidget(listView);
-
-        stackedList->addWidget(page);
 
         horizontalLayout_4->addWidget(stackedList);
 

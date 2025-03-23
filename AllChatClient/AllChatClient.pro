@@ -13,6 +13,8 @@ QT += sql
 
 SOURCES += \
     Core/datatransfer.cpp \
+    Delegate/chatdelegate.cpp \
+    Model/chatmodel.cpp \
     View/onlinestatelabel.cpp \
     View/updateavatar.cpp \
     View/addfriends.cpp \
@@ -31,6 +33,8 @@ SOURCES += \
 
 HEADERS += \
     Core/datatransfer.h \
+    Delegate/chatdelegate.h \
+    Model/chatmodel.h \
     Utils/CustomTypes.h \
     View/onlinestatelabel.h \
     View/updateavatar.h \

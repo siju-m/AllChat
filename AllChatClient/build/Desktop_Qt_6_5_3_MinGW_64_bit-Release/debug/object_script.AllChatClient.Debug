@@ -1,4 +1,6 @@
 debug/datatransfer.o
+debug/chatdelegate.o
+debug/chatmodel.o
 debug/onlinestatelabel.o
 debug/updateavatar.o
 debug/addfriends.o
@@ -16,6 +18,8 @@ debug/regist.o
 debug/strangerdelegate.o
 debug/qrc_resource.o
 debug/moc_datatransfer.o
+debug/moc_chatdelegate.o
+debug/moc_chatmodel.o
 debug/moc_updateavatar.o
 debug/moc_addfriends.o
 debug/moc_applydelegate.o

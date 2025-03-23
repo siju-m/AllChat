@@ -56,7 +56,11 @@ void FriendsModel::removeItem(int row)
 
 void FriendsModel::clear()
 {
+    if (m_friends.isEmpty()) return;
+
+    beginRemoveRows(QModelIndex(), 0, m_friends.size()-1); // 通知视图删除开始
     m_friends.clear();
+    endRemoveRows(); // 通知视图删除完成
 }
 
 Qt::ItemFlags FriendsModel::flags(const QModelIndex &index) const

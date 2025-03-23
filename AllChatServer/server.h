@@ -84,6 +84,8 @@ private:
     void sendData(QTcpSocket *senderSocket,QByteArray &packet);//用于发送实时信息
 
     void handle_updateAvatar(QDataStream &in,QTcpSocket *senderSocket);
+
+    QString getCurrentTime();
 };
 
 #endif // SERVER_H

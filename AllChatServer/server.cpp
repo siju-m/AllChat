@@ -48,7 +48,7 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
     }
 
     QByteArray avatar = dataBase->getAvatar(m_clients_userId[senderSocket]);
-    QByteArray packet = getPacket(LOGIN_SUCCESS,avatar);
+    QByteArray packet = getPacket(LOGIN_SUCCESS,m_clients_userId[senderSocket],avatar);
     sendData(m_clients_userId[senderSocket],packet);
     //向登录用户发送他的最新好友列表
     updateFriendsList(m_clients_userId[senderSocket]);
@@ -132,7 +132,7 @@ void Server::privateMessage(QDataStream &in,QTcpSocket *senderSocket){
 
     QString textMessage,id;
     in>>id>>textMessage;
-    QByteArray packet = getPacket(CHAT , m_clients_userId[senderSocket] , textMessage);
+    QByteArray packet = getPacket(CHAT, m_clients_userId[senderSocket], textMessage, getCurrentTime());
     sendData(id,packet);
 }
 
@@ -144,7 +144,7 @@ void Server::privateImage(QDataStream &in,QTcpSocket *senderSocket)
     qDebug()<<"处理接收图片"<<id;
     in >> id>> imageData;
     qDebug()<<"dataBuffer.size():"<<imageData.size();
-    QByteArray packet1 = getPacket(IMAGE,m_clients_userId[senderSocket] , imageData);
+    QByteArray packet1 = getPacket(IMAGE, m_clients_userId[senderSocket], imageData, getCurrentTime());
     sendData(id,packet1);
 }
 
@@ -171,14 +171,17 @@ void Server::handleAddFriend_Result(QDataStream &in, QTcpSocket *senderSocket)
 {
     QString id;
     in>>id;
-    QByteArray packet = getPacket(messageType,m_clients_name[senderSocket],id);
-    //todo 转发和存储的判断可以封装一下
-    sendData(id,packet);
+
     dataBase->addFriends(m_clients_userId[senderSocket],id);
     dataBase->addFriends(id,m_clients_userId[senderSocket]);
+
     updateFriendsList(m_clients_userId[senderSocket]);//更新同意者的好友列表
     updateFriendsList(id);//更新请求者的好友列表
     broadcast_userOnlineList();//更新在线状态
+
+    QByteArray packet = getPacket(messageType,m_clients_name[senderSocket],m_clients_userId[senderSocket]);
+    sendData(id,packet);
+
     m_alreadyApply.remove(qMakePair(id,m_clients_userId[senderSocket]));
 }
 
@@ -246,6 +249,10 @@ void Server::handle_updateAvatar(QDataStream &in, QTcpSocket *senderSocket)
     sendData(senderSocket,packet);
 }
 
+QString Server::getCurrentTime()
+{
+    return QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+}
 
 void Server::store_forwardContents(const QByteArray &content,const QString &userId)
 {

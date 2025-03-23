@@ -20,19 +20,27 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const{
     case IsOutgoingRole: return msg.isOutgoing;
     case UserNameRole: return msg.userName;
     case AvatarRole: return msg.avatarPath;
+    case TimeRole: return msg.time;
     default: return QVariant();
     }
 }
 
-void MessageModel::addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath) {
+void MessageModel::addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time) {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_messages.append({MessageType::Text, text, "", isOutgoing, userName,avatarPath});
+    m_messages.append({MessageType::Text, text, "", isOutgoing, userName,avatarPath,time});
     endInsertRows();
 }
 
-void MessageModel::addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath) {
+void MessageModel::addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time) {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_messages.append({MessageType::Image, "", imagePath, isOutgoing, userName,avatarPath});
+    m_messages.append({MessageType::Image, "", imagePath, isOutgoing, userName,avatarPath,time});
+    endInsertRows();
+}
+
+void MessageModel::addTimeMessage(const QString &time)
+{
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    m_messages.append({MessageType::Time, "", "", true, "","",time});
     endInsertRows();
 }
 
@@ -41,3 +49,16 @@ void MessageModel::clear() {
     m_messages.clear();
     endResetModel();    // 通知视图更新完成
 }
+
+void MessageModel::update_lastTempTime(const QString &targetId, const QString &lastMessageTime)
+{
+    m_temp_lastMsgTime[targetId]=lastMessageTime;
+}
+
+QString MessageModel::get_lastTempTime(const QString &targetId)
+{
+    if(!m_temp_lastMsgTime.contains(targetId)) return QString();
+    return m_temp_lastMsgTime[targetId];
+}
+
+

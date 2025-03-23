@@ -386,6 +386,32 @@ background-color: #cccccc;</string>
         <property name="currentIndex">
          <number>2</number>
         </property>
+        <widget class="QWidget" name="page">
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QListView" name="chatList">
+            <property name="styleSheet">
+             <string notr="true">QListView { 
+border: none;
+border-right: 1px solid gray;  /*只保留右边边框 */
+}</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
         <widget class="QWidget" name="page_3">
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <property name="leftMargin">
@@ -401,7 +427,7 @@ background-color: #cccccc;</string>
            <number>0</number>
           </property>
           <item>
-           <widget class="QListView" name="chatList">
+           <widget class="QListView" name="friendList">
             <property name="styleSheet">
              <string notr="true">QListView { 
 border: none;
@@ -434,32 +460,6 @@ border-right: 1px solid gray;  /*只保留右边边框 */
               <height>16777215</height>
              </size>
             </property>
-            <property name="styleSheet">
-             <string notr="true">QListView { 
-border: none;
-border-right: 1px solid gray;  /*只保留右边边框 */
-}</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="page">
-         <layout class="QVBoxLayout" name="verticalLayout_7">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QListView" name="listView">
             <property name="styleSheet">
              <string notr="true">QListView { 
 border: none;

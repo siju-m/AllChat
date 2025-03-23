@@ -14,6 +14,12 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     painter->setRenderHint(QPainter::SmoothPixmapTransform, true); // 平滑缩放
 
     // 公共参数
+    MessageType type = static_cast<MessageType>(index.data(MessageModel::TypeRole).toInt());
+    if(type == MessageType::Time){
+        drawTime(painter,option,index);
+        painter->restore();
+        return;
+    }
     const bool isOutgoing = index.data(MessageModel::IsOutgoingRole).toBool();
     const QString userName = index.data(MessageModel::UserNameRole).toString();
     const QString avatarPath = index.data(MessageModel::AvatarRole).toString();
@@ -76,7 +82,6 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     painter->drawText(usernameRect, Qt::AlignLeft | Qt::AlignTop, userName);
 
     // --- 根据消息类型绘制内容 ---
-    MessageType type = static_cast<MessageType>(index.data(MessageModel::TypeRole).toInt());
     if (type == MessageType::Text) {
         drawTextMessage(painter, option, index, isOutgoing);
     } else if (type == MessageType::Image) {
@@ -118,6 +123,25 @@ void MessageDelegate::drawTextMessage(QPainter *painter, const QStyleOptionViewI
     doc.setTextWidth(bubbleRect.width() - 12);
     painter->translate(bubbleRect.topLeft() + QPoint(8, 5));
     doc.drawContents(painter);
+}
+
+void MessageDelegate::drawTime(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    const QString time = index.data(MessageModel::TimeRole).toString();
+    QRect itemRect = option.rect;
+    QTextDocument doc;
+    doc.setHtml(time);
+    doc.setTextWidth(250); // 设置最大宽度
+    int timeWidth = doc.idealWidth(); // 获取文本的实际宽度
+    QRect timeRect = QRect(itemRect.right()/2-(timeWidth/2), itemRect.top()+10, timeWidth, 20);
+    //绘制背景气泡
+    QColor bubbleColor = Qt::white;
+    painter->setBrush(bubbleColor);
+    painter->setPen(Qt::NoPen);
+    painter->drawRoundedRect(timeRect.adjusted(-10,-5,0,0), 8, 8);
+    //绘制文字
+    painter->setPen(Qt::black);
+    painter->drawText(timeRect, Qt::AlignLeft | Qt::AlignTop, time);
 }
 
 // 绘制图片消息（关键改进：独立处理图片）
@@ -249,7 +273,8 @@ QSize MessageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
     MessageType type = static_cast<MessageType>(index.data(MessageModel::TypeRole).toInt());
     const int verticalSpacing = 20;
 
-    if (type == MessageType::Text) {
+    switch(type){
+    case MessageType::Text:{
         // 文本高度计算
         int maxWidth =option.rect.width() - 60;// 头像+边距
         QString text = index.data(MessageModel::TextRole).toString();
@@ -257,10 +282,17 @@ QSize MessageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
         doc.setHtml(text);
         doc.setTextWidth(maxWidth-60); // 与气泡宽度一致
         return QSize(option.rect.width(), doc.size().height() + verticalSpacing);
-    } else {
+    }
+    case MessageType::Image:{
         // 图片高度计算
         QPixmap image(index.data(MessageModel::ImageRole).toString());
         QSize scaledSize = image.size().scaled(300, 300, Qt::KeepAspectRatio);
         return QSize(option.rect.width(), scaledSize.height() + verticalSpacing);
     }
+    case MessageType::Time:{
+        return QSize(option.rect.width(), 20);
+    }
+    default:return sizeHint(option,index);
+    }
+
 }

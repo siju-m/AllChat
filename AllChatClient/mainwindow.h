@@ -25,6 +25,8 @@
 #include "View/addfriends.h"
 #include "Core/datatransfer.h"
 #include <View/updateavatar.h>
+#include <Model/chatmodel.h>
+#include <Delegate/chatdelegate.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -58,6 +60,7 @@ private:
 
     QString m_avatarPath;
     QString m_userName;
+    QString m_userId;
     QButtonGroup *m_sideBar_btnGroup;//管理侧边栏按钮
     UpdateAvatar *m_updateAvatar;
 
@@ -74,26 +77,39 @@ private:
         bool state = false;
         QString avatarPath = "";
     };
-    QMap<QString, userInfo> m_userList; // 用于存储好友列表 id和userName
+    QMap<QString, userInfo> m_friendList; // 用于存储好友列表 id和userName
     void updateUserList(const QMap<QString, QString> &newUserList ,const QMap<QString,QByteArray> &new_idAvatar); //更新用户列表
     void handle_userList(QDataStream &in);//接收好友数据
     void handle_onlineFriendsList(QDataStream &in);//接收在线用户列表
-    void handle_userAvatar(QDataStream &in);//接收用户头像
+    void handle_userInfo(QDataStream &in);//接收用户信息
     QString getChatHistoryFilePath();//获取聊天记录在文件中的路径
-    void storeMessageToFile(const QString &targetId, const QString &sender, const QString &message);//将聊天记录存在文件中
-    QString storeImageToFile(const QString &targetId, const QString &sender, const QByteArray &imageData);
+    void storeMessageToFile(const QString &targetId, const QString &sender, const QString &message, const QString &msgTime);//将聊天记录存在文件中
+    QString storeImageToFile(const QString &targetId, const QString &sender, const QByteArray &imageData, const QString &msgTime);
     QString storeImage(QString imageName,const QByteArray &imageData);
-    QString getLastMessage(const QString &targetId);
+    // QString getLastMessage(const QString &targetId);
+    //todo 消息的时间应该服务器传过来，不然有些用户是登录之后才接收到消息就设定的不一样了
+    //todo 好友请求没有保存记录，下线之后就看不到了
+    QPair<QString,QString> getLastMessage(const QString &targetId);
+
+    void addMessage_toList(const QString &text,const QString &chatId,const QString &senderId,const QString &time);//添加消息到聊天界面
+    void addImage_toList(const QString &imagePath,const QString &chatId,const QString &senderId,const QString &time);//添加图片到聊天界面
+    void addTime_toList(const QString &chatId,const QString &time);//添加时间到聊天界面
 
     MessageModel *message_model;//存储消息数据
     MessageDelegate *message_delegate;//绘制消息
     void initMessageList();
-    void addMessage_toList(const QString &text,const bool &isOutgoing,const QString &userName,const QString &avatarPath="");//添加消息到聊天界面
-    void addImage_toList(const QString &imagePath,const bool &isOutgoing,const QString &userName,const QString &avatarPath="");//添加图片到聊天界面
 
     FriendsModel *friends_model;//存储好友数据
     FriendsDelegate *friends_delegate;//绘制好友项
     void initFriendsList();
+
+    ChatModel *chat_model;
+    ChatDelegate *chat_delegate;
+    void initChatList();
+
+    FriendsModel *friendsApply_model;//存储申请添加好友的用户数据
+    ApplyDelegate *friendsApply_delegate;//绘制申请添加好友的用户
+    void initFriendApplyList();
 
     template <typename... Args>//c++17模板参数包允许函数接受任意数量的参数
     QByteArray getPacket(Args... args);//把发送数据的重复语句封装，可以传入任意数量的变量
@@ -105,11 +121,10 @@ private:
     void send_addFriend_result(QString id);//发送处理后的好友请求
     void handle_addFriend_result(QDataStream &in);//处理对方返回的请求结果
 
-    FriendsModel *friendsApply_model;//存储申请添加好友的用户数据
-    ApplyDelegate *friendsApply_delegate;//绘制申请添加好友的用户
-    void initFriendApplyList();
-
     void handle_selectByName_reuslt(QDataStream &in);//处理返回的用户名模糊查询的用户列表
+
+    QString getCurrentTime();
+    bool compareTime(const QString &pastTime,const QString &lastTime);
 
     //内存和外存都要维护好友列表，每次启动时从外存加载，每次更新时写入外存
 signals:

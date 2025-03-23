@@ -18,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
     setWindowTitle("AllChat");
-    ui->stackedList->setCurrentIndex(0);//默认显示聊天列表
     // 绑定按钮槽函数
     connect(ui->btnSend, &QPushButton::clicked, this, &MainWindow::onSendClicked);
     connect(ui->btnImage, &QPushButton::clicked, this, &MainWindow::sendImage);
@@ -36,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     initMessageList();
     initFriendsList();
+    initChatList();
     initAddFriends();
     initSideBar();
     initFriendApplyList();
@@ -82,8 +82,27 @@ void MainWindow::initFriendsList()
     friends_model = new FriendsModel(this);
     friends_delegate = new FriendsDelegate(this);
 
-    ui->chatList->setModel(friends_model);
-    ui->chatList->setItemDelegate(friends_delegate);
+    ui->friendList->setModel(friends_model);
+    ui->friendList->setItemDelegate(friends_delegate);
+
+    ui->friendList->setVerticalScrollMode(QListView::ScrollPerPixel); // 平滑滚动
+    ui->friendList->setResizeMode(QListView::Adjust);                 // 自动调整项大小
+    ui->friendList->setSelectionMode(QAbstractItemView::SingleSelection);  // 单选
+    ui->friendList->setSelectionBehavior(QAbstractItemView::SelectItems);
+
+    // connect(ui->friendList, &QListView::clicked, this, [=](const QModelIndex &index){
+    //     QString id = index.data(FriendsModel::IdRole).toString();
+    //     loadChatHistoryFromFile(id);
+    // });
+}
+
+void MainWindow::initChatList()
+{
+    chat_model = new ChatModel(this);
+    chat_delegate = new ChatDelegate(this);
+
+    ui->chatList->setModel(chat_model);
+    ui->chatList->setItemDelegate(chat_delegate);
 
     ui->chatList->setVerticalScrollMode(QListView::ScrollPerPixel); // 平滑滚动
     ui->chatList->setResizeMode(QListView::Adjust);                 // 自动调整项大小
@@ -93,6 +112,24 @@ void MainWindow::initFriendsList()
     connect(ui->chatList, &QListView::clicked, this, [=](const QModelIndex &index){
         QString id = index.data(FriendsModel::IdRole).toString();
         loadChatHistoryFromFile(id);
+        chat_model->set_currentChatId(id);
+    });
+    //todo 其实应该接收消息时仍然保持当前聊天对象的窗口，发送时才切换到最前面
+    connect(chat_model,&ChatModel::sortEnd,this,[=](){
+        //将当前聊天对象的选择设为排序后的当前聊天对象
+        //QTimer的作用 使得排序完成后的其他事件先处理，再更新选择状态
+        QTimer::singleShot(0, this, [=]() {
+            if(ui->chatList->model()->rowCount() > 0){
+                int row = chat_model->get_currentChatRow();
+                QModelIndex firstIndex = ui->chatList->model()->index(row, 0);
+                if(ui->chatList->currentIndex() == firstIndex)
+                    return;
+                qDebug() << "设定";
+                ui->chatList->setCurrentIndex(firstIndex);
+                QString id = firstIndex.data(FriendsModel::IdRole).toString();
+                loadChatHistoryFromFile(id);
+            }
+        });
     });
 }
 
@@ -112,13 +149,14 @@ void MainWindow::initAddFriends()
 void MainWindow::initSideBar()
 {
     m_sideBar_btnGroup->addButton(ui->switchMessageList,0);
-    m_sideBar_btnGroup->addButton(ui->switchaddList,1);
-    m_sideBar_btnGroup->addButton(ui->switchFriendsList,2);
+    m_sideBar_btnGroup->addButton(ui->switchFriendsList,1);
+    m_sideBar_btnGroup->addButton(ui->switchaddList,2);
     connect(m_sideBar_btnGroup,&QButtonGroup::buttonClicked,this,[=](QAbstractButton *button){
         int index = m_sideBar_btnGroup->id(button);
         ui->stackedList->setCurrentIndex(index);
     });
 
+    ui->stackedList->setCurrentIndex(0);//默认显示聊天列表
     m_sideBar_btnGroup->button(0)->setChecked(true);
 }
 
@@ -164,24 +202,37 @@ void MainWindow::handle_selectByName_reuslt(QDataStream &in)
     add_friends.updateListView(id_names);
 }
 
+QString MainWindow::getCurrentTime()
+{
+    return QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+}
+
+bool MainWindow::compareTime(const QString &pastTime,const QString &lastTime)
+{
+    QDateTime lastDateTime = QDateTime::fromString(lastTime,"yyyy-MM-dd hh:mm:ss");
+    QDateTime pastDateTime = QDateTime::fromString(pastTime,"yyyy-MM-dd hh:mm:ss");
+    if (lastDateTime.isValid() && pastDateTime.isValid()) {
+        // 计算相差分钟数
+        qint64 diffSeconds = lastDateTime.secsTo(pastDateTime); // time1 到 time2 的秒数（可能是负数）
+        qint64 diffMinutes = diffSeconds / 60;    // 转换成分钟
+        if(qAbs(diffMinutes)>2) return true;
+        // qDebug() << "相差" << qAbs(diffMinutes) << "分钟"; // 取绝对值显示
+    } else {
+        qDebug() << "时间格式错误";
+    }
+    return false;
+}
+
 void MainWindow::handle_addFriend(QDataStream &in)
 {
     QString senderName,senderId;
     in>>senderName>>senderId;
     qDebug()<<senderName<<senderId;
-    //test
-    // QMessageBox::StandardButton reply;
-    // reply = QMessageBox::question(this, "好友请求", "用户："+senderName+"请求添加好友，是否同意?",
-    //                               QMessageBox::Yes | QMessageBox::No);
-
-    // send_addFriend_result(reply == QMessageBox::Yes,senderId);
     friendsApply_model->addFriends_ToList(senderName,senderId,"请求添加好友","");
-
 }
 
 void MainWindow::send_addFriend_result(QString id)
 {
-    // sendData(CommonEnum::AGREE_FRIEND,id);
     QByteArray data = getPacket(CommonEnum::AGREE_FRIEND,id);
     sendData(data);
 }
@@ -190,9 +241,9 @@ void MainWindow::handle_addFriend_result(QDataStream &in)
 {
     QString senderName,senderId;
     in>>senderName>>senderId;
-    //todo 提醒已经同意添加
-    // friends_model->addFriends_ToList(senderName,senderId,"未实现");
-    // userList[senderId] = senderName;
+    if(ui->chatList->currentIndex().data(FriendsModel::IdRole).toString()==senderId)//接收的消息和当前聊天对象是同一个才在窗口显示
+        addMessage_toList("我们已成功添加好友，现在可以开始聊天啦~",senderId,m_userId,getCurrentTime());
+    storeMessageToFile(senderId,m_friendList[senderId].userName,"我们已成功添加好友，现在可以开始聊天啦~",getCurrentTime());
 }
 
 void MainWindow::ConnectServer() {
@@ -237,8 +288,6 @@ void MainWindow::send_slelectByName(const QString &username)
     }
 }
 
-
-
 void MainWindow::handleData(QByteArray data)
 {
     QDataStream in(data);
@@ -263,7 +312,7 @@ void MainWindow::handleData(QByteArray data)
     case CommonEnum::LOGIN_FAILED:{
         emit loginResult(messageType);
         if(messageType == CommonEnum::LOGIN_SUCCESS){
-            handle_userAvatar(in);
+            handle_userInfo(in);
         }
     }break;
     case CommonEnum::REGISTER_SUCCESS:
@@ -335,11 +384,12 @@ void MainWindow::receiveImage(QDataStream &in)
 {
     QByteArray imageData;
     QString id;
-    in >> id>> imageData;
+    QString msgTime;
+    in >> id>> imageData>>msgTime;
 
-    QString imagePath = storeImageToFile(id,m_userList[id].userName,imageData);
+    QString imagePath = storeImageToFile(id,m_friendList[id].userName,imageData,msgTime);
     if(ui->chatList->currentIndex().data(FriendsModel::IdRole).toString()==id)
-        addImage_toList(imagePath,false,m_userList[id].userName,m_userList[id].avatarPath);
+        addImage_toList(imagePath,id,id,msgTime);
 }
 
 QString MainWindow::getChatHistoryFilePath() {
@@ -355,8 +405,11 @@ QString MainWindow::getChatHistoryFilePath() {
     return dir.path();
 }
 
-void MainWindow::storeMessageToFile(const QString &targetId, const QString &sender, const QString &message) {
-    friends_model->updateLastMessage(targetId,message);
+void MainWindow::storeMessageToFile(const QString &targetId, const QString &sender, const QString &message, const QString &msgTime) {
+    //更新聊天列表的最新消息
+    //todo 添加未读消息数量
+    chat_model->updateLastMessage(targetId,message,msgTime);
+
     QString filePath = getChatHistoryFilePath();
     filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_userName);
     // qDebug()<<filePath;
@@ -366,7 +419,7 @@ void MainWindow::storeMessageToFile(const QString &targetId, const QString &send
         QJsonObject obj;
         obj["name"] = sender;
         obj["message"] = message;
-        obj["time"] = QTime::currentTime().toString();
+        obj["time"] = msgTime;
         QJsonObject format;
         format["kinds"] = "text";
         format["data"] = obj;
@@ -376,22 +429,21 @@ void MainWindow::storeMessageToFile(const QString &targetId, const QString &send
     }
 }
 
-QString MainWindow::storeImageToFile(const QString &targetId, const QString &sender,const QByteArray &imageData)
-{
-    friends_model->updateLastMessage(targetId,"图片");
+QString MainWindow::storeImageToFile(const QString &targetId, const QString &sender,const QByteArray &imageData, const QString &msgTime){
+    chat_model->updateLastMessage(targetId,"图片",msgTime);
+
     QString filePath = getChatHistoryFilePath();
     QString textFilePath = QString("%1/%2_%3.txt").arg(filePath).arg(targetId).arg(m_userName);
 
     QString imageFilePath = storeImage("",imageData);
 
-    //todo 在文字消息记录中把图片路径存进去，之后使用图片全部都用路径，避免直接传递图片占用内存
     QFile file(textFilePath);
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         //以json格式存储，适合结构化数据
         QJsonObject obj;
         obj["name"] = sender;
         obj["imagePath"] = imageFilePath;
-        obj["time"] = QTime::currentTime().toString();
+        obj["time"] = msgTime;
         QJsonObject format;
         format["kinds"] = "image";
         format["data"] = obj;
@@ -427,40 +479,41 @@ QString MainWindow::storeImage(QString imageName, const QByteArray &imageData)
     return imageFilePath;
 }
 
-QString MainWindow::getLastMessage(const QString &targetId)
+QPair<QString, QString> MainWindow::getLastMessage(const QString &targetId)
 {
     QString filePath = getChatHistoryFilePath();//因为多个个客户端会运行在同一台机器上，需要接收端id加发送端用户名来作为文件名
-    filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_userName);
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        // qDebug() << "没有聊天记录";
-        return "";
-    }
-    QString lastLine;
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        lastLine = in.readLine();
-    }
-    file.close();
-    QJsonDocument doc = QJsonDocument::fromJson(lastLine.toUtf8());
-    QJsonObject format = doc.object();
-    QJsonObject obj = format["data"].toObject();
-    // 此时 lastLine 就是文件的最后一行文本
-    // qDebug() << "最后一行:" << lastLine;
-    QString lastMessage;
-    if(format["kinds"].toString()=="text"){
-        lastMessage = obj["message"].toString();
-    }else if(format["kinds"].toString()=="image"){
-        lastMessage = "图片";
-    }
-    return lastMessage;
+        filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_userName);
+        QFile file(filePath);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            // qDebug() << "没有聊天记录";
+            return {"",""};
+        }
+        QString lastLine;
+        QTextStream in(&file);
+        while (!in.atEnd()) {
+            lastLine = in.readLine();
+        }
+        file.close();
+        QJsonDocument doc = QJsonDocument::fromJson(lastLine.toUtf8());
+        QJsonObject format = doc.object();
+        QJsonObject obj = format["data"].toObject();
+        // 此时 lastLine 就是文件的最后一行文本
+        // qDebug() << "最后一行:" << lastLine;
+        QString lastMessage;
+        QString lastMessageTime = obj["time"].toString();
+        if(format["kinds"].toString()=="text"){
+            lastMessage = obj["message"].toString();
+        }else if(format["kinds"].toString()=="image"){
+            lastMessage = "图片";
+        }
+
+        return {lastMessage,lastMessageTime};
 }
 
 void MainWindow::loadChatHistoryFromFile(QString targetId) {
     //更新好友信息
-    ui->chatPartner->setText(m_userList[targetId].userName);
-    // ui->friendState->setText(m_userList[targetId].state?"在线":"离线");
-    ui->friendState->setOnlineState(m_userList[targetId].state?StateEnum::ONLINE:StateEnum::OFFLINE);
+    ui->chatPartner->setText(m_friendList[targetId].userName);
+    ui->friendState->setOnlineState(m_friendList[targetId].state?StateEnum::ONLINE:StateEnum::OFFLINE);
 
     QString filePath = getChatHistoryFilePath();//因为多个个客户端会运行在同一台机器上，需要接收端id加发送端用户名来作为文件名
     filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_userName);
@@ -468,16 +521,22 @@ void MainWindow::loadChatHistoryFromFile(QString targetId) {
     message_model->clear();
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
+        // QString lastTime = "";//用于比较消息间的时间差距
         while (!in.atEnd()) {
             QString line = in.readLine();
             QJsonDocument doc = QJsonDocument::fromJson(line.toUtf8());
             QJsonObject format = doc.object();
             QJsonObject obj = format["data"].toObject();
+
             bool isOutgoing = obj["name"].toString()==m_userName;
+            QString senderId = isOutgoing?m_userId:targetId;
+            QString time = obj["time"].toString();
             if(format["kinds"].toString()=="text"){
-                addMessage_toList( obj["message"].toString(),isOutgoing,obj["name"].toString(),isOutgoing?m_avatarPath:m_userList[targetId].avatarPath);
+                QString message = obj["message"].toString();
+                addMessage_toList(message, targetId, senderId, time);
             }else if(format["kinds"].toString()=="image"){
-                addImage_toList(obj["imagePath"].toString(),isOutgoing,obj["name"].toString(),isOutgoing?m_avatarPath:m_userList[targetId].avatarPath);
+                QString imagePath = obj["imagePath"].toString();
+                addImage_toList(imagePath, targetId, senderId, time);
             }
 
         }
@@ -489,25 +548,49 @@ void MainWindow::handle_message(QDataStream &in)
 {
     QString textMessage;
     QString id;
-    in >> id>> textMessage;
-    qDebug()<<id<<textMessage;
+    QString msgTime;
+    in>>id>>textMessage>>msgTime;
+    // qDebug()<<id<<textMessage;
     if(ui->chatList->currentIndex().data(FriendsModel::IdRole).toString()==id)//接收的消息和当前聊天对象是同一个才在窗口显示
-        addMessage_toList(textMessage,m_userList[id].userName==m_userName,m_userList[id].userName,m_userList[id].userName==m_userName?m_avatarPath:m_userList[id].avatarPath);
-    storeMessageToFile(id,m_userList[id].userName,textMessage);
+        addMessage_toList(textMessage,id,id,msgTime);
+    storeMessageToFile(id,m_friendList[id].userName,textMessage,msgTime);
 }
 
 
 
-void MainWindow::addMessage_toList(const QString &text,const bool &isOutgoing,const QString &userName,const QString &avatarPath)
+void MainWindow::addMessage_toList(const QString &text,const QString &chatId,const QString &senderId,const QString &time)
 {
-    message_model->addTextMessage(text,isOutgoing,userName,avatarPath);
+    addTime_toList(chatId,time);
+    bool isOutgoing = (m_userId==senderId);
+    QString userName = isOutgoing?m_userName:m_friendList[chatId].userName;
+    QString avatarPath = isOutgoing?m_avatarPath:m_friendList[chatId].avatarPath;
+    message_model->addTextMessage(text,isOutgoing,userName,avatarPath,time);
     ui->messageList->scrollToBottom(); // 自动滚动到底部
 }
 
-void MainWindow::addImage_toList(const QString &imagePath,const bool &isOutgoing,const QString &userName,const QString &avatarPath)
+void MainWindow::addImage_toList(const QString &imagePath,const QString &chatId,const QString &senderId,const QString &time)
 {
-    message_model->addImageMessage(imagePath,isOutgoing,userName,avatarPath);
+    //因为最新的聊天消息和时间都存在聊天对象里面，并且需要判断是谁发送的消息，所以需要两个id
+    //把自己和对方的最新消息都存在对方里
+    addTime_toList(chatId,time);
+    bool isOutgoing = (m_userId==senderId);
+    QString userName = isOutgoing?m_userName:m_friendList[chatId].userName;
+    QString avatarPath = isOutgoing?m_avatarPath:m_friendList[chatId].avatarPath;
+    message_model->addImageMessage(imagePath,isOutgoing,userName,avatarPath,time);
     ui->messageList->scrollToBottom(); // 自动滚动到底部
+}
+
+void MainWindow::addTime_toList(const QString &chatId,const QString &time)
+{
+    // QString lastMsgTime = chat_model->get_lastTempTime(chatId);
+    QString lastMsgTime = message_model->get_lastTempTime(chatId);
+    if(lastMsgTime.isEmpty()){
+        message_model->addTimeMessage(time);
+    }else{
+        bool isTooLong = compareTime(lastMsgTime,time);
+        if(isTooLong) message_model->addTimeMessage(time);
+    }
+    message_model->update_lastTempTime(chatId,time);
 }
 
 void MainWindow::handle_userList(QDataStream &in)
@@ -525,7 +608,7 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
     for(auto &it:newKeys)
         newUserSet<<it;
     QSet<QString> currentUserSet;
-    const auto &ctKeys = m_userList.keys();
+    const auto &ctKeys = m_friendList.keys();
     for(auto &it:ctKeys)
         currentUserSet<<it;
     // 计算需要删除的用户
@@ -535,30 +618,26 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
 
     // 删除用户
     for (const QString &userId : usersToRemove) {
-        m_userList.remove(userId);
-        for (int i = 0; i < friends_model->rowCount(); ++i) {
-            QString id = friends_model->data(friends_model->index(i,0),FriendsModel::IdRole).toString();
-            if (id == userId) {
-                friends_model->removeItem(i);
-                break;
-            }
-        }
+        m_friendList.remove(userId);
+        chat_model->removeItem(userId);
     }
 
     // 添加新用户
     for (const QString &userId : usersToAdd) {
-        m_userList[userId].userName = newUserList[userId];
-        QString lastMessage = getLastMessage(userId);
+        m_friendList[userId].userName = newUserList[userId];
+        QPair<QString,QString> lastMessage = getLastMessage(userId);
         QString avatarPath = new_idAvatar[userId].size()?storeImage(newUserList[userId],new_idAvatar[userId]):"";
-        friends_model->addFriends_ToList(newUserList[userId],
-                                         userId,
-                                         lastMessage,
-                                         avatarPath);
+        chat_model->addChat_toList(newUserList[userId],
+                                   userId,
+                                   lastMessage.first,
+                                   lastMessage.second,
+                                   0,
+                                   avatarPath);
     }
 
-    const auto &keys = m_userList.keys();
+    const auto &keys = m_friendList.keys();
     for(auto &it:keys){
-        m_userList[it].avatarPath = new_idAvatar[it].size()?storeImage(m_userList[it].userName,new_idAvatar[it]):"";
+        m_friendList[it].avatarPath = new_idAvatar[it].size()?storeImage(m_friendList[it].userName,new_idAvatar[it]):"";
     }
 
     // 默认选择第一行
@@ -568,32 +647,31 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
         QString id = ui->chatList->currentIndex().data(FriendsModel::IdRole).toString();
         loadChatHistoryFromFile(id);
         ui->chatList->selectionModel()->select(firstIndex, QItemSelectionModel::Select);
+        chat_model->set_currentChatId(id);
     }
-
 }
 
 void MainWindow::handle_onlineFriendsList(QDataStream &in)
 {
     QSet<QString> onlineList;
     in>>onlineList;
-        const auto userIdList = m_userList.keys();
+        const auto userIdList = m_friendList.keys();
         for(auto &it :userIdList){
-            if(m_userList.contains(it))
-                m_userList[it].state=onlineList.contains(it);
+            if(m_friendList.contains(it))
+                m_friendList[it].state=onlineList.contains(it);
         }
         //更新当前聊天对象的在线状态
         QModelIndex index = ui->chatList->currentIndex();
         if(index.row()!=-1){
             QString id = index.data(FriendsModel::IdRole).toString();
-            // ui->friendState->setText(m_userList[id].state?"在线":"离线");
-            ui->friendState->setOnlineState(m_userList[id].state?StateEnum::ONLINE:StateEnum::OFFLINE);
+            ui->friendState->setOnlineState(m_friendList[id].state?StateEnum::ONLINE:StateEnum::OFFLINE);
         }
 }
 
-void MainWindow::handle_userAvatar(QDataStream &in)
+void MainWindow::handle_userInfo(QDataStream &in)
 {
     QByteArray imageData;
-    in >> imageData;
+    in >>m_userId>> imageData;
     if(imageData.isEmpty()) return;
     // qDebug()<<"存入头像"<<imageData.size();
     QString avatarPath = storeImage(m_userName,imageData);
@@ -613,21 +691,26 @@ void MainWindow::onSendClicked() {//发送按钮的槽函数
         qDebug() << "接收信息的用户id:" << userId;
     }else return;
 
-    if(m_userList[userId].userName != m_userName){
-        // sendData(CommonEnum::message_type::CHAT,userId,ui->lineEditMessage->toPlainText());
+    if(m_friendList[userId].userName != m_userName){
         QByteArray data = getPacket(CommonEnum::message_type::CHAT,userId,ui->lineEditMessage->toPlainText());
         sendData(data);
     }
     QString textMessage = ui->lineEditMessage->toPlainText();
-    addMessage_toList(textMessage,true,m_userName,m_avatarPath);
-    storeMessageToFile(userId,m_userName,textMessage);//保存聊天记录在硬盘中
+    addMessage_toList(textMessage,userId,m_userId,getCurrentTime());
+    storeMessageToFile(userId,m_userName,textMessage,getCurrentTime());//保存聊天记录在硬盘中
     ui->lineEditMessage->clear(); // 清空输入框
+
+    //将当前聊天对象的选择设为排序后的第一个
+    // if(ui->chatList->model()->rowCount() > 0){
+    //     QModelIndex firstIndex = ui->chatList->model()->index(0, 0);
+    //     ui->chatList->setCurrentIndex(firstIndex);
+    // }
 }
 
 void MainWindow::sendImage() {//发送图片的槽函数
     QString userId = ui->chatList->currentIndex().data(FriendsModel::IdRole).toString();
     if (!userId.isEmpty()) {
-        qDebug() << "接收信息的用户id:" << userId;
+        // qDebug() << "接收信息的用户id:" << userId;
     }else return;
     QString imagePath = QFileDialog::getOpenFileName(this, "Select image File", "", "image Files (*.jpg *.png)");
     if(imagePath.isEmpty()) return;
@@ -641,15 +724,21 @@ void MainWindow::sendImage() {//发送图片的槽函数
     QByteArray imageData = imageFile.readAll();
     imageFile.close();
 
-    if(m_userList[userId].userName != m_userName){
+    if(m_friendList[userId].userName != m_userName){
         // 数据包封装
         QByteArray packet = getPacket(CommonEnum::IMAGE,userId, imageData);
         sendData(packet);
     }
 
-    addImage_toList(imagePath,true,m_userName,m_avatarPath);
-    storeImageToFile(userId,m_userName,imageData);
+    addImage_toList(imagePath,userId,m_userId,getCurrentTime());
+    storeImageToFile(userId,m_userName,imageData,getCurrentTime());
     socket->flush();
+
+    // //将当前聊天对象的选择设为排序后的第一个
+    // if(ui->chatList->model()->rowCount() > 0){
+    //     QModelIndex firstIndex = ui->chatList->model()->index(0, 0);
+    //     ui->chatList->setCurrentIndex(firstIndex);
+    // }
 }
 
 template<typename... Args>

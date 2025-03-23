@@ -31,6 +31,9 @@ private:
     void drawTextMessage(QPainter *painter,
                          const QStyleOptionViewItem &option,
                          const QModelIndex &index, bool isOutgoing) const;
+    void drawTime(QPainter *painter,
+                  const QStyleOptionViewItem &option,
+                  const QModelIndex &index) const;
     QRect calculateImageRect(const QStyleOptionViewItem &option,
                              bool isOutgoing,
                              const QRect &avatarRect,

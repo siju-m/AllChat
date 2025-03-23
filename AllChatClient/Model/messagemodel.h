@@ -6,7 +6,7 @@
 #include <QVector>
 #include <QTime>
 
-enum MessageType { Text, Image };
+enum MessageType { Text, Image ,Time};
 
 struct Message {
     MessageType type;
@@ -15,8 +15,10 @@ struct Message {
     bool isOutgoing;
     QString userName;
     QString avatarPath;
+    QString time;
 };
 
+//消息数据
 class MessageModel : public QAbstractListModel {
     Q_OBJECT
 public:
@@ -26,8 +28,9 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const override;
 
-    void addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath);
-    void addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath);
+    void addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
+    void addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
+    void addTimeMessage(const QString &time);
 
     enum Roles {
         TypeRole = Qt::UserRole + 1,
@@ -35,13 +38,19 @@ public:
         ImageRole,
         IsOutgoingRole,
         UserNameRole,
-        AvatarRole
+        AvatarRole,
+        TimeRole
     };
 
     void clear();
 
+    void update_lastTempTime(const QString &targetId,const QString &lastMessageTime);
+    QString get_lastTempTime(const QString &targetId);
+
+
 private:
     QVector<Message> m_messages;
+    QHash<QString,QString> m_temp_lastMsgTime;//存聊天对象消息时间的临时变量，避免一直排序
 };
 
 #endif // MESSAGEMODEL_H
