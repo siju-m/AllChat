@@ -1,5 +1,6 @@
 #include "chatdelegate.h"
 
+#include <QDateTime>
 #include <QPainter>
 #include <QPainterPath>
 #include <QTextDocument>
@@ -149,13 +150,14 @@ void ChatDelegate::draw_lastMsg(QPainter *painter, const QStyleOptionViewItem &o
 void ChatDelegate::draw_lastMsgTime(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QRect itemRect = option.rect;
-    const QString lastMsgTime = index.data(ChatModel::LastMessageTimeRole).toString();
+    QString lastMsgTime = index.data(ChatModel::LastMessageTimeRole).toString();
+    lastMsgTime = caculate_time(lastMsgTime);
 
     QFont font("Arial", 8, QFont::Bold);
     QFontMetrics metrics(font);
     int timeWidth = metrics.horizontalAdvance(lastMsgTime); // 获取文本宽度
     int timeHeight = metrics.height(); // 获取文本高度
-    QRect timeRect = QRect(itemRect.right()-timeWidth-5,itemRect.top()+12,timeWidth,timeHeight);
+    QRect timeRect = QRect(itemRect.right()-timeWidth-15,itemRect.top()+12,timeWidth,timeHeight);
 
     if (option.state & QStyle::State_Selected)
         painter->setPen(Qt::white);
@@ -165,6 +167,17 @@ void ChatDelegate::draw_lastMsgTime(QPainter *painter, const QStyleOptionViewIte
     painter->drawText(timeRect, Qt::AlignLeft | Qt::AlignTop, lastMsgTime);
 }
 
+QString ChatDelegate::caculate_time(const QString &lastMsgTime) const
+{
+    QDateTime time = QDateTime::fromString(lastMsgTime,"yyyy-MM-dd hh:mm:ss");
+    QDateTime time_startDay = QDate::currentDate().startOfDay();
+    if(time>time_startDay){
+        return time.time().toString("hh:mm");
+    }else if(time_startDay.date().year()<=time.date().year()){
+        return time.toString("MM-dd");
+    }else return time.toString("yyyy-MM-dd");
+}
+
 void ChatDelegate::draw_unreadMsgNum(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QRect itemRect = option.rect;
@@ -172,23 +185,25 @@ void ChatDelegate::draw_unreadMsgNum(QPainter *painter, const QStyleOptionViewIt
     if(!unreadMsgNum) return;
 
     //绘制未读消息数
-    QString unreadNum = QString::number(unreadMsgNum);
-    QFont font("Arial", 10, QFont::Bold);
+    QString unreadNum;
+    if(unreadMsgNum>99) unreadNum = "99+";
+    else unreadNum = QString::number(unreadMsgNum);
+    QFont font("Arial", 8, QFont::Bold);
     QFontMetrics metrics(font);
     int numWidth = metrics.horizontalAdvance(unreadNum); // 获取文本宽度
     int numeHeight = metrics.height(); // 获取文本高度
-    QRect numRect = QRect(itemRect.right()-numWidth-15,itemRect.top()+34,numWidth<numeHeight?numeHeight:numWidth,numeHeight);
+    QRect numRect = QRect(itemRect.right()-numWidth-15,itemRect.top()+35,numWidth<numeHeight?numeHeight:numWidth,numeHeight);
 
-    //todo 气泡和文字对不准
     //气泡
     QColor bubbleColor = Qt::red;
     painter->setBrush(bubbleColor);
     painter->setPen(Qt::NoPen);
-    // int bubbleWidth = numWidth+4;
-    int spacing = 2;
-    int bubbleHeiht = numeHeight+spacing;
-    // QRect bubbleRect = QRect(numRect.left()-4,numRect.top()-2,bubbleWidth<bubbleHeiht?bubbleHeiht:bubbleWidth,bubbleHeiht);
-    painter->drawRoundedRect(numRect.adjusted(-spacing,-spacing,spacing,spacing), bubbleHeiht, bubbleHeiht);
+    int spacing = 4;
+    QPoint numPoint = QPoint(numRect.left()+numWidth/2,numRect.top()+numeHeight/2);
+    int w = qMax(numWidth, numeHeight) + spacing;  // 宽度
+    int h = numeHeight+spacing;   // 高度
+    QRect bubbleRect = QRect(numPoint.rx()-w/2,numPoint.ry()-h/2,w,h);
+    painter->drawRoundedRect(bubbleRect, h/2,h/2);
     //数字
     painter->setFont(font);
     painter->setPen(Qt::white);

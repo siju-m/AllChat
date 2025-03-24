@@ -18,6 +18,7 @@ private:
     void draw_userName(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void draw_lastMsg(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void draw_lastMsgTime(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QString caculate_time(const QString &lastMsgTime) const;
     void draw_unreadMsgNum(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 

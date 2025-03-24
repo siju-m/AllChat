@@ -702,19 +702,11 @@ void MainWindow::onSendClicked() {//发送按钮的槽函数
     addMessage_toList(textMessage,userId,m_userId,getCurrentTime());
     storeMessageToFile(userId,m_userName,textMessage,getCurrentTime());//保存聊天记录在硬盘中
     ui->lineEditMessage->clear(); // 清空输入框
-
-    //将当前聊天对象的选择设为排序后的第一个
-    // if(ui->chatList->model()->rowCount() > 0){
-    //     QModelIndex firstIndex = ui->chatList->model()->index(0, 0);
-    //     ui->chatList->setCurrentIndex(firstIndex);
-    // }
 }
 
 void MainWindow::sendImage() {//发送图片的槽函数
     QString userId = ui->chatList->currentIndex().data(FriendsModel::IdRole).toString();
-    if (!userId.isEmpty()) {
-        // qDebug() << "接收信息的用户id:" << userId;
-    }else return;
+    if (userId.isEmpty()) return;
     QString imagePath = QFileDialog::getOpenFileName(this, "Select image File", "", "image Files (*.jpg *.png)");
     if(imagePath.isEmpty()) return;
     QFile imageFile(imagePath);
@@ -736,12 +728,6 @@ void MainWindow::sendImage() {//发送图片的槽函数
     addImage_toList(imagePath,userId,m_userId,getCurrentTime());
     storeImageToFile(userId,m_userName,imageData,getCurrentTime());
     socket->flush();
-
-    // //将当前聊天对象的选择设为排序后的第一个
-    // if(ui->chatList->model()->rowCount() > 0){
-    //     QModelIndex firstIndex = ui->chatList->model()->index(0, 0);
-    //     ui->chatList->setCurrentIndex(firstIndex);
-    // }
 }
 
 template<typename... Args>
