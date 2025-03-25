@@ -12,9 +12,12 @@ QT += sql
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Core/chathistorymanager.cpp \
     Core/datatransfer.cpp \
     Delegate/chatdelegate.cpp \
     Model/chatmodel.cpp \
+    Model/currentuser.cpp \
+    View/customtitlebar.cpp \
     View/onlinestatelabel.cpp \
     View/updateavatar.cpp \
     View/addfriends.cpp \
@@ -32,10 +35,13 @@ SOURCES += \
     Delegate/strangerdelegate.cpp
 
 HEADERS += \
+    Core/chathistorymanager.h \
     Core/datatransfer.h \
     Delegate/chatdelegate.h \
     Model/chatmodel.h \
+    Model/currentuser.h \
     Utils/CustomTypes.h \
+    View/customtitlebar.h \
     View/onlinestatelabel.h \
     View/updateavatar.h \
     View/addfriends.h \

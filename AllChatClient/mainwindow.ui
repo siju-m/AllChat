@@ -12,8 +12,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>800</width>
-    <height>600</height>
+    <width>400</width>
+    <height>300</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -27,18 +27,37 @@
     <string notr="true"/>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
-    <property name="leftMargin">
+    <property name="spacing">
      <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>1</number>
     </property>
     <property name="topMargin">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="rightMargin">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="bottomMargin">
-     <number>0</number>
+     <number>1</number>
     </property>
+    <item>
+     <widget class="CustomTitleBar" name="titleBar" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>30</height>
+       </size>
+      </property>
+     </widget>
+    </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,4">
       <property name="spacing">
@@ -383,8 +402,41 @@ background-color: #cccccc;</string>
           <height>16777215</height>
          </size>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QScrollBar:vertical {
+    border: none;
+    background: #f0f0f0;
+    width: 10px;
+    margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle:vertical {
+    background: #888;
+    min-height: 20px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #666;
+}
+
+QScrollBar::handle:vertical:pressed {
+    background: #444;
+}
+
+QScrollBar::add-line:vertical, 
+QScrollBar::sub-line:vertical {
+    background: none;
+    border: none;
+}
+
+QScrollBar::add-page:vertical, 
+QScrollBar::sub-page:vertical {
+    background: none;
+}
+</string>
+        </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page">
          <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -691,7 +743,7 @@ QScrollBar::sub-page:vertical {
             <number>0</number>
            </property>
            <item>
-            <widget class="QWidget" name="widget" native="true">
+            <widget class="QWidget" name="widget_2" native="true">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -828,7 +880,7 @@ QScrollBar::sub-page:vertical {
             </widget>
            </item>
            <item>
-            <widget class="QWidget" name="widget_2" native="true">
+            <widget class="QWidget" name="widget_9" native="true">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -932,7 +984,6 @@ QPushButton::disabled{
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
@@ -954,6 +1005,12 @@ QPushButton::disabled{
    <class>OnlineStateLabel</class>
    <extends>QLabel</extends>
    <header>View/onlinestatelabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomTitleBar</class>
+   <extends>QWidget</extends>
+   <header>View/customtitlebar.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

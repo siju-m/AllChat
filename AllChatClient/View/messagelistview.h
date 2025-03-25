@@ -11,9 +11,9 @@ class MessageListView : public QListView {
 
 public:
     MessageListView(QWidget *parent = nullptr);
-
 protected:
     void wheelEvent(QWheelEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void showAndHideScrollBars();

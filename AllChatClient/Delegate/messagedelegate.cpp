@@ -91,44 +91,46 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     painter->restore();
 }
 
-// 绘制文本消息
 void MessageDelegate::drawTextMessage(QPainter *painter, const QStyleOptionViewItem &option,
                                       const QModelIndex &index, bool isOutgoing) const {
     QString text = index.data(MessageModel::TextRole).toString();
 
+    // 将纯文本中的换行符转换为HTML格式（可选步骤）
+
     // 计算气泡区域
-    // int maxBubbleWidth = option.rect.width() - 60; // 留出头像和边距
-    int maxBubbleWidth = qMin(300,option.rect.width()-60);
+    int maxBubbleWidth = option.rect.width() - 120;
 
-    // 使用 QTextDocument 来计算文本的实际宽度
     QTextDocument doc;
-    doc.setHtml(text);
-    doc.setTextWidth(maxBubbleWidth); // 设置最大宽度
-    int textWidth = doc.idealWidth(); // 获取文本的实际宽度
+    // 如果text是纯文本应改用：
+    doc.setPlainText(text);
 
-    // 动态设置气泡宽度
-    int bubbleWidth = qMin(textWidth + 16, maxBubbleWidth+16); // 加上边距
+    doc.setTextWidth(maxBubbleWidth);
+    int textWidth = qMin((int)doc.idealWidth(), maxBubbleWidth);
+
+    // 动态设置气泡尺寸
+    int bubbleWidth = textWidth + 16; // 增加内边距
+    int textHeight = doc.size().height();
     QRect bubbleRect = isOutgoing
-                                 ? QRect(option.rect.right() - bubbleWidth - 60, option.rect.top() + 15, bubbleWidth, option.rect.height() - 10)
-                                 : QRect(option.rect.left() + 60, option.rect.top() + 15, bubbleWidth, option.rect.height() - 10);
+                           ? QRect(option.rect.right() - bubbleWidth - 60, option.rect.top() + 15, bubbleWidth, textHeight + 10)
+                           : QRect(option.rect.left() + 60, option.rect.top() + 15, bubbleWidth, textHeight + 10);
 
     // 绘制气泡背景
-    QColor bubbleColor = isOutgoing ? QColor(149, 236, 105) : Qt::white;
-    painter->setBrush(bubbleColor);
+    painter->setBrush(isOutgoing ? QColor(149, 236, 105) : Qt::white);
     painter->setPen(Qt::NoPen);
     painter->drawRoundedRect(bubbleRect, 8, 8);
 
     // 绘制文本
-
-    doc.setHtml(text);
-    doc.setTextWidth(bubbleRect.width() - 12);
+    painter->save();
     painter->translate(bubbleRect.topLeft() + QPoint(8, 5));
-    doc.drawContents(painter);
+    QRect textRect(0, 0, bubbleWidth - 16, option.rect.height());
+    doc.drawContents(painter, textRect);
+    painter->restore();
 }
 
 void MessageDelegate::drawTime(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    const QString time = index.data(MessageModel::TimeRole).toString();
+    QString time = index.data(MessageModel::TimeRole).toString();
+    time = caculate_time(time);
     QRect itemRect = option.rect;
     QTextDocument doc;
     doc.setHtml(time);
@@ -143,6 +145,17 @@ void MessageDelegate::drawTime(QPainter *painter, const QStyleOptionViewItem &op
     //绘制文字
     painter->setPen(Qt::black);
     painter->drawText(timeRect, Qt::AlignLeft | Qt::AlignTop, time);
+}
+
+QString MessageDelegate::caculate_time(const QString &lastMsgTime) const
+{
+    QDateTime time = QDateTime::fromString(lastMsgTime,"yyyy-MM-dd hh:mm:ss");
+    QDateTime time_startDay = QDate::currentDate().startOfDay();
+    if(time>time_startDay){
+        return time.time().toString("hh:mm");
+    }else if(time_startDay.date().year()<=time.date().year()){
+        return time.toString("MM-dd hh:mm");
+    }else return time.toString("yyyy-MM-dd hh:mm");
 }
 
 // 绘制图片消息（关键改进：独立处理图片）
@@ -273,25 +286,25 @@ bool MessageDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, cons
 QSize MessageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
     MessageType type = static_cast<MessageType>(index.data(MessageModel::TypeRole).toInt());
     const int verticalSpacing = 20;
-
+    const int bottumMargin = 15;
     switch(type){
     case MessageType::Text:{
         // 文本高度计算
-        int maxWidth =qMin(option.rect.width() - 60,300);// 头像+边距
+        int maxWidth =option.rect.width() - 120;// 头像+边距
         QString text = index.data(MessageModel::TextRole).toString();
         QTextDocument doc;
-        doc.setHtml(text);
+        doc.setPlainText(text);
         doc.setTextWidth(maxWidth); // 与气泡宽度一致
-        return QSize(option.rect.width(), doc.size().height() + verticalSpacing);
+        return QSize(option.rect.width(), doc.size().height() + verticalSpacing+bottumMargin);
     }
     case MessageType::Image:{
         // 图片高度计算
         QPixmap image(index.data(MessageModel::ImageRole).toString());
         QSize scaledSize = image.size().scaled(300, 300, Qt::KeepAspectRatio);
-        return QSize(option.rect.width(), scaledSize.height() + verticalSpacing);
+        return QSize(option.rect.width(), scaledSize.height() + verticalSpacing+bottumMargin);
     }
     case MessageType::Time:{
-        return QSize(option.rect.width(), 20);
+        return QSize(option.rect.width(), 20+bottumMargin);
     }
     default:return sizeHint(option,index);
     }

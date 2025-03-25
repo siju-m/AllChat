@@ -17,19 +17,12 @@ void ChatDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
     painter->setRenderHint(QPainter::Antialiasing, true);          // 抗锯齿
 
-
     draw_background(painter,option);
-
     draw_avatar(painter,option,index);
-
     draw_userName(painter,option,index);
-
     draw_lastMsg(painter,option,index);
-
     draw_lastMsgTime(painter,option,index);
-
     draw_unreadMsgNum(painter,option,index);
-
 
     painter->restore();
 }

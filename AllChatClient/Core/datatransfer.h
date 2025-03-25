@@ -15,18 +15,19 @@ class DataTransfer : public QObject
     Q_OBJECT
 public:
     DataTransfer(QObject *parent = nullptr);
-    QByteArray receiveData(QTcpSocket *socket);
+    void onReadyRead(); // 处理服务器返回的数据
     void resetState();
+
+    void ConnectServer();
+    void sendData(QByteArray &packet);
+    void onDisconnected();      // 处理断开连接
 private:
+    QTcpSocket *m_socket;
+
     qint32 m_currentDataLength ;    // 数据长度
     qint32 m_receivedBytes ;        // 已接收字节数
     QByteArray m_dataBuffer;           // 用于暂存接收到的数据
     ReceivingState m_currentReceivingState; // 当前状态初始化为等待数据头
-    // enum ReceiveState { WaitingForHeader, ReceivingData };
-    // ReceiveState m_state = WaitingForHeader;
-    // qint32 m_expectedSize = 0;
-    // QByteArray m_buffer;
-    // void reset();
 signals:
     void handleData(QByteArray data);
 };

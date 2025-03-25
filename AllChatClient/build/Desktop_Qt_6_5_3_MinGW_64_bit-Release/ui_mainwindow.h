@@ -21,10 +21,10 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStackedWidget>
-#include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "View/customtitlebar.h"
 #include "View/onlinestatelabel.h"
 #include "View\messagelistview.h"
 
@@ -35,6 +35,7 @@ class Ui_MainWindow
 public:
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout_2;
+    CustomTitleBar *titleBar;
     QHBoxLayout *horizontalLayout_4;
     QWidget *sideBar;
     QVBoxLayout *verticalLayout_6;
@@ -74,16 +75,15 @@ public:
     MessageListView *messageList;
     QWidget *widget_3;
     QVBoxLayout *verticalLayout_4;
-    QWidget *widget;
+    QWidget *widget_2;
     QHBoxLayout *horizontalLayout_2;
     QPushButton *btnImage;
     QSpacerItem *horizontalSpacer;
     QPlainTextEdit *lineEditMessage;
-    QWidget *widget_2;
+    QWidget *widget_9;
     QHBoxLayout *horizontalLayout_3;
     QSpacerItem *horizontalSpacer_2;
     QPushButton *btnSend;
-    QStatusBar *statusBar;
     QMenuBar *menuBar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -91,14 +91,22 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
         MainWindow->resize(800, 600);
-        MainWindow->setMinimumSize(QSize(800, 600));
+        MainWindow->setMinimumSize(QSize(400, 300));
         MainWindow->setStyleSheet(QString::fromUtf8("background-color: rgb(241, 241, 241)"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
         centralwidget->setStyleSheet(QString::fromUtf8(""));
         verticalLayout_2 = new QVBoxLayout(centralwidget);
+        verticalLayout_2->setSpacing(0);
         verticalLayout_2->setObjectName("verticalLayout_2");
-        verticalLayout_2->setContentsMargins(0, 0, 0, 0);
+        verticalLayout_2->setContentsMargins(1, 1, 1, 1);
+        titleBar = new CustomTitleBar(centralwidget);
+        titleBar->setObjectName("titleBar");
+        titleBar->setMinimumSize(QSize(0, 30));
+        titleBar->setMaximumSize(QSize(16777215, 30));
+
+        verticalLayout_2->addWidget(titleBar);
+
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setSpacing(0);
         horizontalLayout_4->setObjectName("horizontalLayout_4");
@@ -239,6 +247,37 @@ public:
         stackedList->setObjectName("stackedList");
         stackedList->setMinimumSize(QSize(200, 0));
         stackedList->setMaximumSize(QSize(200, 16777215));
+        stackedList->setStyleSheet(QString::fromUtf8("QScrollBar:vertical {\n"
+"    border: none;\n"
+"    background: #f0f0f0;\n"
+"    width: 10px;\n"
+"    margin: 0px 0px 0px 0px;\n"
+"}\n"
+"QScrollBar::handle:vertical {\n"
+"    background: #888;\n"
+"    min-height: 20px;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical:hover {\n"
+"    background: #666;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical:pressed {\n"
+"    background: #444;\n"
+"}\n"
+"\n"
+"QScrollBar::add-line:vertical, \n"
+"QScrollBar::sub-line:vertical {\n"
+"    background: none;\n"
+"    border: none;\n"
+"}\n"
+"\n"
+"QScrollBar::add-page:vertical, \n"
+"QScrollBar::sub-page:vertical {\n"
+"    background: none;\n"
+"}\n"
+""));
         page = new QWidget();
         page->setObjectName("page");
         verticalLayout_7 = new QVBoxLayout(page);
@@ -443,14 +482,14 @@ public:
         verticalLayout_4 = new QVBoxLayout(widget_3);
         verticalLayout_4->setObjectName("verticalLayout_4");
         verticalLayout_4->setContentsMargins(0, 0, 0, 0);
-        widget = new QWidget(widget_3);
-        widget->setObjectName("widget");
-        widget->setMinimumSize(QSize(0, 30));
-        widget->setMaximumSize(QSize(16777215, 20));
-        horizontalLayout_2 = new QHBoxLayout(widget);
+        widget_2 = new QWidget(widget_3);
+        widget_2->setObjectName("widget_2");
+        widget_2->setMinimumSize(QSize(0, 30));
+        widget_2->setMaximumSize(QSize(16777215, 20));
+        horizontalLayout_2 = new QHBoxLayout(widget_2);
         horizontalLayout_2->setObjectName("horizontalLayout_2");
         horizontalLayout_2->setContentsMargins(10, 0, 0, 0);
-        btnImage = new QPushButton(widget);
+        btnImage = new QPushButton(widget_2);
         btnImage->setObjectName("btnImage");
         btnImage->setMaximumSize(QSize(60, 16777215));
         btnImage->setStyleSheet(QString::fromUtf8("/**\346\255\243\345\270\270\346\203\205\345\206\265\344\270\213\346\240\267\345\274\217**/\n"
@@ -494,7 +533,7 @@ public:
         horizontalLayout_2->addItem(horizontalSpacer);
 
 
-        verticalLayout_4->addWidget(widget);
+        verticalLayout_4->addWidget(widget_2);
 
         lineEditMessage = new QPlainTextEdit(widget_3);
         lineEditMessage->setObjectName("lineEditMessage");
@@ -537,17 +576,17 @@ public:
 
         verticalLayout_4->addWidget(lineEditMessage);
 
-        widget_2 = new QWidget(widget_3);
-        widget_2->setObjectName("widget_2");
-        widget_2->setMinimumSize(QSize(0, 30));
-        horizontalLayout_3 = new QHBoxLayout(widget_2);
+        widget_9 = new QWidget(widget_3);
+        widget_9->setObjectName("widget_9");
+        widget_9->setMinimumSize(QSize(0, 30));
+        horizontalLayout_3 = new QHBoxLayout(widget_9);
         horizontalLayout_3->setObjectName("horizontalLayout_3");
         horizontalLayout_3->setContentsMargins(0, 0, 10, 0);
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_3->addItem(horizontalSpacer_2);
 
-        btnSend = new QPushButton(widget_2);
+        btnSend = new QPushButton(widget_9);
         btnSend->setObjectName("btnSend");
         btnSend->setMinimumSize(QSize(0, 0));
         btnSend->setMaximumSize(QSize(40, 16777215));
@@ -589,7 +628,7 @@ public:
         horizontalLayout_3->addWidget(btnSend);
 
 
-        verticalLayout_4->addWidget(widget_2);
+        verticalLayout_4->addWidget(widget_9);
 
 
         verticalLayout->addWidget(widget_3);
@@ -602,9 +641,6 @@ public:
         verticalLayout_2->addLayout(horizontalLayout_4);
 
         MainWindow->setCentralWidget(centralwidget);
-        statusBar = new QStatusBar(MainWindow);
-        statusBar->setObjectName("statusBar");
-        MainWindow->setStatusBar(statusBar);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName("menuBar");
         menuBar->setGeometry(QRect(0, 0, 800, 17));
@@ -612,7 +648,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedList->setCurrentIndex(2);
+        stackedList->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);

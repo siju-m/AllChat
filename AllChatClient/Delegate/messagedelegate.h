@@ -21,6 +21,8 @@ public:
     bool isClickOnImage(const QPoint &pos, const QModelIndex &index, const QStyleOptionViewItem &option) const;
 
     qint32 getListViewSpacing();
+protected:
+
 signals:
     void imageClicked(const QPixmap &image); // 点击图片时触发信号
 private:
@@ -34,6 +36,7 @@ private:
     void drawTime(QPainter *painter,
                   const QStyleOptionViewItem &option,
                   const QModelIndex &index) const;
+    QString caculate_time(const QString &lastMsgTime) const;
     QRect calculateImageRect(const QStyleOptionViewItem &option,
                              bool isOutgoing,
                              const QRect &avatarRect,

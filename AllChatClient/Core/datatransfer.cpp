@@ -1,16 +1,42 @@
 #include "datatransfer.h"
 
+#include <QMessageBox>
+
 DataTransfer::DataTransfer(QObject *parent):
     QObject(parent),
+    m_socket(new QTcpSocket(this)),
     m_currentDataLength(0),
     m_receivedBytes(0),
     m_currentReceivingState(WaitingForHeader)
-{}
+{
+    connect(m_socket, &QTcpSocket::readyRead, this, &DataTransfer::onReadyRead);
+    connect(m_socket, &QTcpSocket::disconnected, this, &DataTransfer::onDisconnected);
+}
 
-QByteArray DataTransfer::receiveData(QTcpSocket *socket)
+void DataTransfer::ConnectServer() {
+    //clash开着的时候局域网ip无法连接到服务器
+    QString host = "127.0.0.1"; // 服务器 IP
+    quint16 port = 12345; // 服务器端口号
+
+    m_socket->connectToHost(host, port); // 连接到服务器
+
+    if (!m_socket->waitForConnected(3000)) {
+        // QMessageBox::critical(this, "Error", "连接服务器失败!");
+        qDebug()<<"连接服务器失败.";
+    } else {
+        qDebug()<<"已经成功连接服务器.";
+    }
+}
+
+void DataTransfer::onDisconnected()
+{
+    qDebug()<<"和服务器断开连接";
+}
+
+void DataTransfer::onReadyRead()
 {
 
-    QDataStream in(socket);
+    QDataStream in(m_socket);
     in.setVersion(QDataStream::Qt_5_15);
     while(!in.atEnd()){
         if (m_currentReceivingState == WaitingForHeader) {
@@ -19,15 +45,15 @@ QByteArray DataTransfer::receiveData(QTcpSocket *socket)
             if (m_currentDataLength <= 0 || m_currentDataLength > 10 * 1024 * 1024) {
                 qWarning() << "Invalid data length:" << m_currentDataLength;
                 resetState();
-                return QByteArray();
+                return ;
             }
             m_dataBuffer.clear();
             m_dataBuffer.reserve(m_currentDataLength);
             m_currentReceivingState = ReceivingData;
         }
         if (m_currentReceivingState == ReceivingData) {
-            int bytesToRead = qMin(socket->bytesAvailable(), m_currentDataLength - m_receivedBytes);
-            QByteArray chunk = socket->read(bytesToRead);
+            int bytesToRead = qMin(m_socket->bytesAvailable(), m_currentDataLength - m_receivedBytes);
+            QByteArray chunk = m_socket->read(bytesToRead);
             m_dataBuffer.append(chunk);
             m_receivedBytes += chunk.size();
             // qDebug()<<"数据大小："<<m_receivedBytes;
@@ -38,7 +64,7 @@ QByteArray DataTransfer::receiveData(QTcpSocket *socket)
             }
         }
     }
-    return QByteArray();
+    return ;
 }
 
 void DataTransfer::resetState()
@@ -48,4 +74,15 @@ void DataTransfer::resetState()
     m_receivedBytes = 0;
     m_dataBuffer.clear();
 
+}
+
+void DataTransfer::sendData(QByteArray &packet)
+{
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    out<<static_cast<qint32>(packet.size());
+    out.writeRawData(packet.constData(),packet.size());
+    m_socket->write(data);
+    m_socket->flush();
 }

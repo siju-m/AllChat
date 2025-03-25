@@ -226,6 +226,7 @@ void Server::sendData(const QString &targetId, QByteArray &packet)
     if(m_userIds_client.contains(targetId)){
         // qDebug()<<"向 "+targetId+" 发送数据";
         m_userIds_client[targetId]->write(outData);
+        m_userIds_client[targetId]->flush();
     }
     else store_forwardContents(outData,targetId);
 }
@@ -238,6 +239,7 @@ void Server::sendData(QTcpSocket *senderSocket, QByteArray &packet)
     out<<static_cast<qint32>(packet.size());
     out.writeRawData(packet.constData(),packet.size());
     senderSocket->write(outData);
+    senderSocket->flush();
 }
 
 void Server::handle_updateAvatar(QDataStream &in, QTcpSocket *senderSocket)

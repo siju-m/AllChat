@@ -27,10 +27,13 @@
 #include <View/updateavatar.h>
 #include <Model/chatmodel.h>
 #include <Delegate/chatdelegate.h>
+#include <Model/currentuser.h>
+#include <Core/chathistorymanager.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -38,31 +41,31 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void ConnectServer();    // 连接服务器
 public slots:
     void registerUser(const QString &username, const QString &password);
     void loginUser(const QString &username, const QString &password);
     void send_slelectByName(const QString &username);
+protected:
+    void showEvent(QShowEvent *event) override;//在windows平台去掉标题栏，其他平台不兼容
+    //todo 调整窗口大小时会掉帧，应该是listview的重绘导致的
 private slots:
 
     void onSendClicked();       // 发送消息
-    void onReadyRead();         // 处理服务器返回的数据
-    void onDisconnected();      // 处理断开连接
     void sendImage(); //发送图片
 
-    void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
     void handleData(QByteArray data);
     void send_updateAvatar(const QString &path);
     void setAvatar(const QString &path);
 private:
     Ui::MainWindow *ui;
-    QTcpSocket *socket;//可以换成QSslSocket来加密连接
+    // QTcpSocket *socket;//可以换成QSslSocket来加密连接
 
-    QString m_avatarPath;
-    QString m_userName;
-    QString m_userId;
+    CurrentUser *m_user;
     QButtonGroup *m_sideBar_btnGroup;//管理侧边栏按钮
     UpdateAvatar *m_updateAvatar;
+
+    ChatHistoryManager *m_historyManager;
+    void initHistoryManager();
 
     void initSideBar();
     void showAvatar(const QString &path);//绘制侧边栏的头像
@@ -82,14 +85,11 @@ private:
     void handle_userList(QDataStream &in);//接收好友数据
     void handle_onlineFriendsList(QDataStream &in);//接收在线用户列表
     void handle_userInfo(QDataStream &in);//接收用户信息
-    QString getChatHistoryFilePath();//获取聊天记录在文件中的路径
+
     void storeMessageToFile(const QString &targetId, const QString &sender, const QString &message, const QString &msgTime);//将聊天记录存在文件中
     QString storeImageToFile(const QString &targetId, const QString &sender, const QByteArray &imageData, const QString &msgTime);
-    QString storeImage(QString imageName,const QByteArray &imageData);
-    // QString getLastMessage(const QString &targetId);
-    //todo 消息的时间应该服务器传过来，不然有些用户是登录之后才接收到消息就设定的不一样了
+    void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
     //todo 好友请求没有保存记录，下线之后就看不到了
-    QPair<QString,QString> getLastMessage(const QString &targetId);
 
     void addMessage_toList(const QString &text,const QString &chatId,const QString &senderId,const QString &time);//添加消息到聊天界面
     void addImage_toList(const QString &imagePath,const QString &chatId,const QString &senderId,const QString &time);//添加图片到聊天界面
@@ -113,7 +113,7 @@ private:
 
     template <typename... Args>//c++17模板参数包允许函数接受任意数量的参数
     QByteArray getPacket(Args... args);//把发送数据的重复语句封装，可以传入任意数量的变量
-    void sendData(QByteArray &packet);
+    // void sendData(QByteArray &packet);
 
     AddFriends add_friends;//添加好友窗口
     void initAddFriends();
@@ -126,7 +126,6 @@ private:
     QString getCurrentTime();
     bool compareTime(const QString &pastTime,const QString &lastTime);
 
-    //内存和外存都要维护好友列表，每次启动时从外存加载，每次更新时写入外存
 signals:
     void loginResult(CommonEnum::message_type result);
     void registResult(CommonEnum::message_type result);

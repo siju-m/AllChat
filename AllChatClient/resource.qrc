@@ -3,5 +3,9 @@
         <file>Icon/comment.png</file>
         <file>Icon/user-add.png</file>
         <file>Icon/users.png</file>
+        <file>Icon/expand.png</file>
+        <file>Icon/minus.png</file>
+        <file>Icon/cross.png</file>
+        <file>Icon/square.png</file>
     </qresource>
 </RCC>

@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     QObject::connect(&w,&MainWindow::loginResult,&login,&Login::closeWindow);//根据登录结果决定是否关闭窗口
     QObject::connect(&w,&MainWindow::registResult,&regist,&Regist::closeWindow);
     QObject::connect(login.btnRegist,&QPushButton::clicked,&regist,&Regist::exec);//绑定跳转注册按钮
-    w.ConnectServer();
+
     if(login.exec()==QDialog::Accepted){
         w.resize(1000, 700);
         w.show();
