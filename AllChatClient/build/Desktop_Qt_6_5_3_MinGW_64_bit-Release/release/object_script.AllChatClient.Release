@@ -3,6 +3,8 @@ release/datatransfer.o
 release/chatdelegate.o
 release/chatmodel.o
 release/currentuser.o
+release/strangermodel.o
+release/UserDetailView.o
 release/customtitlebar.o
 release/onlinestatelabel.o
 release/updateavatar.o
@@ -24,6 +26,7 @@ release/moc_chathistorymanager.o
 release/moc_datatransfer.o
 release/moc_chatdelegate.o
 release/moc_chatmodel.o
+release/moc_UserDetailView.o
 release/moc_customtitlebar.o
 release/moc_updateavatar.o
 release/moc_addfriends.o

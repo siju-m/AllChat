@@ -17,13 +17,13 @@ AddFriends::~AddFriends()
     delete ui;
 }
 
-void AddFriends::updateListView(QMap<QString, QString> id_name)
+void AddFriends::updateListView(QMap<QString, QString> id_name,QMap<QString,QString> id_avatar)
 {
     m_stranger_model->clear();
     QList<QString> ids = id_name.keys();
     for(auto &id:ids){
         //在列表显示
-        m_stranger_model->addFriends_ToList(id_name[id],id,"1","");
+        m_stranger_model->addFriends_ToList(id_name[id],id,"",id_avatar[id]);
     }
 
 }
@@ -43,7 +43,7 @@ void AddFriends::slelect_byName()
 
 void AddFriends::initStrangerList()
 {
-    m_stranger_model = new FriendsModel(this);
+    m_stranger_model = new StrangerModel(this);
     ui->strangerList->setModel(m_stranger_model);
     m_stranger_delegate = new StrangerDelegate(this);
     ui->strangerList->setItemDelegate(m_stranger_delegate);

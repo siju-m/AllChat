@@ -1,12 +1,13 @@
 #ifndef FRIENDSMODEL_H
 #define FRIENDSMODEL_H
 
+#include "Utils/CustomTypes.h"
 #include <QAbstractListModel>
 
 struct Friends{
     QString userName;
     QString id;
-    QString lastMessage;
+    StateEnum::onlineState_type onlineState = StateEnum::OFFLINE;
     QString avatarPath;
 };
 
@@ -19,7 +20,7 @@ public:
     enum Roles {
         UserNameRole = Qt::UserRole + 1,
         IdRole,
-        LastMessageRole,
+        OnlineRole,
         AvatarRole
     };
 
@@ -27,11 +28,12 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const override;
 
-    void addFriends_ToList(const QString &userName,const QString &id,const QString &lastMessage, const QString &avatarPath="");
+    void addFriends_ToList(const QString &userName,const QString &id,const StateEnum::onlineState_type &onlineState, const QString &avatarPath="");
 
-    void updateLastMessage(QString targetId,const QString &message);
+    void updateOnlineState(QString targetId,const StateEnum::onlineState_type &onlineState);
 
     void removeItem(int row);
+    void removeItem(const QString &id);
 
     void clear();
 

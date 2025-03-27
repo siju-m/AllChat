@@ -4,19 +4,33 @@
 #include <QPainterPath>
 #include <QTextDocument>
 
+using StateEnum::onlineState_type;
+
 FriendsDelegate::FriendsDelegate(QObject *parent)
-    : QStyledItemDelegate{parent}
-{}
+    : QStyledItemDelegate{parent} {}
 
 void FriendsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     painter->save();
 
     painter->setRenderHint(QPainter::Antialiasing, true);          // 抗锯齿
-    QString userName = index.data(FriendsModel::UserNameRole).toString();
-    QString lastMessage = index.data(FriendsModel::LastMessageRole).toString();
-    const QString avatarPath = index.data(FriendsModel::AvatarRole).toString();
 
+    draw_back(painter,option);
+    draw_avatar(painter,option,index);
+    draw_name(painter,option,index);
+    draw_onlineState(painter,option,index);
+
+    painter->restore();
+}
+
+QSize FriendsDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    (void)index;
+    return QSize(option.rect.width(),60);
+}
+
+void FriendsDelegate::draw_back(QPainter *painter, const QStyleOptionViewItem &option) const
+{
     // 绘制选中状态背景
     if (option.state & QStyle::State_Selected) {
         QPainterPath path;
@@ -34,7 +48,11 @@ void FriendsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         painter->setPen(pen);
         painter->drawPath(path);
     }
+}
 
+void FriendsDelegate::draw_avatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    const QString avatarPath = index.data(FriendsModel::AvatarRole).toString();
     QRect itemRect = option.rect;
 
     //绘制头像
@@ -78,7 +96,12 @@ void FriendsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
             painter->setClipping(false); // 关闭剪裁以免影响后续绘制
         }
     }
+}
 
+void FriendsDelegate::draw_name(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QString userName = index.data(FriendsModel::UserNameRole).toString();
+    QRect itemRect = option.rect;
 
     // 绘制用户名
     QTextDocument doc;
@@ -90,33 +113,23 @@ void FriendsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     QFont font("Arial", 12, QFont::Bold); // 字体为 Arial，大小为 20，加粗
     painter->setFont(font);
     painter->drawText(usernameRect, Qt::AlignLeft | Qt::AlignTop, userName);
-
-    //绘制最新消息
-    lastMessage = (lastMessage.size()>10? lastMessage.last(10)+"...":lastMessage);
-    doc.setHtml(lastMessage);//只显示消息前面部分内容
-    doc.setTextWidth(itemRect.width()); // 设置最大宽度
-    int messageWidth = doc.idealWidth(); // 获取文本的实际宽度
-
-    QRect messageRect = QRect(itemRect.left()+60, itemRect.top()+35, messageWidth, 20);
-    if (option.state & QStyle::State_Selected)
-        painter->setPen(Qt::white);
-    else
-        painter->setPen(Qt::gray);
-    font = QFont("Arial", 10, QFont::Bold);
-    painter->setFont(font);
-    painter->drawText(messageRect, Qt::AlignLeft | Qt::AlignTop, lastMessage);
-
-    // QPen linePen(Qt::gray, 1); // 设置分割线的颜色和宽度
-    // painter->setPen(linePen);
-    // painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
-
-
-
-    painter->restore();
 }
 
-QSize FriendsDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+void FriendsDelegate::draw_onlineState(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    (void)index;
-    return QSize(option.rect.width(),60);
+
+    onlineState_type onlineState = (onlineState_type)index.data(FriendsModel::OnlineRole).toInt();
+    // qDebug()<<onlineState;
+    painter->setRenderHint(QPainter::Antialiasing); // 开启抗锯齿
+    painter->setPen(Qt::NoPen);//无边框
+
+    // 绘制一个圆形
+    switch(onlineState){
+    case StateEnum::ONLINE:painter->setBrush(Qt::green);break;
+    case StateEnum::OFFLINE:painter->setBrush(Qt::gray);break;
+    case StateEnum::BUSY:painter->setBrush(Qt::yellow);break;
+    default:break;
+    }
+    QRect itemRect = option.rect;
+    painter->drawEllipse(itemRect.left()+60, itemRect.top()+35, 15, 15);
 }

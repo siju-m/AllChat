@@ -24,6 +24,7 @@
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "View/UserDetailView.h"
 #include "View/customtitlebar.h"
 #include "View/onlinestatelabel.h"
 #include "View\messagelistview.h"
@@ -65,6 +66,9 @@ public:
     QVBoxLayout *verticalLayout_5;
     QListView *friendApplyList;
     QVBoxLayout *verticalLayout;
+    QStackedWidget *stackedWidget;
+    QWidget *chatView;
+    QVBoxLayout *verticalLayout_8;
     QWidget *widget_4;
     QHBoxLayout *horizontalLayout;
     QLabel *chatPartner;
@@ -84,6 +88,9 @@ public:
     QHBoxLayout *horizontalLayout_3;
     QSpacerItem *horizontalSpacer_2;
     QPushButton *btnSend;
+    QWidget *page_5;
+    QVBoxLayout *verticalLayout_9;
+    UserDetailView *friendInfo;
     QMenuBar *menuBar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -328,8 +335,16 @@ public:
         horizontalLayout_4->addWidget(stackedList);
 
         verticalLayout = new QVBoxLayout();
+        verticalLayout->setSpacing(0);
         verticalLayout->setObjectName("verticalLayout");
-        widget_4 = new QWidget(centralwidget);
+        stackedWidget = new QStackedWidget(centralwidget);
+        stackedWidget->setObjectName("stackedWidget");
+        chatView = new QWidget();
+        chatView->setObjectName("chatView");
+        verticalLayout_8 = new QVBoxLayout(chatView);
+        verticalLayout_8->setObjectName("verticalLayout_8");
+        verticalLayout_8->setContentsMargins(0, 0, 0, 0);
+        widget_4 = new QWidget(chatView);
         widget_4->setObjectName("widget_4");
         widget_4->setMinimumSize(QSize(0, 20));
         horizontalLayout = new QHBoxLayout(widget_4);
@@ -428,9 +443,9 @@ public:
         horizontalLayout->addWidget(addFriends);
 
 
-        verticalLayout->addWidget(widget_4);
+        verticalLayout_8->addWidget(widget_4);
 
-        messageList = new MessageListView(centralwidget);
+        messageList = new MessageListView(chatView);
         messageList->setObjectName("messageList");
         messageList->setMinimumSize(QSize(0, 250));
         messageList->setStyleSheet(QString::fromUtf8("\n"
@@ -473,9 +488,9 @@ public:
 "}\n"
 ""));
 
-        verticalLayout->addWidget(messageList);
+        verticalLayout_8->addWidget(messageList);
 
-        widget_3 = new QWidget(centralwidget);
+        widget_3 = new QWidget(chatView);
         widget_3->setObjectName("widget_3");
         widget_3->setMinimumSize(QSize(0, 50));
         widget_3->setMaximumSize(QSize(16777215, 150));
@@ -631,7 +646,22 @@ public:
         verticalLayout_4->addWidget(widget_9);
 
 
-        verticalLayout->addWidget(widget_3);
+        verticalLayout_8->addWidget(widget_3);
+
+        stackedWidget->addWidget(chatView);
+        page_5 = new QWidget();
+        page_5->setObjectName("page_5");
+        verticalLayout_9 = new QVBoxLayout(page_5);
+        verticalLayout_9->setObjectName("verticalLayout_9");
+        verticalLayout_9->setContentsMargins(0, 0, 0, 0);
+        friendInfo = new UserDetailView(page_5);
+        friendInfo->setObjectName("friendInfo");
+
+        verticalLayout_9->addWidget(friendInfo);
+
+        stackedWidget->addWidget(page_5);
+
+        verticalLayout->addWidget(stackedWidget);
 
 
         horizontalLayout_4->addLayout(verticalLayout);

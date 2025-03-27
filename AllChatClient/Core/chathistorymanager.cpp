@@ -78,6 +78,7 @@ QString ChatHistoryManager::storeImageToFile(const QString &targetId, const QStr
 
 QString ChatHistoryManager::storeImage(QString imageName, const QByteArray &imageData)
 {
+    if(imageData.isEmpty()) return QString();
     QString filePath = getChatHistoryFilePath();
 
     QImage image;

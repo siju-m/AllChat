@@ -27,8 +27,10 @@
 #include <View/updateavatar.h>
 #include <Model/chatmodel.h>
 #include <Delegate/chatdelegate.h>
-#include <Model/currentuser.h>
+#include <Core/currentuser.h>
 #include <Core/chathistorymanager.h>
+
+#include <Model/strangermodel.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -107,8 +109,8 @@ private:
     ChatDelegate *chat_delegate;
     void initChatList();
 
-    FriendsModel *friendsApply_model;//存储申请添加好友的用户数据
-    ApplyDelegate *friendsApply_delegate;//绘制申请添加好友的用户
+    StrangerModel *apply_model;//存储申请添加好友的用户数据
+    ApplyDelegate *apply_delegate;//绘制申请添加好友的用户
     void initFriendApplyList();
 
     template <typename... Args>//c++17模板参数包允许函数接受任意数量的参数
@@ -122,6 +124,7 @@ private:
     void handle_addFriend_result(QDataStream &in);//处理对方返回的请求结果
 
     void handle_selectByName_reuslt(QDataStream &in);//处理返回的用户名模糊查询的用户列表
+    void handle_deleteFriend_result(QDataStream &in);
 
     QString getCurrentTime();
     bool compareTime(const QString &pastTime,const QString &lastTime);
@@ -129,6 +132,7 @@ private:
 signals:
     void loginResult(CommonEnum::message_type result);
     void registResult(CommonEnum::message_type result);
+    void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
 };
 
 #endif // MAINWINDOW_H

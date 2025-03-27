@@ -13,6 +13,8 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+private:
+    void draw_avatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 signals:
     void applyClicked(const QString &id,const int &row);
 protected:

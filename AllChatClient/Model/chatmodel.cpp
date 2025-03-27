@@ -59,8 +59,7 @@ void ChatModel::updateLastMessage(QString targetId, const QString &message, cons
 void ChatModel::removeItem(const QString &targetId)
 {
     if(!m_id_chats.contains(targetId)) return;
-    const auto &it = m_id_chats.find(targetId);
-    int row = std::distance(m_id_chats.begin(), it);
+    int row = m_ids.indexOf(targetId);
     beginRemoveRows(QModelIndex(), row, row); // 通知视图删除开始
     m_id_chats.remove(targetId);
     m_ids.remove(row);
@@ -116,6 +115,11 @@ bool ChatModel::compareByTime(const QString &a, const QString &b)
 int ChatModel::get_currentChatRow()
 {
     return m_ids.indexOf(m_current_chatId);
+}
+
+int ChatModel::get_rowById(const QString &targetId)
+{
+    return m_ids.indexOf(targetId);
 }
 
 void ChatModel::set_currentChatId(const QString &id)

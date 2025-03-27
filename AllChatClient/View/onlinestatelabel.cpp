@@ -2,7 +2,9 @@
 
 #include <QPainter>
 
-OnlineStateLabel::OnlineStateLabel(QWidget *parent):QLabel(parent) {}
+OnlineStateLabel::OnlineStateLabel(QWidget *parent):QLabel(parent) ,
+    m_position({5, 5, 20, 20})
+{}
 
 void OnlineStateLabel::paintEvent(QPaintEvent *event)
 {
@@ -20,14 +22,15 @@ void OnlineStateLabel::paintEvent(QPaintEvent *event)
     case StateEnum::BUSY:painter.setBrush(Qt::yellow);break;
     default:break;
     }
-    painter.drawEllipse(5, 5, 20, 20);
+    painter.drawEllipse(m_position);
     painter.restore();
 }
 
-void OnlineStateLabel::setOnlineState(StateEnum::onlineState_type state)
+void OnlineStateLabel::setOnlineState(StateEnum::onlineState_type state,const QRect &position)
 {
-    if (m_onlineState != state) { // 避免重复更新
+    if (m_onlineState != state || m_position != position) { // 避免重复更新
         m_onlineState = state;
+        m_position = position;
         update(); // 通知 Qt 重新绘制控件
     }
 }

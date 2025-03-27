@@ -2,9 +2,9 @@
 #define ADDFRIENDS_H
 
 #include <QDialog>
-#include "Model\friendsmodel.h"
 #include "Delegate\strangerdelegate.h"
 #include <QObject>
+#include <Model/strangermodel.h>
 
 namespace Ui {
 class AddFriends;
@@ -18,7 +18,7 @@ public:
     explicit AddFriends(QWidget *parent = nullptr);
     ~AddFriends();
 
-    void updateListView(QMap<QString,QString> id_name);
+    void updateListView(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
 protected:
     void closeEvent(QCloseEvent *event) override;
 signals:
@@ -29,7 +29,9 @@ public slots:
 private:
     Ui::AddFriends *ui;
 
-    FriendsModel *m_stranger_model;
+    //todo 需要判断搜索出来的是不是好友
+    //是就显示发消息按钮，不是就添加按钮
+    StrangerModel *m_stranger_model;
     StrangerDelegate *m_stranger_delegate;
 
     void initStrangerList();

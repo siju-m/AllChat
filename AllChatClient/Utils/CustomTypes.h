@@ -18,7 +18,8 @@ enum message_type{
     NEW_FRIEND_REULT,//查询用户结果
     ONLINE_LIST,//在线用户列表
     UPDATE_AVATAR,
-    UPDATE_AVATAR_RESULT
+    UPDATE_AVATAR_RESULT,
+    DELETEFRIEND
 };
 }
 

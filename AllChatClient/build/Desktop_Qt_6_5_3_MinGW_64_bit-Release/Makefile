@@ -165,7 +165,30 @@ Makefile: ../../AllChatClient.pro D:/app/Qt/6.5.3/mingw_64/mkspecs/win32-g++/qma
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_qmlxmllistmodel.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_qmlxmllistmodel_private.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3d.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3d_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dassetimport.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dassetimport_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dassetutils.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dassetutils_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3deffects.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3deffects_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dglslparser_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dhelpers.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dhelpers_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dhelpersimpl.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dhelpersimpl_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3diblbaker.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3diblbaker_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dparticleeffects.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dparticleeffects_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dparticles.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dparticles_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3druntimerender.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3druntimerender_private.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dspatialaudio_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dutils.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dutils_private.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick_private.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quickcontrols2.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quickcontrols2_private.pri \
@@ -186,6 +209,8 @@ Makefile: ../../AllChatClient.pro D:/app/Qt/6.5.3/mingw_64/mkspecs/win32-g++/qma
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktemplates2.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktemplates2_private.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktestutilsprivate_private.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktimeline.pri \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktimeline_private.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quickwidgets.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quickwidgets_private.pri \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_shadertools.pri \
@@ -225,12 +250,12 @@ Makefile: ../../AllChatClient.pro D:/app/Qt/6.5.3/mingw_64/mkspecs/win32-g++/qma
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/resolve_config.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/exclusive_builds_post.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/default_post.prf \
+		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/resources_functions.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/qtquickcompiler.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/entrypoint.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/precompile_header.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/warn_on.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/qt.prf \
-		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/resources_functions.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/resources.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/moc.prf \
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/win32/opengl.prf \
@@ -244,7 +269,11 @@ Makefile: ../../AllChatClient.pro D:/app/Qt/6.5.3/mingw_64/mkspecs/win32-g++/qma
 		D:/app/Qt/6.5.3/mingw_64/mkspecs/features/lex.prf \
 		../../AllChatClient.pro \
 		D:/app/Qt/6.5.3/mingw_64/lib/Qt6Widgets.prl \
+		D:/app/Qt/6.5.3/mingw_64/lib/Qt6Quick.prl \
+		D:/app/Qt/6.5.3/mingw_64/lib/Qt6OpenGL.prl \
 		D:/app/Qt/6.5.3/mingw_64/lib/Qt6Gui.prl \
+		D:/app/Qt/6.5.3/mingw_64/lib/Qt6QmlModels.prl \
+		D:/app/Qt/6.5.3/mingw_64/lib/Qt6Qml.prl \
 		D:/app/Qt/6.5.3/mingw_64/lib/Qt6Network.prl \
 		D:/app/Qt/6.5.3/mingw_64/lib/Qt6Sql.prl \
 		D:/app/Qt/6.5.3/mingw_64/lib/Qt6Core.prl \
@@ -347,7 +376,30 @@ D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_qmlworkerscript_private.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_qmlxmllistmodel.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_qmlxmllistmodel_private.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3d.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3d_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dassetimport.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dassetimport_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dassetutils.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dassetutils_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3deffects.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3deffects_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dglslparser_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dhelpers.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dhelpers_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dhelpersimpl.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dhelpersimpl_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3diblbaker.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3diblbaker_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dparticleeffects.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dparticleeffects_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dparticles.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dparticles_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3druntimerender.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3druntimerender_private.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dspatialaudio_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dutils.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick3dutils_private.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quick_private.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quickcontrols2.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quickcontrols2_private.pri:
@@ -368,6 +420,8 @@ D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quickshapes_private.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktemplates2.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktemplates2_private.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktestutilsprivate_private.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktimeline.pri:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quicktimeline_private.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quickwidgets.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_quickwidgets_private.pri:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/modules/qt_lib_shadertools.pri:
@@ -407,12 +461,12 @@ D:/app/Qt/6.5.3/mingw_64/mkspecs/features/win32/default_pre.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/resolve_config.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/exclusive_builds_post.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/default_post.prf:
+D:/app/Qt/6.5.3/mingw_64/mkspecs/features/resources_functions.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/qtquickcompiler.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/entrypoint.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/precompile_header.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/warn_on.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/qt.prf:
-D:/app/Qt/6.5.3/mingw_64/mkspecs/features/resources_functions.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/resources.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/moc.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/win32/opengl.prf:
@@ -426,7 +480,11 @@ D:/app/Qt/6.5.3/mingw_64/mkspecs/features/yacc.prf:
 D:/app/Qt/6.5.3/mingw_64/mkspecs/features/lex.prf:
 ../../AllChatClient.pro:
 D:/app/Qt/6.5.3/mingw_64/lib/Qt6Widgets.prl:
+D:/app/Qt/6.5.3/mingw_64/lib/Qt6Quick.prl:
+D:/app/Qt/6.5.3/mingw_64/lib/Qt6OpenGL.prl:
 D:/app/Qt/6.5.3/mingw_64/lib/Qt6Gui.prl:
+D:/app/Qt/6.5.3/mingw_64/lib/Qt6QmlModels.prl:
+D:/app/Qt/6.5.3/mingw_64/lib/Qt6Qml.prl:
 D:/app/Qt/6.5.3/mingw_64/lib/Qt6Network.prl:
 D:/app/Qt/6.5.3/mingw_64/lib/Qt6Sql.prl:
 D:/app/Qt/6.5.3/mingw_64/lib/Qt6Core.prl:

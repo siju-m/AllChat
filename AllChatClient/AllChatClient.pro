@@ -1,6 +1,6 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network quick
 
 CONFIG += c++17
 
@@ -16,7 +16,9 @@ SOURCES += \
     Core/datatransfer.cpp \
     Delegate/chatdelegate.cpp \
     Model/chatmodel.cpp \
-    Model/currentuser.cpp \
+    Core/currentuser.cpp \
+    Model/strangermodel.cpp \
+    View/UserDetailView.cpp \
     View/customtitlebar.cpp \
     View/onlinestatelabel.cpp \
     View/updateavatar.cpp \
@@ -39,8 +41,10 @@ HEADERS += \
     Core/datatransfer.h \
     Delegate/chatdelegate.h \
     Model/chatmodel.h \
-    Model/currentuser.h \
+    Core/currentuser.h \
+    Model/strangermodel.h \
     Utils/CustomTypes.h \
+    View/UserDetailView.h \
     View/customtitlebar.h \
     View/onlinestatelabel.h \
     View/updateavatar.h \
@@ -58,6 +62,7 @@ HEADERS += \
     Delegate/strangerdelegate.h
 
 FORMS += \
+    View/UserDetailView.ui \
     View/updateavatar.ui \
     View/addfriends.ui \
     View/login.ui \
@@ -73,3 +78,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resource.qrc
+
+DISTFILES +=

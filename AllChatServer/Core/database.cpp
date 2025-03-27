@@ -92,6 +92,20 @@ QSet<QString> DataBase::selectFriends(const QString &userId)
     return friendsId;
 }
 
+QString DataBase::selectNameById(const QString &userId)
+{
+    QSqlQuery query;
+    query.prepare("SELECT username From users WHERE id = :userId");
+    query.bindValue(":userId", userId);
+    if (!query.exec() || !query.next()) {
+        qWarning() << "好友查询失败" ;
+        return "";
+    }
+
+    QString name = query.value(0).toString();
+    return name;
+}
+
 QMap<QString, QString> DataBase::selectFriendsId_name(const QString &userId)
 {
     QMap<QString, QString> userId_name;
@@ -122,6 +136,24 @@ QMap<QString, QString> DataBase::selectUser_byName(const QString &name)
     if (query.exec()) {
         while (query.next()) {  // 遍历查询结果
             userId_name[query.value(0).toString()]=query.value(1).toString();
+        }
+    } else {
+        qDebug() << "查询用户失败:" << query.lastError().text();
+    }
+    return userId_name;
+}
+
+QMap<QString, QByteArray> DataBase::selectAvatar_byName(const QString &name)
+{
+    QMap<QString, QByteArray> userId_name;
+    QSqlQuery query;
+    query.prepare("SELECT id, avatar "
+                  "FROM users "
+                  "WHERE username like :name");
+    query.bindValue(":name", "%"+name+"%");
+    if (query.exec()) {
+        while (query.next()) {  // 遍历查询结果
+            userId_name[query.value(0).toString()]=query.value(1).toByteArray();
         }
     } else {
         qDebug() << "查询用户失败:" << query.lastError().text();
@@ -173,5 +205,25 @@ QMap<QString, QByteArray> DataBase::getFriendsAvatar(const QString &userId)
         qDebug() << "好友头像查询失败:" << query.lastError().text();
     }
     return userId_avatar;
+}
+
+bool DataBase::deleteFriend(const QString &userId, const QString &friendId)
+{
+    QSqlQuery query;
+    query.prepare("Delete FROM friends "
+                  "WHERE userId = :userId AND friendId = :friendId");
+    query.bindValue(":userId", userId);
+    query.bindValue(":friendId", friendId);
+    if(!query.exec()){
+        qDebug() << "好友删除失败:" << query.lastError().text();
+        return false;
+    }
+    query.bindValue(":userId", friendId);
+    query.bindValue(":friendId", userId);
+    if(!query.exec()){
+        qDebug() << "好友删除失败:" << query.lastError().text();
+        return false;
+    }
+    return true;
 }
 

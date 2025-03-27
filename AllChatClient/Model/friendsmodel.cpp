@@ -21,24 +21,24 @@ QVariant FriendsModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case UserNameRole: return msg.userName;
     case IdRole: return msg.id;
-    case LastMessageRole: return msg.lastMessage;
+    case OnlineRole: return msg.onlineState;
     case AvatarRole: return msg.avatarPath;
     default: return QVariant();
     }
 }
 
-void FriendsModel::addFriends_ToList( const QString &userName,const QString &id,const QString &lastMessage, const QString &avatarPath)
+void FriendsModel::addFriends_ToList(const QString &userName, const QString &id, const StateEnum::onlineState_type &onlineState, const QString &avatarPath)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_friends.append({userName, id, lastMessage,avatarPath});
+    m_friends.append({userName, id, onlineState,avatarPath});
     endInsertRows();
 }
 
-void FriendsModel::updateLastMessage(QString targetId,const QString &message)
+void FriendsModel::updateOnlineState(QString targetId,const StateEnum::onlineState_type &onlineState)
 {
     for(int i=0;i<m_friends.size();++i){
         if(m_friends[i].id == targetId){
-            m_friends[i].lastMessage = message;
+            m_friends[i].onlineState = onlineState;
             QModelIndex index = this->index(i,0);
             emit dataChanged(index,index);
         }
@@ -52,6 +52,22 @@ void FriendsModel::removeItem(int row)
     beginRemoveRows(QModelIndex(), row, row); // 通知视图删除开始
     m_friends.removeAt(row);  // 移除数据
     endRemoveRows(); // 通知视图删除完成
+}
+
+void FriendsModel::removeItem(const QString &id)
+{
+    int row=-1;
+    for(int i=0;i<m_friends.size();++i){
+        if(m_friends[i].id==id){
+            row = i;
+            break;
+        }
+    }
+    if(row!=-1){
+        beginRemoveColumns(QModelIndex(), row, row);
+        m_friends.remove(row);
+        endRemoveRows();
+    }
 }
 
 void FriendsModel::clear()

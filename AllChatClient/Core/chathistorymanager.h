@@ -1,7 +1,7 @@
 #ifndef CHATHISTORYMANAGER_H
 #define CHATHISTORYMANAGER_H
 
-#include "Model/currentuser.h"
+#include "Core/currentuser.h"
 #include <QObject>
 
 class ChatHistoryManager : public QObject

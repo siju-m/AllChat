@@ -59,6 +59,14 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
     //判断是否有待转发的消息
     if(m_forward_contents.contains(m_clients_userId[senderSocket]))
         send_forwardContents(m_clients_userId[senderSocket]);
+    for(const auto &it:m_alreadyApply){
+        if(it.second==m_clients_userId[senderSocket]){
+            QString senderName = dataBase->selectNameById(it.first);
+            QByteArray avatar = dataBase->getAvatar(it.first);
+            QByteArray packet= getPacket(ADD_FRIEND,senderName,it.first,avatar);
+            sendData(m_clients_userId[senderSocket],packet);
+        }
+    }
 }
 
 void Server::handleRegist(QDataStream &in, QTcpSocket *senderSocket)
@@ -124,6 +132,9 @@ void Server::handleData(QByteArray data,QTcpSocket *senderSocket)
     case message_type::UPDATE_AVATAR:{
         handle_updateAvatar(in,senderSocket);
     }break;
+    case message_type::DELETEFRIEND:{
+        handle_deleteFriend(in,senderSocket);
+    }break;
     default :  qDebug() << "接收到未知消息类型!";break;
     }
 }
@@ -157,12 +168,18 @@ void Server::handleAddFriend(QDataStream &in, QTcpSocket *senderSocket)
     //需要先判断是否有好友再转发，避免重复添加
     QSet<QString> friendsId = dataBase->selectFriends(m_clients_userId[senderSocket]);
 
+    //好友请求在对方在线时直接发送，不在线就等对方登录再发过去
+    //不能使用之前的不在线转发方案，因为好友请求在客户端没有存储，需要每回登录都发送
     //先判断有没有好友，再判断是否重复添加
     if(!friendsId.contains(id) && !m_alreadyApply.contains(qMakePair(m_clients_userId[senderSocket],id))){
         //还需要判断对方是否在线
         m_alreadyApply.insert(qMakePair(m_clients_userId[senderSocket],id));
-        QByteArray packet= getPacket(ADD_FRIEND,m_clients_name[senderSocket],m_clients_userId[senderSocket]);
-        sendData(id,packet);
+
+        if(m_userIds_client.contains(id)){
+            QByteArray avatar = dataBase->getAvatar(m_clients_userId[senderSocket]);
+            QByteArray packet= getPacket(ADD_FRIEND,m_clients_name[senderSocket],m_clients_userId[senderSocket],avatar);
+            sendData(m_userIds_client[id],packet);
+        }
     }
 
 }
@@ -209,9 +226,10 @@ void Server::handle_slelectByName(QDataStream &in, QTcpSocket *senderSocket)
     QString name;
     in>>name;
     QMap<QString,QString> id_name = dataBase->selectUser_byName(name);
+    QMap<QString,QByteArray> id_avatar = dataBase->selectAvatar_byName(name);
     if(id_name.contains(m_clients_userId[senderSocket]))
         id_name.remove(m_clients_userId[senderSocket]);
-    QByteArray result = getPacket(NEW_FRIEND_REULT,id_name);
+    QByteArray result = getPacket(NEW_FRIEND_REULT,id_name,id_avatar);
     // senderSocket->write(result);
     sendData(m_clients_userId[senderSocket],result);
 }
@@ -249,6 +267,18 @@ void Server::handle_updateAvatar(QDataStream &in, QTcpSocket *senderSocket)
     bool success = dataBase->updateAvatar(m_clients_userId[senderSocket],avatar);
     QByteArray packet = getPacket(UPDATE_AVATAR_RESULT,success);
     sendData(senderSocket,packet);
+}
+
+void Server::handle_deleteFriend(QDataStream &in, QTcpSocket *senderSocket)
+{
+    QString friendId;
+    in>>friendId;
+    QString userId = m_clients_userId[senderSocket];
+    bool success = dataBase->deleteFriend(userId,friendId);
+    QByteArray packet = getPacket(DELETEFRIEND,success,friendId);
+    sendData(senderSocket,packet);
+    //todo 通知被删除者的方式需要优化
+    updateFriendsList(friendId);
 }
 
 QString Server::getCurrentTime()

@@ -23,7 +23,8 @@ enum message_type{
     NEW_FRIEND_REULT,
     ONLINE_LIST,
     UPDATE_AVATAR,
-    UPDATE_AVATAR_RESULT
+    UPDATE_AVATAR_RESULT,
+    DELETEFRIEND
 };
 
 class Server : public QTcpServer {
@@ -84,6 +85,8 @@ private:
     void sendData(QTcpSocket *senderSocket,QByteArray &packet);//用于发送实时信息
 
     void handle_updateAvatar(QDataStream &in,QTcpSocket *senderSocket);
+
+    void handle_deleteFriend(QDataStream &in,QTcpSocket *senderSocket);
 
     QString getCurrentTime();
 };
