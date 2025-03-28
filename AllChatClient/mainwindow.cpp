@@ -9,6 +9,8 @@
 
 #include "View/imageviewer.h"
 
+#include <Model/Packet.h>
+
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -69,7 +71,7 @@ MainWindow::~MainWindow() {
 void MainWindow::initMessageList()
 {
     message_model = new MessageModel(this);
-    message_delegate = new MessageDelegate(this);
+    MessageDelegate *message_delegate = new MessageDelegate(this);
 
     /*使用listView在消息比较多的情况下内存低、可以流畅滚动
     用widget的话消息一多就比较占用内存*/
@@ -97,7 +99,7 @@ void MainWindow::initMessageList()
 void MainWindow::initFriendsList()
 {
     friends_model = new FriendsModel(this);
-    friends_delegate = new FriendsDelegate(this);
+    FriendsDelegate *friends_delegate = new FriendsDelegate(this);
 
     ui->friendList->setModel(friends_model);
     ui->friendList->setItemDelegate(friends_delegate);
@@ -124,10 +126,8 @@ void MainWindow::initFriendsList()
         reply = QMessageBox::question(this, "确认操作", "你确定要删除好友吗？",
                                       QMessageBox::Yes | QMessageBox::No);
         if (reply == QMessageBox::Yes) {
-            QByteArray packet = getPacket(CommonEnum::DELETEFRIEND,id);
-            m_dataTransfer->sendData(packet);
-        } else {
-
+            Packet data(CommonEnum::DELETEFRIEND,id);
+            m_dataTransfer->sendData(data);
         }
     });
 }
@@ -135,7 +135,7 @@ void MainWindow::initFriendsList()
 void MainWindow::initChatList()
 {
     chat_model = new ChatModel(this);
-    chat_delegate = new ChatDelegate(this);
+    ChatDelegate *chat_delegate = new ChatDelegate(this);
 
     ui->chatList->setModel(chat_model);
     ui->chatList->setItemDelegate(chat_delegate);
@@ -179,7 +179,7 @@ void MainWindow::initAddFriends()
     connect(&add_friends,&AddFriends::send_slelectByName,this,&MainWindow::send_slelectByName);
     connect(&add_friends,&AddFriends::sendData,this,[=](const QString &id){
         // this->sendData(CommonEnum::ADD_FRIEND,id);
-        QByteArray data = getPacket(CommonEnum::ADD_FRIEND,id);
+        Packet data(CommonEnum::ADD_FRIEND,id);
         m_dataTransfer->sendData(data);
     });
     connect(this,&MainWindow::updateStrangerList,&add_friends,&AddFriends::updateListView);
@@ -204,7 +204,7 @@ void MainWindow::initSideBar()
 void MainWindow::initFriendApplyList()
 {
     apply_model = new StrangerModel(this);
-    apply_delegate = new ApplyDelegate(this);
+    ApplyDelegate *apply_delegate = new ApplyDelegate(this);
     ui->friendApplyList->setModel(apply_model);
     ui->friendApplyList->setItemDelegate(apply_delegate);
 
@@ -264,13 +264,13 @@ void MainWindow::handle_deleteFriend_result(QDataStream &in)
     QMessageBox msgBox;
     if(result){
         msgBox.setWindowTitle("成功");
-        msgBox.setText("成功删除好友");
+        msgBox.setText("已删除好友");
         m_friendList.remove(friendId);
         chat_model->removeItem(friendId);
         friends_model->removeItem(friendId);
     }else{
         msgBox.setWindowTitle("失败");
-        msgBox.setText("成功删除失败");
+        msgBox.setText("删除好友失败");
     }
     msgBox.exec();
 
@@ -309,7 +309,7 @@ void MainWindow::handle_addFriend(QDataStream &in)
 
 void MainWindow::send_addFriend_result(QString id)
 {
-    QByteArray data = getPacket(CommonEnum::AGREE_FRIEND,id);
+    Packet data(CommonEnum::AGREE_FRIEND,id);
     m_dataTransfer->sendData(data);
 }
 
@@ -323,31 +323,17 @@ void MainWindow::handle_addFriend_result(QDataStream &in)
     storeMessageToFile(senderId,m_friendList[senderId].userName,"我们已成功添加好友，现在可以开始聊天啦~",getCurrentTime());
 }
 
-// void MainWindow::ConnectServer() {
-//     //clash开着的时候局域网ip无法连接到服务器
-//     QString host = "127.0.0.1"; // 服务器 IP
-//     quint16 port = 12345; // 服务器端口号
-
-//     socket->connectToHost(host, port); // 连接到服务器
-
-//     if (!socket->waitForConnected(3000)) {
-//         QMessageBox::critical(this, "Error", "连接服务器失败!");
-//     } else {
-//         qDebug()<<"已经成功连接服务器.";
-//     }
-// }
-
 void MainWindow::registerUser(const QString &username, const QString &password) {
     if (username.isEmpty() || password.isEmpty()) return;
     // sendData(CommonEnum::message_type::REGISTER,username,password);
-    QByteArray data = getPacket(CommonEnum::message_type::REGISTER,username,password);
+    Packet data(CommonEnum::message_type::REGISTER,username,password);
     m_dataTransfer->sendData(data);
 }
 
 void MainWindow::loginUser(const QString &username, const QString &password) {
     // this->m_userName = username;
     m_user->set_userName(username);
-    QByteArray data = getPacket(CommonEnum::message_type::LOGIN,username,password);
+    Packet data(CommonEnum::message_type::LOGIN,username,password);
     m_dataTransfer->sendData(data);
 }
 
@@ -355,7 +341,7 @@ void MainWindow::send_slelectByName(const QString &username)
 {
     if(!username.isEmpty()){
         // sendData(CommonEnum::FIND_NEW_FRIEND,username);
-        QByteArray data = getPacket(CommonEnum::FIND_NEW_FRIEND,username);
+        Packet data(CommonEnum::FIND_NEW_FRIEND,username);
         m_dataTransfer->sendData(data);
     }
 }
@@ -433,7 +419,8 @@ void MainWindow::send_updateAvatar(const QString &path)
     QByteArray imageData = imageFile.readAll();
     imageFile.close();
 
-    QByteArray packet = getPacket(CommonEnum::UPDATE_AVATAR,imageData);
+    // QByteArray packet = getPacket(CommonEnum::UPDATE_AVATAR,imageData);
+    Packet packet(CommonEnum::UPDATE_AVATAR,imageData);
     m_dataTransfer->sendData(packet);
 }
 
@@ -656,7 +643,7 @@ void MainWindow::onSendClicked() {//发送按钮的槽函数
     }else return;
 
     if(m_friendList[userId].userName != m_user->get_userName()){
-        QByteArray data = getPacket(CommonEnum::message_type::CHAT,userId,ui->lineEditMessage->toPlainText());
+        Packet data(CommonEnum::message_type::CHAT,userId,ui->lineEditMessage->toPlainText());
         m_dataTransfer->sendData(data);
     }
     QString textMessage = ui->lineEditMessage->toPlainText();
@@ -682,7 +669,8 @@ void MainWindow::sendImage() {//发送图片的槽函数
 
     if(m_friendList[userId].userName != m_user->get_userName()){
         // 数据包封装
-        QByteArray packet = getPacket(CommonEnum::IMAGE,userId, imageData);
+        // QByteArray packet = getPacket(CommonEnum::IMAGE,userId, imageData);
+        Packet packet(CommonEnum::IMAGE,userId, imageData);
         m_dataTransfer->sendData(packet);
 
     }
@@ -691,30 +679,6 @@ void MainWindow::sendImage() {//发送图片的槽函数
     storeImageToFile(userId,m_user->get_userName(),imageData,getCurrentTime());
 
 }
-
-template<typename... Args>
-QByteArray MainWindow::getPacket(Args... args)
-{
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15);
-
-    // 使用 C++17 折叠表达式，将所有参数依次写入 stream
-    (out << ... << args);
-
-    return packet;
-}
-
-// void MainWindow::sendData(QByteArray &packet)
-// {
-//     QByteArray data;
-//     QDataStream out(&data, QIODevice::WriteOnly);
-//     out.setVersion(QDataStream::Qt_5_15);
-//     out<<static_cast<qint32>(packet.size());
-//     out.writeRawData(packet.constData(),packet.size());
-//     socket->write(data);
-//     socket->flush();
-// }
 
 void MainWindow::showEvent(QShowEvent *event)
 {

@@ -1,6 +1,7 @@
 release/chathistorymanager.o
 release/datatransfer.o
 release/chatdelegate.o
+release/Packet.o
 release/chatmodel.o
 release/currentuser.o
 release/strangermodel.o

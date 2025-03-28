@@ -1,6 +1,7 @@
 debug/chathistorymanager.o
 debug/datatransfer.o
 debug/chatdelegate.o
+debug/Packet.o
 debug/chatmodel.o
 debug/currentuser.o
 debug/strangermodel.o

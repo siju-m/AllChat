@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QTcpSocket>
 
+#include <Model/Packet.h>
+
 enum ReceivingState {
     WaitingForHeader, // 等待接收数据头
     ReceivingData     // 接收数据中
@@ -19,7 +21,7 @@ public:
     void resetState();
 
     void ConnectServer();
-    void sendData(QByteArray &packet);
+    void sendData(const Packet &pkt);
     void onDisconnected();      // 处理断开连接
 private:
     QTcpSocket *m_socket;

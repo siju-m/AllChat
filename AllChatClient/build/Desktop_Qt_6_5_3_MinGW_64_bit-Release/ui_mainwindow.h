@@ -102,6 +102,7 @@ public:
         MainWindow->setStyleSheet(QString::fromUtf8("background-color: rgb(241, 241, 241)"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
+        centralwidget->setMinimumSize(QSize(0, 0));
         centralwidget->setStyleSheet(QString::fromUtf8(""));
         verticalLayout_2 = new QVBoxLayout(centralwidget);
         verticalLayout_2->setSpacing(0);
@@ -346,7 +347,7 @@ public:
         verticalLayout_8->setContentsMargins(0, 0, 0, 0);
         widget_4 = new QWidget(chatView);
         widget_4->setObjectName("widget_4");
-        widget_4->setMinimumSize(QSize(0, 20));
+        widget_4->setMinimumSize(QSize(0, 40));
         horizontalLayout = new QHBoxLayout(widget_4);
         horizontalLayout->setObjectName("horizontalLayout");
         chatPartner = new QLabel(widget_4);
@@ -492,7 +493,7 @@ public:
 
         widget_3 = new QWidget(chatView);
         widget_3->setObjectName("widget_3");
-        widget_3->setMinimumSize(QSize(0, 50));
+        widget_3->setMinimumSize(QSize(0, 150));
         widget_3->setMaximumSize(QSize(16777215, 150));
         verticalLayout_4 = new QVBoxLayout(widget_3);
         verticalLayout_4->setObjectName("verticalLayout_4");

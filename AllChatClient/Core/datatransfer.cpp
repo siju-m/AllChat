@@ -76,8 +76,9 @@ void DataTransfer::resetState()
 
 }
 
-void DataTransfer::sendData(QByteArray &packet)
+void DataTransfer::sendData(const Packet &pkt)
 {
+    QByteArray packet = pkt.getPacket();
     QByteArray data;
     QDataStream out(&data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_15);

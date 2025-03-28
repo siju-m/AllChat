@@ -15,6 +15,7 @@ SOURCES += \
     Core/chathistorymanager.cpp \
     Core/datatransfer.cpp \
     Delegate/chatdelegate.cpp \
+    Model/Packet.cpp \
     Model/chatmodel.cpp \
     Core/currentuser.cpp \
     Model/strangermodel.cpp \
@@ -40,6 +41,7 @@ HEADERS += \
     Core/chathistorymanager.h \
     Core/datatransfer.h \
     Delegate/chatdelegate.h \
+    Model/Packet.h \
     Model/chatmodel.h \
     Core/currentuser.h \
     Model/strangermodel.h \
