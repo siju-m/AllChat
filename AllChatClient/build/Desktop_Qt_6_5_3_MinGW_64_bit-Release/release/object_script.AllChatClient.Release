@@ -5,6 +5,7 @@ release/Packet.o
 release/chatmodel.o
 release/currentuser.o
 release/strangermodel.o
+release/user.o
 release/UserDetailView.o
 release/customtitlebar.o
 release/onlinestatelabel.o

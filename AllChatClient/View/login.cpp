@@ -1,5 +1,7 @@
 #include "login.h"
 #include "ui_login.h"
+#include <QMouseEvent>
+#include <windows.h>
 
 Login::Login(QWidget *parent)
     : QDialog(parent)
@@ -8,6 +10,9 @@ Login::Login(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("AllChat");
     btnRegist = ui->btnRegist;
+    connect(ui->btnClose,&QPushButton::clicked,this,&QDialog::close);
+    this->setWindowFlags(Qt::CustomizeWindowHint);
+
 }
 
 Login::~Login()
@@ -39,3 +44,21 @@ void Login::closeWindow(CommonEnum::message_type result){
     }
 
 }
+
+// 鼠标按下事件，记录鼠标和窗口当前位置的偏移量
+void Login::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        m_offset = event->globalPosition() - QPointF(this->pos());
+        event->accept();
+    }
+}
+
+// 鼠标移动事件，根据偏移量更新窗口位置
+void Login::mouseMoveEvent(QMouseEvent *event) {
+    if (event->buttons() & Qt::LeftButton) {
+        QPointF newPosF = event->globalPosition() - m_offset;
+        this->move(newPosF.toPoint());
+        event->accept();
+    }
+}
+

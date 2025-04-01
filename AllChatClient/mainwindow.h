@@ -31,6 +31,7 @@
 #include <Core/chathistorymanager.h>
 
 #include <Model/strangermodel.h>
+#include <Model/user.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,7 +49,6 @@ public slots:
     void loginUser(const QString &username, const QString &password);
     void send_slelectByName(const QString &username);
 protected:
-    void showEvent(QShowEvent *event) override;//在windows平台去掉标题栏，其他平台不兼容
     //todo 调整窗口大小时会掉帧，应该是listview的重绘导致的
 private slots:
 
@@ -69,13 +69,8 @@ private:
     ChatHistoryManager *m_historyManager;
     DataTransfer *m_dataTransfer;
     CommonEnum::message_type messageType;
-    struct userInfo{
-        QString userName = "";
-        bool state = false;
-        QString avatarPath = "";
-    };
-    QMap<QString, userInfo> m_friendList; // 用于存储好友列表 id和userName
-    MessageModel *message_model;//存储消息数据
+    QMap<QString, User> m_friendList; // 用于存储好友列表 id和userName
+    // MessageModel *message_model;//存储消息数据
     FriendsModel *friends_model;//存储好友数据
     ChatModel *chat_model;//聊天对象数据
     StrangerModel *apply_model;//存储申请添加好友的用户数据
@@ -84,7 +79,7 @@ private:
     void initAddFriends();
     void initHistoryManager();
     void initSideBar();
-    void initMessageList();
+    // void initMessageList();
     void initFriendsList();
     void initChatList();
     void initFriendApplyList();
@@ -104,7 +99,6 @@ private:
 
     void addMessage_toList(const QString &text,const QString &chatId,const QString &senderId,const QString &time);//添加消息到聊天界面
     void addImage_toList(const QString &imagePath,const QString &chatId,const QString &senderId,const QString &time);//添加图片到聊天界面
-    void addTime_toList(const QString &chatId,const QString &time);//添加时间到聊天界面
 
 
     void handle_addFriend(QDataStream &in);//处理添加好友请求
@@ -115,7 +109,6 @@ private:
     void handle_deleteFriend_result(QDataStream &in);
 
     QString getCurrentTime();
-    bool compareTime(const QString &pastTime,const QString &lastTime);
 
 signals:
     void loginResult(CommonEnum::message_type result);

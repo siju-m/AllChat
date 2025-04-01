@@ -597,7 +597,7 @@ public:
         widget_9->setMinimumSize(QSize(0, 30));
         horizontalLayout_3 = new QHBoxLayout(widget_9);
         horizontalLayout_3->setObjectName("horizontalLayout_3");
-        horizontalLayout_3->setContentsMargins(0, 0, 10, 0);
+        horizontalLayout_3->setContentsMargins(0, 0, 5, 5);
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_3->addItem(horizontalSpacer_2);

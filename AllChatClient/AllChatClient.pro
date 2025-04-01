@@ -19,6 +19,7 @@ SOURCES += \
     Model/chatmodel.cpp \
     Core/currentuser.cpp \
     Model/strangermodel.cpp \
+    Model/user.cpp \
     View/UserDetailView.cpp \
     View/customtitlebar.cpp \
     View/onlinestatelabel.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     Model/chatmodel.h \
     Core/currentuser.h \
     Model/strangermodel.h \
+    Model/user.h \
     Utils/CustomTypes.h \
     View/UserDetailView.h \
     View/customtitlebar.h \

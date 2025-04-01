@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include <Model/user.h>
+
 namespace Ui {
 class UserDetailView;
 }
@@ -23,7 +25,7 @@ public:
     };
 
     void showAvatar(const QString &path);
-    void showUserInfo(const QString &name,const QString &id,const bool &state,const QString &avatarPath);
+    void showUserInfo(const QString &id,const User &user);
 signals:
     void showMessage(const QString &id);
     void deleteFriend(const QString &id);

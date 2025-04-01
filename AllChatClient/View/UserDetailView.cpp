@@ -44,8 +44,11 @@ void UserDetailView::showAvatar(const QString &path)
     ui->avatar->setPixmap(roundedPixmap);
 }
 
-void UserDetailView::showUserInfo(const QString &name, const QString &id, const bool &state, const QString &avatarPath)
+void UserDetailView::showUserInfo(const QString &id, const User &user)
 {
+    QString name = user.getUserName();
+    QString avatarPath = user.getAvatarPath();
+    bool state = user.getOnlineState();
     this->show();
     this->setEnabled(true);
     m_userInfo = {name,id,state,avatarPath};
