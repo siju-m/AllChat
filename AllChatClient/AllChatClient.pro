@@ -18,6 +18,7 @@ SOURCES += \
     Model/Packet.cpp \
     Model/chatmodel.cpp \
     Core/currentuser.cpp \
+    Model/message.cpp \
     Model/strangermodel.cpp \
     Model/user.cpp \
     View/UserDetailView.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     Model/Packet.h \
     Model/chatmodel.h \
     Core/currentuser.h \
+    Model/message.h \
     Model/strangermodel.h \
     Model/user.h \
     Utils/CustomTypes.h \

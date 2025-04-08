@@ -2,8 +2,9 @@
 
 User::User() {}
 
-User::User(QString userName, bool onlineState, QString avatarPath)
+User::User(QString userName, QString id, bool onlineState, QString avatarPath)
     : m_userName(userName)
+    , m_id(id)
     , m_onlineState(onlineState)
     , m_avatarPath(avatarPath)
 {}
@@ -16,6 +17,16 @@ void User::setUserName(const QString &name)
 QString User::getUserName() const
 {
     return m_userName;
+}
+
+void User::setUserId(const QString &id)
+{
+    m_id = id;
+}
+
+QString User::getUserId()
+{
+    return m_id;
 }
 
 void User::setOnlineState(const bool &state)

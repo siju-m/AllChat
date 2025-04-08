@@ -27,53 +27,17 @@ QString ChatHistoryManager::getChatHistoryFilePath() {
     return dir.path();
 }
 
-void ChatHistoryManager::storeMessageToFile(const QString &targetId, const QString &sender, const QString &message, const QString &msgTime) {
-    //更新聊天列表的最新消息
-    //todo 添加未读消息数量
-    // chat_model->updateLastMessage(targetId,message,msgTime);
-
+void ChatHistoryManager::addHistoryToFile(Message &msg)
+{
     QString filePath = getChatHistoryFilePath();
-    filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_user->get_userName());
+    filePath+=QString("/%1_%2.txt").arg(msg.getChatId()).arg(m_user->get_userName());
     // qDebug()<<filePath;
     QFile file(filePath);
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         //以json格式存储，适合结构化数据
-        QJsonObject obj;
-        obj["name"] = sender;
-        obj["message"] = message;
-        obj["time"] = msgTime;
-        QJsonObject format;
-        format["kinds"] = "text";
-        format["data"] = obj;
-        QJsonDocument doc(format);
         QTextStream out(&file);
-        out << doc.toJson(QJsonDocument::Compact) << Qt::endl;
+        out << msg.jsonData() << Qt::endl;
     }
-}
-
-QString ChatHistoryManager::storeImageToFile(const QString &targetId, const QString &sender,const QByteArray &imageData, const QString &msgTime){
-    // chat_model->updateLastMessage(targetId,"图片",msgTime);
-
-    QString filePath = getChatHistoryFilePath();
-    QString textFilePath = QString("%1/%2_%3.txt").arg(filePath).arg(targetId).arg(m_user->get_userName());
-
-    QString imageFilePath = storeImage("",imageData);
-
-    QFile file(textFilePath);
-    if (file.open(QIODevice::Append | QIODevice::Text)) {
-        //以json格式存储，适合结构化数据
-        QJsonObject obj;
-        obj["name"] = sender;
-        obj["imagePath"] = imageFilePath;
-        obj["time"] = msgTime;
-        QJsonObject format;
-        format["kinds"] = "image";
-        format["data"] = obj;
-        QJsonDocument doc(format);
-        QTextStream out(&file);
-        out << doc.toJson(QJsonDocument::Compact) << Qt::endl;
-    }
-    return imageFilePath;
 }
 
 QString ChatHistoryManager::storeImage(QString imageName, const QByteArray &imageData)

@@ -4,6 +4,7 @@ debug/chatdelegate.o
 debug/Packet.o
 debug/chatmodel.o
 debug/currentuser.o
+debug/message.o
 debug/strangermodel.o
 debug/user.o
 debug/UserDetailView.o

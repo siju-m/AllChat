@@ -32,6 +32,7 @@
 
 #include <Model/strangermodel.h>
 #include <Model/user.h>
+#include "Model/message.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -44,37 +45,10 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-public slots:
+
     void registerUser(const QString &username, const QString &password);
     void loginUser(const QString &username, const QString &password);
     void send_slelectByName(const QString &username);
-protected:
-    //todo 调整窗口大小时会掉帧，应该是listview的重绘导致的
-private slots:
-
-    void onSendClicked();       // 发送消息
-    void sendImage(); //发送图片
-
-    void handleData(QByteArray data);
-    void send_updateAvatar(const QString &path);
-    void setAvatar(const QString &path);
-private:
-    Ui::MainWindow *ui;
-    // QTcpSocket *socket;//可以换成QSslSocket来加密连接
-
-    CurrentUser *m_user;
-    QButtonGroup *m_sideBar_btnGroup;//管理侧边栏按钮
-    UpdateAvatar *m_updateAvatar;
-
-    ChatHistoryManager *m_historyManager;
-    DataTransfer *m_dataTransfer;
-    CommonEnum::message_type messageType;
-    QMap<QString, User> m_friendList; // 用于存储好友列表 id和userName
-    // MessageModel *message_model;//存储消息数据
-    FriendsModel *friends_model;//存储好友数据
-    ChatModel *chat_model;//聊天对象数据
-    StrangerModel *apply_model;//存储申请添加好友的用户数据
-    AddFriends add_friends;//添加好友窗口
 
     void initAddFriends();
     void initHistoryManager();
@@ -93,8 +67,8 @@ private:
     void handle_onlineFriendsList(QDataStream &in);//接收在线用户列表
     void handle_userInfo(QDataStream &in);//接收用户信息
 
-    void storeMessageToFile(const QString &targetId, const QString &sender, const QString &message, const QString &msgTime);//将聊天记录存在文件中
-    QString storeImageToFile(const QString &targetId, const QString &sender, const QByteArray &imageData, const QString &msgTime);
+    void storeMessageToFile(const QString &targetId, const User &sender, const QString &message, const QString &msgTime);//将聊天记录存在文件中
+    QString storeImageToFile(const QString &targetId, const User &sender, const QByteArray &imageData, const QString &msgTime);
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
 
     void addMessage_toList(const QString &text,const QString &chatId,const QString &senderId,const QString &time);//添加消息到聊天界面
@@ -110,10 +84,35 @@ private:
 
     QString getCurrentTime();
 
+    void onSendClicked();       // 发送消息
+    void sendImage(); //发送图片
+
+    void handleData(QByteArray data);
+    void send_updateAvatar(const QString &path);
+
+    void setAvatar(const QString &path);
 signals:
     void loginResult(CommonEnum::message_type result);
     void registResult(CommonEnum::message_type result);
     void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
+
+private:
+    Ui::MainWindow *ui;
+    // QTcpSocket *socket;//可以换成QSslSocket来加密连接
+
+    CurrentUser *m_user;
+    QButtonGroup *m_sideBar_btnGroup;//管理侧边栏按钮
+    UpdateAvatar *m_updateAvatar;
+
+    ChatHistoryManager *m_historyManager;
+    DataTransfer *m_dataTransfer;
+    CommonEnum::message_type messageType;
+    QMap<QString, User> m_friendList; // 用于存储好友列表 id和userName
+    FriendsModel *friends_model;//存储好友数据
+    ChatModel *chat_model;//聊天对象数据
+    StrangerModel *apply_model;//存储申请添加好友的用户数据
+    AddFriends add_friends;//添加好友窗口
+
 };
 
 #endif // MAINWINDOW_H

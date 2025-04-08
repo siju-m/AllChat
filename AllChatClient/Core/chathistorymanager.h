@@ -2,6 +2,7 @@
 #define CHATHISTORYMANAGER_H
 
 #include "Core/currentuser.h"
+#include "Model/message.h"
 #include <QObject>
 
 class ChatHistoryManager : public QObject
@@ -11,8 +12,7 @@ public:
     explicit ChatHistoryManager(QObject *parent = nullptr);
 
     QString getChatHistoryFilePath();//获取聊天记录在文件中的路径
-    void storeMessageToFile(const QString &targetId, const QString &sender, const QString &message, const QString &msgTime);//将聊天记录存在文件中
-    QString storeImageToFile(const QString &targetId, const QString &sender, const QByteArray &imageData, const QString &msgTime);
+    void addHistoryToFile(Message &msg);
     QString storeImage(QString imageName,const QByteArray &imageData);
 
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录

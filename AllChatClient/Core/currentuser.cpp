@@ -33,4 +33,9 @@ QString CurrentUser::get_avatarPath()
     return m_avatarPath;
 }
 
+User CurrentUser::toUser()
+{
+    return User(m_userName, m_userId, true, m_avatarPath);
+}
+
 

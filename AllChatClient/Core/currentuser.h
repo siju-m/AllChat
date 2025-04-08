@@ -1,6 +1,7 @@
 #ifndef CURRENTUSER_H
 #define CURRENTUSER_H
 
+#include "Model/user.h"
 #include <QString>
 
 
@@ -21,6 +22,8 @@ public:
 
     void set_avatarPath(QString path);
     QString get_avatarPath();
+
+    User toUser();
 private:
     CurrentUser() = default;
     static CurrentUser* m_userInfo;

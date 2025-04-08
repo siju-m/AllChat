@@ -4,6 +4,7 @@ release/chatdelegate.o
 release/Packet.o
 release/chatmodel.o
 release/currentuser.o
+release/message.o
 release/strangermodel.o
 release/user.o
 release/UserDetailView.o
