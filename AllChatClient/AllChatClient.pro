@@ -32,6 +32,7 @@ SOURCES += \
     View/Login/transparent_transition_interface.cpp \
     View/UserDetailView.cpp \
     View/customtitlebar.cpp \
+    View/login.cpp \
     View/onlinestatelabel.cpp \
     View/updateavatar.cpp \
     View/addfriends.cpp \
@@ -39,13 +40,11 @@ SOURCES += \
     Delegate/friendsdelegate.cpp \
     Model/friendsmodel.cpp \
     View/imageviewer.cpp \
-    View/login.cpp \
     main.cpp \
     mainwindow.cpp \
     Delegate\messagedelegate.cpp \
     View/messagelistview.cpp \
     Model/messagemodel.cpp \
-    View/regist.cpp \
     Delegate/strangerdelegate.cpp
 
 HEADERS += \
@@ -70,6 +69,7 @@ HEADERS += \
     View/Login/transparent_transition_interface.h \
     View/UserDetailView.h \
     View/customtitlebar.h \
+    View/login.h \
     View/onlinestatelabel.h \
     View/updateavatar.h \
     View/addfriends.h \
@@ -77,21 +77,17 @@ HEADERS += \
     Delegate/friendsdelegate.h \
     Model/friendsmodel.h \
     View/imageviewer.h \
-    View/login.h \
     mainwindow.h \
     Delegate/messagedelegate.h \
     View/messagelistview.h \
     Model/messagemodel.h \
-    View/regist.h \
     Delegate/strangerdelegate.h
 
 FORMS += \
     View/UserDetailView.ui \
     View/updateavatar.ui \
     View/addfriends.ui \
-    View/login.ui \
-    mainwindow.ui \
-    View/regist.ui
+    mainwindow.ui
 QMAKE_CXXFLAGS += -static-libgcc
 QMAKE_CXXFLAGS += -static-libstdc++
 

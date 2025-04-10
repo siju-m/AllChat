@@ -3,24 +3,18 @@
 Control::Control(QObject *parent)
     : QObject{parent}
 {
-    initLogin();
-    w = new MainWindow();
-    QObject::connect(r, &Responsive_form::login, w, &MainWindow::loginUser);//处理登录按钮
-    QObject::connect(r, &Responsive_form::login_success, this, [=](){
-        r->close();
-        r->deleteLater();
-        w->show();
+    m_dataTransfer = new DataTransfer(this);
+    m_window = new MainWindow(m_dataTransfer);
+    m_login = new Login(m_dataTransfer);
+
+    QObject::connect(m_login, &Login::login_success, this, [=](){
+        m_login->deleteLater();
+        m_window->show();
     });
-    QObject::connect(w,&MainWindow::loginResult,r,&Responsive_form::closeWindow);
 }
 
 Control::~Control()
 {
-    w->deleteLater();
+    m_window->deleteLater();
 }
 
-void Control::initLogin()
-{
-    r = new Responsive_form();
-    r->show();
-}

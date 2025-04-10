@@ -24,11 +24,6 @@ Login_form::Login_form(QWidget *parent)
 
     this->animations();
     connect(login_button, &Login_button::execute_animation_signal, this, &Login_form::execute_animation);
-    connect(login_button, &Login_button::clicked, this, [=](){
-        QString userName = username->text();
-        QString passWord = password->text();
-        emit login(userName, passWord);
-    });
 }
 
 void Login_form::animations()

@@ -1,64 +1,60 @@
 #include "login.h"
-#include "ui_login.h"
-#include <QMouseEvent>
-#include <windows.h>
 
-Login::Login(QWidget *parent)
-    : QDialog(parent)
-    , ui(new Ui::Login)
+#include <Core/currentuser.h>
+
+
+Login::Login(DataTransfer *dataTransfer, QObject *parent)
+    : QObject{parent}
+    , m_dataTransfer(dataTransfer)
 {
-    ui->setupUi(this);
-    setWindowTitle("AllChat");
-    btnRegist = ui->btnRegist;
-    connect(ui->btnClose,&QPushButton::clicked,this,&QDialog::close);
-    this->setWindowFlags(Qt::CustomizeWindowHint);
+    m_login_regist_view = new Responsive_form();
+    m_login_regist_view->show();
 
+    QObject::connect(m_dataTransfer,&DataTransfer::loginResult,m_login_regist_view,&Responsive_form::closeWindow);
+    QObject::connect(m_dataTransfer,&DataTransfer::loginResult,this,&Login::handle_loginResult);
+    QObject::connect(m_dataTransfer,&DataTransfer::registResult,this,&Login::handle_registResult);
+    QObject::connect(m_login_regist_view, &Responsive_form::login, this, &Login::loginUser);
+    QObject::connect(m_login_regist_view, &Responsive_form::regist, this, &Login::registerUser);
 }
 
 Login::~Login()
 {
-    delete ui;
+    m_login_regist_view->deleteLater();
 }
 
-void Login::on_btnLogin_clicked(){
-    if(ui->lineEditUserName->text().isEmpty() || ui->lineEditPassword->text().isEmpty()){
-        QMessageBox::warning(this, "警告", "用户名或密码为空!");
-        return;
+void Login::loginUser(const QString &username, const QString &password) {
+    qDebug()<<username<<password;
+
+    CurrentUser::getInstance()->set_userName(username);
+    Packet data(CommonEnum::message_type::LOGIN,username,password);
+    m_dataTransfer->sendData(data);
+}
+
+void Login::registerUser(const QString &username, const QString &password) {
+    if (username.isEmpty() || password.isEmpty()) return;
+    Packet data(CommonEnum::message_type::REGISTER,username,password);
+    m_dataTransfer->sendData(data);
+}
+
+void Login::handle_loginResult(CommonEnum::message_type result)
+{
+    if(result == CommonEnum::message_type::LOGIN_SUCCESS){
+        emit login_success();
     }
 
-    emit login(ui->lineEditUserName->text(),ui->lineEditPassword->text());
-
 }
 
-void Login::closeWindow(CommonEnum::message_type result){
+void Login::handle_registResult(CommonEnum::message_type result)
+{
     switch(result){
-    case CommonEnum::message_type::LOGIN_SUCCESS:{
-        this->accept();
+    case CommonEnum::REGISTER_SUCCESS:{
+        qDebug()<<"注册成功";
+        // 切换到登录界面
+        m_login_regist_view->goToLoginPage();
     }break;
-    case CommonEnum::message_type::LOGIN_FAILED:{
-        ui->lineEditUserName->clear();
-        ui->lineEditPassword->clear();
-        QMessageBox::warning(this, "警告", "密码错误或用户不存在!");
+    case CommonEnum::REGISTER_FAILED:{
+        qDebug()<<"注册失败";
     }break;
     default:break;
     }
-
 }
-
-// 鼠标按下事件，记录鼠标和窗口当前位置的偏移量
-void Login::mousePressEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
-        m_offset = event->globalPosition() - QPointF(this->pos());
-        event->accept();
-    }
-}
-
-// 鼠标移动事件，根据偏移量更新窗口位置
-void Login::mouseMoveEvent(QMouseEvent *event) {
-    if (event->buttons() & Qt::LeftButton) {
-        QPointF newPosF = event->globalPosition() - m_offset;
-        this->move(newPosF.toPoint());
-        event->accept();
-    }
-}
-

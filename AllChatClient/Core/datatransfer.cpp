@@ -33,6 +33,32 @@ void DataTransfer::onDisconnected()
     qDebug()<<"和服务器断开连接";
 }
 
+void DataTransfer::handle_Data(QByteArray data)
+{
+    QDataStream in(data);
+    in.setVersion(QDataStream::Qt_5_15);
+
+    CommonEnum::message_type type;
+    in >> type;
+    switch(type){
+    case CommonEnum::LOGIN_SUCCESS:
+    case CommonEnum::LOGIN_FAILED:{
+        emit loginResult(type);
+        if(type == CommonEnum::LOGIN_SUCCESS){
+            emit handleData(data);
+        }
+    }break;
+    case CommonEnum::REGISTER_SUCCESS:
+    case CommonEnum::REGISTER_FAILED:{
+        emit registResult(type);
+    }break;
+    default:{
+        emit handleData(data);
+    }
+        break;
+    }
+}
+
 void DataTransfer::onReadyRead()
 {
 
@@ -60,7 +86,8 @@ void DataTransfer::onReadyRead()
             if (m_receivedBytes == m_currentDataLength) {
                 QByteArray data = m_dataBuffer;
                 resetState();
-                emit handleData(data);
+                handle_Data(data);
+                // emit handleData(data);
             }
         }
     }

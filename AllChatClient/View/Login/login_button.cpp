@@ -66,13 +66,13 @@ bool Login_button::event(QEvent* e)
     {
         animation->setDirection(QPropertyAnimation::Forward);
         animation->start();
-        qDebug() << "鼠标进入";
+        // qDebug() << "鼠标进入";
     }
     else if (e->type() == QEvent::Leave)
     {
         animation->setDirection(QPropertyAnimation::Backward);
         animation->start();
-        qDebug() << "鼠标离开";
+        // qDebug() << "鼠标离开";
         update();
     }
 

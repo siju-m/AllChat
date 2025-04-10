@@ -20,8 +20,7 @@ public:
 
     QPropertyAnimation* animation;
     int zoom_rate = 20;
-signals:
-    void login(const QString &username, const QString &password);
+
 public slots:
     void execute_animation(Login_button::AnimationState State);
 

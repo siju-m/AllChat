@@ -7,13 +7,11 @@
 #include <QSqlDatabase>
 #include <windows.h>
 
-#include "View/imageviewer.h"
-
 #include <Model/Packet.h>
 
 
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(DataTransfer *dataTransfer, QWidget *parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
     // socket(new QTcpSocket(this)),
@@ -21,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_user(CurrentUser::getInstance()),
     m_sideBar_btnGroup(new QButtonGroup(this)),
     m_historyManager(new ChatHistoryManager(this)),
-    m_dataTransfer(new DataTransfer(this))
+    m_dataTransfer(dataTransfer)
 {
     this->resize(1000, 700);
     ui->setupUi(this);
@@ -281,19 +279,19 @@ void MainWindow::handle_addFriend_result(QDataStream &in)
     storeMessageToFile(senderId,m_friendList[senderId],"我们已成功添加好友，现在可以开始聊天啦~",getCurrentTime());
 }
 
-void MainWindow::registerUser(const QString &username, const QString &password) {
-    if (username.isEmpty() || password.isEmpty()) return;
-    Packet data(CommonEnum::message_type::REGISTER,username,password);
-    m_dataTransfer->sendData(data);
-}
+// void MainWindow::registerUser(const QString &username, const QString &password) {
+//     if (username.isEmpty() || password.isEmpty()) return;
+//     Packet data(CommonEnum::message_type::REGISTER,username,password);
+//     m_dataTransfer->sendData(data);
+// }
 
-void MainWindow::loginUser(const QString &username, const QString &password) {
-    qDebug()<<username<<password;
+// void MainWindow::loginUser(const QString &username, const QString &password) {
+//     qDebug()<<username<<password;
 
-    m_user->set_userName(username);
-    Packet data(CommonEnum::message_type::LOGIN,username,password);
-    m_dataTransfer->sendData(data);
-}
+//     m_user->set_userName(username);
+//     Packet data(CommonEnum::message_type::LOGIN,username,password);
+//     m_dataTransfer->sendData(data);
+// }
 
 void MainWindow::send_slelectByName(const QString &username)
 {
@@ -303,12 +301,12 @@ void MainWindow::send_slelectByName(const QString &username)
     }
 }
 
-
 void MainWindow::handleData(QByteArray data)
 {
     QDataStream in(data);
     in.setVersion(QDataStream::Qt_5_15);
 
+    CommonEnum::message_type messageType;
     in >> messageType;
     switch(messageType){
     case CommonEnum::IMAGE:{
@@ -324,16 +322,9 @@ void MainWindow::handleData(QByteArray data)
         // qDebug()<<"CHAT";
         handle_message(in);
     }break;
-    case CommonEnum::LOGIN_SUCCESS:
-    case CommonEnum::LOGIN_FAILED:{
-        emit loginResult(messageType);
-        if(messageType == CommonEnum::LOGIN_SUCCESS){
+    case CommonEnum::LOGIN_SUCCESS:{
             handle_userInfo(in);
-        }
-    }break;
-    case CommonEnum::REGISTER_SUCCESS:
-    case CommonEnum::REGISTER_FAILED:{
-        emit registResult(messageType);
+
     }break;
     case CommonEnum::ADD_FRIEND:{
         // qDebug()<<"ADD_FRIEND";

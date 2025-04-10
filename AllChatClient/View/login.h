@@ -1,36 +1,27 @@
 #ifndef LOGIN_H
 #define LOGIN_H
 
-#include <QDialog>
-#include <QPushButton>
-#include <QMessageBox>
-#include "Utils/CustomTypes.h"
+#include "View/Login/responsive_form.h"
+#include <QObject>
+#include <Core/datatransfer.h>
 
-namespace Ui {
-class Login;
-}
-
-class Login : public QDialog
+class Login : public QObject
 {
     Q_OBJECT
-
 public:
-    explicit Login(QWidget *parent = nullptr);
+    explicit Login(DataTransfer *dataTransfer, QObject *parent = nullptr);
     ~Login();
-    QString userName;
-    QPushButton *btnRegist;//跳转注册的按钮变量
-public slots:
-    void closeWindow(CommonEnum::message_type result);
-protected:
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-private slots:
-    void on_btnLogin_clicked();
+
+    void loginUser(const QString &username, const QString &password);
+    void registerUser(const QString &username, const QString &password);
+    void handle_loginResult(CommonEnum::message_type result);
+    void handle_registResult(CommonEnum::message_type result);
 signals:
     void login(const QString &username, const QString &password);
+    void login_success();
 private:
-    Ui::Login *ui;
-    QPointF m_offset;
+    Responsive_form* m_login_regist_view;
+    DataTransfer* m_dataTransfer;
 };
 
 #endif // LOGIN_H

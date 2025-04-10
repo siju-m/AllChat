@@ -11,18 +11,19 @@ Registration_form::Registration_form(QWidget *parent)
     username->setMaxLength(11);
     username->setValidator(new QIntValidator(0, 2147483647, this));
 
-    email = new Input_box(":/Icon/email.png", this);
-    email->move(46, 250);
-    email->setPlaceholderText("邮箱");
-    email->setMaxLength(16);
-    email->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"), this));
+    password1 = new Input_box(":/Icon/password.png", this);
+    password1->move(46, 250);
+    password1->setPlaceholderText("密码");
+    password1->setMaxLength(16);
+    // email->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"), this));
+    password1->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9]+$"), this));
 
-    password = new Input_box(":/Icon/password.png", this);
-    password->move(46, 340);
-    password->setPlaceholderText("密码");
-    password->setEchoMode(QLineEdit::Password);
-    password->setMaxLength(16);
-    password->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9]+$"), this));
+    password2 = new Input_box(":/Icon/password.png", this);
+    password2->move(46, 340);
+    password2->setPlaceholderText("确认密码");
+    password2->setEchoMode(QLineEdit::Password);
+    password2->setMaxLength(16);
+    password2->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9]+$"), this));
 
     login_button = new Login_button(this);
     login_button->setCenter_text("注册");

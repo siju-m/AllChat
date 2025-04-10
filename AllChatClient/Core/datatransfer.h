@@ -1,6 +1,7 @@
 #ifndef DATATRANSFER_H
 #define DATATRANSFER_H
 
+#include "Utils/CustomTypes.h"
 #include <QByteArray>
 #include <QObject>
 #include <QTcpSocket>
@@ -23,6 +24,14 @@ public:
     void ConnectServer();
     void sendData(const Packet &pkt);
     void onDisconnected();      // 处理断开连接
+
+    void handle_Data(QByteArray data);
+
+signals:
+    void handleData(QByteArray data);
+    void loginResult(CommonEnum::message_type result);
+    void registResult(CommonEnum::message_type result);
+
 private:
     QTcpSocket *m_socket;
 
@@ -30,8 +39,7 @@ private:
     qint32 m_receivedBytes ;        // 已接收字节数
     QByteArray m_dataBuffer;           // 用于暂存接收到的数据
     ReceivingState m_currentReceivingState; // 当前状态初始化为等待数据头
-signals:
-    void handleData(QByteArray data);
+
 };
 
 #endif // DATATRANSFER_H

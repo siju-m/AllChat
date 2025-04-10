@@ -43,11 +43,11 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(DataTransfer *dataTransfer, QWidget *parent = nullptr);
     ~MainWindow();
 
-    void registerUser(const QString &username, const QString &password);
-    void loginUser(const QString &username, const QString &password);
+    // void registerUser(const QString &username, const QString &password);
+    // void loginUser(const QString &username, const QString &password);
     void send_slelectByName(const QString &username);
 
     void initAddFriends();
@@ -91,8 +91,6 @@ public:
 
     void setAvatar(const QString &path);
 signals:
-    void loginResult(CommonEnum::message_type result);
-    void registResult(CommonEnum::message_type result);
     void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
 
 private:
@@ -105,7 +103,7 @@ private:
 
     ChatHistoryManager *m_historyManager;
     DataTransfer *m_dataTransfer;
-    CommonEnum::message_type messageType;
+    // CommonEnum::message_type messageType;
     QMap<QString, User> m_friendList; // 用于存储好友列表 id和userName
     FriendsModel *friends_model;//存储好友数据
     ChatModel *chat_model;//聊天对象数据

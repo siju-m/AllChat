@@ -2,7 +2,7 @@
 #define CONTROL_H
 
 #include "MainWindow.h"
-#include "View/Login/responsive_form.h"
+#include "View/login.h"
 #include <QObject>
 
 class Control : public QObject
@@ -11,12 +11,12 @@ class Control : public QObject
 public:
     explicit Control(QObject *parent = nullptr);
     ~Control();
-    void initLogin();
 signals:
 
 private:
-    MainWindow *w;
-    Responsive_form *r;
+    MainWindow *m_window;
+    DataTransfer *m_dataTransfer;
+    Login* m_login;
 };
 
 #endif // CONTROL_H

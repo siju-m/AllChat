@@ -21,8 +21,9 @@ public:
 
 public:
     Input_box* username;
-    Input_box* email;
-    Input_box* password;
+    // Input_box* email;
+    Input_box* password1;
+    Input_box* password2;
     Login_button* login_button;
 
     void crop_corner();

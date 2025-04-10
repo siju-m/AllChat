@@ -40,10 +40,10 @@ public:
     void crop_corner();
 
     void closeWindow(CommonEnum::message_type result);
-
+    void goToLoginPage();
 signals:
     void login(const QString &username, const QString &password);
-    void login_success();
+    void regist(const QString &username, const QString &password);
 
 protected:
     void paintEvent(QPaintEvent *event);

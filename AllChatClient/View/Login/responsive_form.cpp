@@ -14,10 +14,29 @@ Responsive_form::Responsive_form(QWidget *parent)
 
     registration_form = new Registration_form(this);
     registration_form->move(width(), 0);
+    // 转发注册请求
+    connect(registration_form->login_button, &Login_button::clicked, this, [=](){
+        QString userName = registration_form->username->text();
+        QString pw1 = registration_form->password1->text();
+        QString pw2 = registration_form->password2->text();
+
+        if(pw1 == pw2){
+            emit regist(userName, pw1);
+        }else{
+            // 提示不一致
+            qDebug()<<"密码不一致";
+        }
+
+    });
 
     login_form = new Login_form(this);
     login_form->move(this->width() / 2, 0);
-    connect(login_form, &Login_form::login, this, &Responsive_form::login);
+    // 转发登录请求
+    connect(login_form->login_button, &Login_button::clicked, this, [=](){
+        QString userName = login_form->username->text();
+        QString passWord = login_form->password->text();
+        emit login(userName, passWord);
+    });
 
     scroll_bar = new Scroll_bar(this);
     scroll_bar->move(-width() * 1.5, 0);
@@ -236,15 +255,19 @@ void Responsive_form::setAnimation_duration(int newAnimation_duration)
 void Responsive_form::closeWindow(CommonEnum::message_type result){
     switch(result){
     case CommonEnum::message_type::LOGIN_SUCCESS:{
-        emit login_success();
         this->close();
     }break;
     case CommonEnum::message_type::LOGIN_FAILED:{
-        // ui->lineEditUserName->clear();
-        // ui->lineEditPassword->clear();
+        login_form->username->clear();
+        login_form->password->clear();
         QMessageBox::warning(this, "警告", "密码错误或用户不存在!");
     }break;
     default:break;
     }
 
+}
+
+void Responsive_form::goToLoginPage()
+{
+    execute_animation(Hollow_button::ANIMATION_STATE_RESET);
 }
