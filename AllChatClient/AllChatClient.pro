@@ -13,6 +13,7 @@ QT += sql
 
 SOURCES += \
     Core/chathistorymanager.cpp \
+    Core/control.cpp \
     Core/datatransfer.cpp \
     Delegate/chatdelegate.cpp \
     Model/Packet.cpp \
@@ -21,6 +22,14 @@ SOURCES += \
     Model/message.cpp \
     Model/strangermodel.cpp \
     Model/user.cpp \
+    View/Login/hollow_button.cpp \
+    View/Login/input_box.cpp \
+    View/Login/login_button.cpp \
+    View/Login/login_form.cpp \
+    View/Login/registration_form.cpp \
+    View/Login/responsive_form.cpp \
+    View/Login/scroll_bar.cpp \
+    View/Login/transparent_transition_interface.cpp \
     View/UserDetailView.cpp \
     View/customtitlebar.cpp \
     View/onlinestatelabel.cpp \
@@ -41,6 +50,7 @@ SOURCES += \
 
 HEADERS += \
     Core/chathistorymanager.h \
+    Core/control.h \
     Core/datatransfer.h \
     Delegate/chatdelegate.h \
     Model/Packet.h \
@@ -50,6 +60,14 @@ HEADERS += \
     Model/strangermodel.h \
     Model/user.h \
     Utils/CustomTypes.h \
+    View/Login/hollow_button.h \
+    View/Login/input_box.h \
+    View/Login/login_button.h \
+    View/Login/login_form.h \
+    View/Login/registration_form.h \
+    View/Login/responsive_form.h \
+    View/Login/scroll_bar.h \
+    View/Login/transparent_transition_interface.h \
     View/UserDetailView.h \
     View/customtitlebar.h \
     View/onlinestatelabel.h \

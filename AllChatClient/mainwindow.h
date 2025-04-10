@@ -74,7 +74,6 @@ public:
     void addMessage_toList(const QString &text,const QString &chatId,const QString &senderId,const QString &time);//添加消息到聊天界面
     void addImage_toList(const QString &imagePath,const QString &chatId,const QString &senderId,const QString &time);//添加图片到聊天界面
 
-
     void handle_addFriend(QDataStream &in);//处理添加好友请求
     void send_addFriend_result(QString id);//发送处理后的好友请求
     void handle_addFriend_result(QDataStream &in);//处理对方返回的请求结果

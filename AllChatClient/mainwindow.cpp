@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_historyManager(new ChatHistoryManager(this)),
     m_dataTransfer(new DataTransfer(this))
 {
-
+    this->resize(1000, 700);
     ui->setupUi(this);
     setWindowTitle("AllChat");
     this->setWindowFlags(Qt::CustomizeWindowHint);//去除标题栏但仍可调整大小
@@ -288,6 +288,8 @@ void MainWindow::registerUser(const QString &username, const QString &password) 
 }
 
 void MainWindow::loginUser(const QString &username, const QString &password) {
+    qDebug()<<username<<password;
+
     m_user->set_userName(username);
     Packet data(CommonEnum::message_type::LOGIN,username,password);
     m_dataTransfer->sendData(data);

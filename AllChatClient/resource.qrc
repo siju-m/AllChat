@@ -7,5 +7,8 @@
         <file>Icon/minus.png</file>
         <file>Icon/cross.png</file>
         <file>Icon/square.png</file>
+        <file>Icon/account.png</file>
+        <file>Icon/email.png</file>
+        <file>Icon/password.png</file>
     </qresource>
 </RCC>
