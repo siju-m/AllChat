@@ -1,6 +1,8 @@
 #include "imageviewer.h"
+#include "View/Components/dialogtitlebar.h"
 
 
+#include <QGraphicsDropShadowEffect>
 #include <QTimer>
 
 ImageViewer::ImageViewer(const QPixmap &image, QWidget *parent)
@@ -9,6 +11,7 @@ ImageViewer::ImageViewer(const QPixmap &image, QWidget *parent)
         // 窗口设置
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_DeleteOnClose);
+    this->setAttribute(Qt::WA_TranslucentBackground);     //窗口透明
     setMinimumSize(200, 200);
 
     // 初始化图片
@@ -21,21 +24,6 @@ ImageViewer::ImageViewer(const QPixmap &image, QWidget *parent)
     m_imageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     updateImageDisplay();
 
-    // 关闭按钮（更美观的样式）
-    QPushButton *closeBtn = new QPushButton("×", this);
-    closeBtn->setStyleSheet(
-        "QPushButton {"
-        "  background: #ff4444;"
-        "  color: white;"
-        "  border-radius: 12px;"
-        "  min-width: 24px;"
-        "  min-height: 24px;"
-        "  font-size: 18px;"
-        "}"
-        "QPushButton:hover { background: #ff6666; }"
-        );
-    connect(closeBtn, &QPushButton::clicked, this, &QDialog::close);
-
     // 创建滚动区域
     scrollArea = new QScrollArea(this);
     scrollArea->viewport()->installEventFilter(this); // 监听视口事件
@@ -44,10 +32,29 @@ ImageViewer::ImageViewer(const QPixmap &image, QWidget *parent)
     scrollArea->setWidget(m_imageLabel);
 
     // 布局
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(10, 10, 10, 10);
-    layout->addWidget(closeBtn, 0, Qt::AlignRight | Qt::AlignTop);
+    QVBoxLayout *layout1 = new QVBoxLayout(this);
+    QFrame *frame = new QFrame(this);
+    //设置投影效果
+    QGraphicsDropShadowEffect *windowShadow;        //阴影效果
+    windowShadow = new QGraphicsDropShadowEffect(this);
+    windowShadow->setBlurRadius(30);
+    windowShadow->setColor(QColor(0, 0, 0));
+    windowShadow->setOffset(0, 0);
+    frame->setGraphicsEffect(windowShadow);
+    layout1->addWidget(frame);
+    layout1->setContentsMargins(20, 20, 20, 20);
+    frame->setStyleSheet("QFrame{ border-radius:10px; background-color: rgb(241, 241, 241);}");
+
+
+
+
+    QVBoxLayout *layout = new QVBoxLayout(frame);
+    layout->setContentsMargins(10, 0, 10, 20);
+    DialogTitleBar *titleBar = new DialogTitleBar(this);
+    connect(titleBar, &DialogTitleBar::closeWindow, this, &ImageViewer::close);
+    layout->addWidget(titleBar);
     layout->addWidget(scrollArea);
+
 
     // 初始适应窗口
     QTimer::singleShot(0, this, &ImageViewer::fitToWindow);
@@ -88,7 +95,7 @@ void ImageViewer::saveImage()
 
 void ImageViewer::resetZoom()
 {
-    m_scaleFactor = 1.0;
+    m_scaleFactor = 1;
     updateImageDisplay();
 }
 
@@ -109,34 +116,13 @@ void ImageViewer::fitToWindow()
     if (m_imageLabel->width() <= 0 || m_imageLabel->height() <= 0) return;
 
     QSize targetSize = m_originalImage.size().scaled(
-        m_imageLabel->size(), Qt::KeepAspectRatio
+        scrollArea->size(), Qt::KeepAspectRatio
         );
     m_scaleFactor = qMin(
         targetSize.width() / (qreal)m_originalImage.width(),
         targetSize.height() / (qreal)m_originalImage.height()
         );
     updateImageDisplay();
-}
-
-void ImageViewer::mousePressEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
-        m_dragStartPosition = event->globalPosition().toPoint();
-        m_bDragging = true;
-    }
-    QDialog::mousePressEvent(event);
-}
-
-void ImageViewer::mouseMoveEvent(QMouseEvent *event)  {
-    if (m_bDragging) {
-        QPoint delta = event->globalPosition().toPoint() - m_dragStartPosition;
-        move(pos() + delta);
-        m_dragStartPosition = event->globalPosition().toPoint();
-    }
-}
-
-void ImageViewer::mouseReleaseEvent(QMouseEvent *event) {
-    m_bDragging = false;
-    QDialog::mouseReleaseEvent(event);
 }
 
 void ImageViewer::keyPressEvent(QKeyEvent *event) {

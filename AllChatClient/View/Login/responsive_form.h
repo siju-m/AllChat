@@ -48,7 +48,6 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent* event);
-    void mouseMoveEvent(QMouseEvent* event);
     void resizeEvent(QResizeEvent* event);
 
 public slots:
@@ -58,8 +57,6 @@ public slots:
     void onAnimation4Finished();
 
 private:
-    QPoint m_dragStartPosition;
-    QPoint m_startWindowPosition;
     int currentSequence = 1;
     bool animation_execute_duration = false;
     bool animation_restore_duration = false;

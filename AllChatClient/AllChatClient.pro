@@ -22,6 +22,7 @@ SOURCES += \
     Model/message.cpp \
     Model/strangermodel.cpp \
     Model/user.cpp \
+    View/Components/dialogtitlebar.cpp \
     View/Login/hollow_button.cpp \
     View/Login/input_box.cpp \
     View/Login/login_button.cpp \
@@ -31,9 +32,11 @@ SOURCES += \
     View/Login/scroll_bar.cpp \
     View/Login/transparent_transition_interface.cpp \
     View/UserDetailView.cpp \
-    View/customtitlebar.cpp \
+    View/Components/avatarlabel.cpp \
+    View/Components/customtitlebar.cpp \
     View/login.cpp \
-    View/onlinestatelabel.cpp \
+    View/Components/onlinestatelabel.cpp \
+    View/Components/tipsbox.cpp \
     View/updateavatar.cpp \
     View/addfriends.cpp \
     Delegate/applydelegate.cpp \
@@ -59,6 +62,7 @@ HEADERS += \
     Model/strangermodel.h \
     Model/user.h \
     Utils/CustomTypes.h \
+    View/Components/dialogtitlebar.h \
     View/Login/hollow_button.h \
     View/Login/input_box.h \
     View/Login/login_button.h \
@@ -68,9 +72,11 @@ HEADERS += \
     View/Login/scroll_bar.h \
     View/Login/transparent_transition_interface.h \
     View/UserDetailView.h \
-    View/customtitlebar.h \
+    View/Components/avatarlabel.h \
+    View/Components/customtitlebar.h \
     View/login.h \
-    View/onlinestatelabel.h \
+    View/Components/onlinestatelabel.h \
+    View/Components/tipsbox.h \
     View/updateavatar.h \
     View/addfriends.h \
     Delegate/applydelegate.h \

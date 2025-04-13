@@ -18,11 +18,11 @@ signals:
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 private:
-    QPoint m_offset;
     QLabel *m_titleLabel;
+    QWidget *m_borderWidget;
     QPushButton *m_minimizeButton;
     QPushButton *m_maximizeButton;
     QPushButton *m_closeButton;

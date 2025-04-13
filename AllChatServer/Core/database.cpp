@@ -11,14 +11,21 @@ void DataBase::initDatabase() {
         return;
     }
 
-    // QSqlQuery query;
-    // QString createTable = "CREATE TABLE IF NOT EXISTS users ("
-    //                       "id TEXT PRIMARY KEY, "
-    //                       "username TEXT UNIQUE, "
-    //                       "password TEXT)";
-    // if (!query.exec(createTable)) {
-    //     qWarning() << "创建用户表失败：" << query.lastError().text();
-    // }
+    QSqlQuery query;
+    QString createTable = "CREATE TABLE IF NOT EXISTS users ("
+                          "id TEXT PRIMARY KEY, "
+                          "username TEXT UNIQUE, "
+                          "password TEXT,"
+                          "avatar BLOB)";
+    if (!query.exec(createTable)) {
+        qWarning() << "创建用户表失败：" << query.lastError().text();
+    }
+    createTable = "CREATE TABLE IF NOT EXISTS friends ("
+                  "userId TEXT,"
+                  "friendId TEXT)";
+    if (!query.exec(createTable)) {
+        qWarning() << "创建联系人表失败：" << query.lastError().text();
+    }
 }
 
 bool DataBase::registerUser(const QString &username, const QString &password) {

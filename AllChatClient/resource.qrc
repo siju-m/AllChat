@@ -10,5 +10,9 @@
         <file>Icon/account.png</file>
         <file>Icon/email.png</file>
         <file>Icon/password.png</file>
+        <file>Icon/error.png</file>
+        <file>Icon/success.png</file>
+        <file>Icon/tips.png</file>
+        <file>Icon/warning.png</file>
     </qresource>
 </RCC>

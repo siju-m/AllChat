@@ -11,6 +11,8 @@ DataTransfer::DataTransfer(QObject *parent):
 {
     connect(m_socket, &QTcpSocket::readyRead, this, &DataTransfer::onReadyRead);
     connect(m_socket, &QTcpSocket::disconnected, this, &DataTransfer::onDisconnected);
+
+    ConnectServer();
 }
 
 void DataTransfer::ConnectServer() {

@@ -11,17 +11,12 @@
 #include <QStandardPaths>
 #include <QLabel>
 #include <QBuffer>
-#include "Model/messagemodel.h"
 #include <QTimer>
 #include <QScrollBar>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QButtonGroup>
-#include "Delegate/messagedelegate.h"
-#include "Utils/CustomTypes.h"
-#include "Delegate/friendsdelegate.h"
 #include "Model/friendsmodel.h"
-#include "Delegate/applydelegate.h"
 #include "View/addfriends.h"
 #include "Core/datatransfer.h"
 #include <View/updateavatar.h>
@@ -32,7 +27,6 @@
 
 #include <Model/strangermodel.h>
 #include <Model/user.h>
-#include "Model/message.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

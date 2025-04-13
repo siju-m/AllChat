@@ -1,4 +1,5 @@
 #include "login.h"
+#include "View/Components/tipsbox.h"
 
 #include <Core/currentuser.h>
 
@@ -23,7 +24,7 @@ Login::~Login()
 }
 
 void Login::loginUser(const QString &username, const QString &password) {
-    qDebug()<<username<<password;
+    // qDebug()<<username<<password;
 
     CurrentUser::getInstance()->set_userName(username);
     Packet data(CommonEnum::message_type::LOGIN,username,password);
@@ -50,10 +51,12 @@ void Login::handle_registResult(CommonEnum::message_type result)
     case CommonEnum::REGISTER_SUCCESS:{
         qDebug()<<"注册成功";
         // 切换到登录界面
+        TipsBox::showNotice("注册成功", SA_SUCCESS, m_login_regist_view);
         m_login_regist_view->goToLoginPage();
     }break;
     case CommonEnum::REGISTER_FAILED:{
         qDebug()<<"注册失败";
+        TipsBox::showNotice("用户名已存在", SA_FAILED, m_login_regist_view);
     }break;
     default:break;
     }

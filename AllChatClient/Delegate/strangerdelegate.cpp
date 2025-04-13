@@ -35,7 +35,7 @@ void StrangerDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     int nameWidth = doc.idealWidth(); // 获取文本的实际宽度
     QRect usernameRect = QRect(itemRect.left()+60, itemRect.top()+20, nameWidth, 20);
     painter->setPen(Qt::black);
-    QFont font("Arial", 14, QFont::Bold); // 字体为 Arial，大小为 20，加粗
+    QFont font("微软雅黑", 14, QFont::Bold);
     painter->setFont(font);
     painter->drawText(usernameRect, Qt::AlignLeft | Qt::AlignTop, userName);
 
@@ -45,7 +45,8 @@ void StrangerDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->setPen(Qt::NoPen);
     painter->drawRoundedRect(applyRect,10,10);
     painter->setPen(Qt::black);
-    painter->drawText(applyRect.adjusted(6,3,0,0), Qt::AlignLeft | Qt::AlignTop, "添加");
+    painter->setFont(QFont("微软雅黑", 12, QFont::Bold));
+    painter->drawText(applyRect.adjusted(9,3,0,0), Qt::AlignLeft | Qt::AlignTop, "添加");
 
     painter->restore();
 }
@@ -69,7 +70,7 @@ void StrangerDelegate::draw_avatar(QPainter *painter, const QStyleOptionViewItem
     }else{
         QPixmap pixmap(avatarPath);
         if (pixmap.isNull()) {
-            qDebug() << "Failed to load avatar:" << avatarPath;
+            qDebug() << "加载头像失败:" << avatarPath;
         } else {
             // 获取设备像素比（处理高DPI屏幕）
             qreal dpr = painter->device()->devicePixelRatio();

@@ -1,6 +1,8 @@
 #include "addfriends.h"
+#include "View/Components/tipsbox.h"
 #include "ui_addfriends.h"
 
+#include <QGraphicsDropShadowEffect>
 #include <QMessageBox>
 
 AddFriends::AddFriends(QWidget *parent)
@@ -8,8 +10,21 @@ AddFriends::AddFriends(QWidget *parent)
     , ui(new Ui::AddFriends)
 {
     ui->setupUi(this);
+    setWindowFlag(Qt::FramelessWindowHint);         //无边框
+    setAttribute(Qt::WA_TranslucentBackground);     //窗口透明
+    //设置投影效果
+    QGraphicsDropShadowEffect *windowShadow;        //阴影效果
+    windowShadow = new QGraphicsDropShadowEffect(this);
+    windowShadow->setBlurRadius(30);
+    windowShadow->setColor(QColor(0, 0, 0));
+    windowShadow->setOffset(0, 0);
+    ui->frame->setGraphicsEffect(windowShadow);
+
+    connect(ui->titleBar, &DialogTitleBar::closeWindow, this, &AddFriends::close);
+
     connect(ui->btnSelect,&QPushButton::clicked,this,&AddFriends::slelect_byName);
     initStrangerList();
+
 }
 
 AddFriends::~AddFriends()
@@ -25,7 +40,6 @@ void AddFriends::updateListView(QMap<QString, QString> id_name,QMap<QString,QStr
         //在列表显示
         m_stranger_model->addFriends_ToList(id_name[id],id,"",id_avatar[id]);
     }
-
 }
 
 void AddFriends::closeEvent(QCloseEvent *event)
@@ -56,7 +70,8 @@ void AddFriends::initStrangerList()
     connect(m_stranger_delegate,&StrangerDelegate::applyClicked,this,[=](const QString &id,const int &row){
         emit sendData(id);
         m_stranger_model->removeItem(row);
-        QMessageBox::information(this, "成功", "已发送好友申请!");
+        // QMessageBox::information(this, "成功", "已发送好友申请!");
+        TipsBox::showNotice("已发送好友申请!", SA_SUCCESS, this);
     });
 }
 

@@ -19,11 +19,7 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
-    // 鼠标事件实现窗口拖动
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
 
-    void mouseReleaseEvent(QMouseEvent *event) override;
     bool event(QEvent *event) override;
 
     // 键盘交互
@@ -52,8 +48,6 @@ private:
     QPixmap m_originalImage;
     QPixmap m_currentImage;
     qreal m_scaleFactor;
-    bool m_bDragging;
-    QPoint m_dragStartPosition;
     QScrollArea *scrollArea;
 };
 

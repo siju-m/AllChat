@@ -1,4 +1,6 @@
 #include "mainwindow.h"
+#include "Delegate/applydelegate.h"
+#include "Delegate/friendsdelegate.h"
 
 #include <QImageReader>
 #include <QQuickView>
@@ -21,9 +23,9 @@ MainWindow::MainWindow(DataTransfer *dataTransfer, QWidget *parent)
     m_historyManager(new ChatHistoryManager(this)),
     m_dataTransfer(dataTransfer)
 {
-    this->resize(1000, 700);
     ui->setupUi(this);
     setWindowTitle("AllChat");
+    this->resize(1000, 700);
     this->setWindowFlags(Qt::CustomizeWindowHint);//去除标题栏但仍可调整大小
 
     // 绑定按钮槽函数
@@ -31,11 +33,12 @@ MainWindow::MainWindow(DataTransfer *dataTransfer, QWidget *parent)
     QShortcut *shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return), this);
     connect(shortcut, &QShortcut::activated, this, &MainWindow::onSendClicked);
     connect(ui->btnImage, &QPushButton::clicked, this, &MainWindow::sendImage);
-    connect(ui->btnUpdateAvatar,&QPushButton::clicked, this,[=](){
+    connect(ui->avatar,&AvatarLabel::clicked, this,[=](){
+        // 取消了窗口的标题栏之后如果指定父对象会嵌到主窗口里面
         m_updateAvatar = new UpdateAvatar(this);
         connect(m_updateAvatar,&UpdateAvatar::send_updateAvatar,this,&MainWindow::send_updateAvatar);
         connect(m_updateAvatar,&UpdateAvatar::setAvatar,this,&MainWindow::setAvatar);
-        // m_updateAvatar->setAvatarPath(m_avatarPath);
+        // connect(m_updateAvatar, &UpdateAvatar::finished, m_updateAvatar, &UpdateAvatar::deleteLater);
         m_updateAvatar->setAvatarPath(m_user->get_avatarPath());
         m_updateAvatar->exec();
     });
@@ -59,7 +62,6 @@ MainWindow::MainWindow(DataTransfer *dataTransfer, QWidget *parent)
     initFriendApplyList();
     initHistoryManager();
 
-    m_dataTransfer->ConnectServer();
 }
 
 MainWindow::~MainWindow() {
@@ -87,7 +89,7 @@ void MainWindow::initFriendsList()
     connect(ui->friendInfo,&UserDetailView::showMessage,this,[=](const QString &id){
         m_sideBar_btnGroup->button(0)->click();
         int row = chat_model->get_rowById(id);
-        qDebug()<<row;
+        // qDebug()<<row;
         QModelIndex index = ui->chatList->model()->index(row, 0);
         emit ui->chatList->clicked(index);
         ui->chatList->setCurrentIndex(index);
@@ -259,7 +261,7 @@ void MainWindow::handle_addFriend(QDataStream &in)
     QByteArray avatar;
     in>>senderName>>senderId>>avatar;
     QString avatarPath = m_historyManager->storeImage(senderName,avatar);
-    qDebug()<<senderName<<senderId;
+    // qDebug()<<senderName<<senderId;
     apply_model->addFriends_ToList(senderName,senderId,"请求添加好友",avatarPath);
 }
 
@@ -279,19 +281,6 @@ void MainWindow::handle_addFriend_result(QDataStream &in)
     storeMessageToFile(senderId,m_friendList[senderId],"我们已成功添加好友，现在可以开始聊天啦~",getCurrentTime());
 }
 
-// void MainWindow::registerUser(const QString &username, const QString &password) {
-//     if (username.isEmpty() || password.isEmpty()) return;
-//     Packet data(CommonEnum::message_type::REGISTER,username,password);
-//     m_dataTransfer->sendData(data);
-// }
-
-// void MainWindow::loginUser(const QString &username, const QString &password) {
-//     qDebug()<<username<<password;
-
-//     m_user->set_userName(username);
-//     Packet data(CommonEnum::message_type::LOGIN,username,password);
-//     m_dataTransfer->sendData(data);
-// }
 
 void MainWindow::send_slelectByName(const QString &username)
 {
@@ -357,6 +346,8 @@ void MainWindow::handleData(QByteArray data)
 
 void MainWindow::send_updateAvatar(const QString &path)
 {
+    if(path.isEmpty())
+        return;
     QFile imageFile(path);
     if (!imageFile.open(QIODevice::ReadOnly)) {
         qDebug() << "无法打开头像图片文件";

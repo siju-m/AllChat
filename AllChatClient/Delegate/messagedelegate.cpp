@@ -36,7 +36,7 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     }else{
         QPixmap pixmap(avatarPath);
         if (pixmap.isNull()) {
-            qDebug() << "Failed to load avatar:" << avatarPath;
+            qDebug() << "加载头像失败:" << avatarPath;
         } else {
             // 获取设备像素比（处理高DPI屏幕）
             qreal dpr = painter->device()->devicePixelRatio();
@@ -274,7 +274,7 @@ bool MessageDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, cons
         /*是listview设定的间距，paint中的option没有把间距算作宽度，但是editorEvent把这个算进去了*/
         if (isClickOnImage(clickPos,index,newOption)) {
             // 处理按钮点击逻辑
-            qDebug() << "Button clicked in item at row:" << index.row();
+            // qDebug() << "Button clicked in item at row:" << index.row();
             QPixmap image(index.data(MessageModel::ImageRole).toString());
             emit imageClicked(image);
             return true;

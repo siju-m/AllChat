@@ -1,6 +1,8 @@
 #include "responsive_form.h"
+#include "View/Components/tipsbox.h"
 
 #include <QMessageBox>
+#include <windows.h>
 
 Responsive_form::Responsive_form(QWidget *parent)
     : QWidget{parent}
@@ -20,11 +22,12 @@ Responsive_form::Responsive_form(QWidget *parent)
         QString pw1 = registration_form->password1->text();
         QString pw2 = registration_form->password2->text();
 
-        if(pw1 == pw2){
+        if(pw1.isEmpty() || pw2.isEmpty()){
+            TipsBox::showNotice("密码不能为空!", SA_TIPS, this);
+        }else if(pw1 == pw2){
             emit regist(userName, pw1);
         }else{
-            // 提示不一致
-            qDebug()<<"密码不一致";
+            TipsBox::showNotice("密码不一致!", SA_WARNING, this);
         }
 
     });
@@ -35,7 +38,10 @@ Responsive_form::Responsive_form(QWidget *parent)
     connect(login_form->login_button, &Login_button::clicked, this, [=](){
         QString userName = login_form->username->text();
         QString passWord = login_form->password->text();
-        emit login(userName, passWord);
+        if(userName.isEmpty() || passWord.isEmpty()){
+            TipsBox::showNotice("用户名和密码不能为空!", SA_TIPS, this);
+        }else
+            emit login(userName, passWord);
     });
 
     scroll_bar = new Scroll_bar(this);
@@ -49,6 +55,7 @@ Responsive_form::Responsive_form(QWidget *parent)
 
     connect(transparent_transition_interface->button, &Hollow_button::page_changed, this, &Responsive_form::execute_animation);
     connect(transparent_transition_interface2->button, &Hollow_button::page_changed, this, &Responsive_form::execute_animation);
+
 }
 
 void Responsive_form::setRightShow()
@@ -221,24 +228,15 @@ void Responsive_form::createRoundPath(QPainterPath& path)
 void Responsive_form::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
-        m_dragStartPosition = event->globalPos();
-        m_startWindowPosition = this->pos();
+#ifdef Q_OS_WIN
+        ReleaseCapture();
+        SendMessage(HWND(window()->winId()), WM_SYSCOMMAND, SC_MOVE + HTCAPTION, 0);
+#else
+        window()->windowHandle()->startSystemMove();
+#endif
         event->accept();
-    }
-    else {
+    } else {
         QWidget::mousePressEvent(event);
-    }
-}
-
-void Responsive_form::mouseMoveEvent(QMouseEvent* event)
-{
-    if (event->buttons() & Qt::LeftButton) {
-        QPoint delta = event->globalPos() - m_dragStartPosition;
-        this->move(m_startWindowPosition + delta);
-        event->accept();
-    }
-    else {
-        QWidget::mouseMoveEvent(event);
     }
 }
 
@@ -258,9 +256,7 @@ void Responsive_form::closeWindow(CommonEnum::message_type result){
         this->close();
     }break;
     case CommonEnum::message_type::LOGIN_FAILED:{
-        login_form->username->clear();
-        login_form->password->clear();
-        QMessageBox::warning(this, "警告", "密码错误或用户不存在!");
+        TipsBox::showNotice("密码错误或用户不存在!", SA_FAILED, this);
     }break;
     default:break;
     }

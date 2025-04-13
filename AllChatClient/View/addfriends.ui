@@ -17,25 +17,80 @@
    <string notr="true">background-color: rgb(241, 241, 241)</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>20</number>
+   </property>
    <item>
-    <widget class="QWidget" name="widget" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout">
+    <widget class="QFrame" name="frame">
+     <property name="styleSheet">
+      <string notr="true">QFrame{
+border-radius:10px
+}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::WinPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="leftMargin">
+       <number>5</number>
+      </property>
+      <property name="topMargin">
+       <number>5</number>
+      </property>
+      <property name="rightMargin">
+       <number>5</number>
+      </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>5</number>
       </property>
       <item>
-       <widget class="QLineEdit" name="nameInputEdit"/>
+       <widget class="DialogTitleBar" name="titleBar" native="true"/>
       </item>
       <item>
-       <widget class="QPushButton" name="btnSelect">
-        <property name="styleSheet">
-         <string notr="true">/**正常情况下样式**/
+       <widget class="QWidget" name="widget" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="nameInputEdit">
+           <property name="styleSheet">
+            <string notr="true">QLineEdit {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 6px 10px;
+        font-size: 14px;
+        background-color: #f9f9f9;
+    }
+    QLineEdit:focus {
+        border: 1px solid #0078d7;
+        background-color: #ffffff;
+    }</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnSelect">
+           <property name="styleSheet">
+            <string notr="true">/**正常情况下样式**/
 QPushButton{
 	font: 10pt &quot;微软雅黑&quot;;
     color: white;
-    background-color: gray;
-    border-color: #2f3640;
-    border-radius: 5px;
+    background-color: rgb(123, 150, 228);
+	color: rgb(255, 255, 255);
+    border-radius: 8px;
     border-style: none;
     border-width: 1px;
     padding: 5px;
@@ -61,25 +116,28 @@ QPushButton::disabled{
     border-color: #dcdde1;
 }
 </string>
-        </property>
-        <property name="text">
-         <string>查询</string>
-        </property>
+           </property>
+           <property name="text">
+            <string>查 询</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QWidget" name="widget_2" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QListView" name="strangerList">
-        <property name="styleSheet">
-         <string notr="true">QListView {
+       <widget class="QWidget" name="widget_2" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QListView" name="strangerList">
+           <property name="styleSheet">
+            <string notr="true">QListView {
     border: none;
 }</string>
-        </property>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -87,6 +145,14 @@ QPushButton::disabled{
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DialogTitleBar</class>
+   <extends>QWidget</extends>
+   <header>View/Components/dialogtitlebar.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

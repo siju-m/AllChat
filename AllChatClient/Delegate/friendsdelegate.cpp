@@ -64,7 +64,7 @@ void FriendsDelegate::draw_avatar(QPainter *painter, const QStyleOptionViewItem 
     }else{
         QPixmap pixmap(avatarPath);
         if (pixmap.isNull()) {
-            qDebug() << "Failed to load avatar:" << avatarPath;
+            qDebug() << "加载头像失败:" << avatarPath;
         } else {
             // 获取设备像素比（处理高DPI屏幕）
             qreal dpr = painter->device()->devicePixelRatio();
@@ -131,5 +131,5 @@ void FriendsDelegate::draw_onlineState(QPainter *painter, const QStyleOptionView
     default:break;
     }
     QRect itemRect = option.rect;
-    painter->drawEllipse(itemRect.left()+60, itemRect.top()+35, 15, 15);
+    painter->drawEllipse(itemRect.left()+58, itemRect.top()+35, 15, 15);
 }

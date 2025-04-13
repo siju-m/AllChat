@@ -12,15 +12,17 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>300</height>
+    <width>700</width>
+    <height>500</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(241, 241, 241)</string>
+   <string notr="true">background-color: rgb(241, 241, 241);
+
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="minimumSize">
@@ -30,7 +32,38 @@
     </size>
    </property>
    <property name="styleSheet">
-    <string notr="true"/>
+    <string notr="true">/**正常情况下样式**/
+QPushButton{
+	font: 10pt &quot;微软雅黑&quot;;
+    color: white;
+    background-color: rgb(123, 150, 228);
+	color: rgb(255, 255, 255);
+    border-radius: 8px;
+    border-style: none;
+    border-width: 1px;
+    padding: 5px;
+}
+
+/**鼠标停留在按钮上的样式**/
+QPushButton::hover{	
+    color: #FFFFFF;
+    background-color: #718093;
+    border-color: #2f3640;
+}
+
+/**鼠标按压下去的样式**/
+QPushButton::pressed,QPushButton::checked{
+    color: #FFFFFF;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
+}
+
+/**按钮失能情况下样式**/
+QPushButton::disabled{
+    color: #FFFFFF;
+    background-color: #dcdde1;
+    border-color: #dcdde1;
+}
+</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <property name="spacing">
@@ -40,7 +73,7 @@
      <number>1</number>
     </property>
     <property name="topMargin">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="rightMargin">
      <number>1</number>
@@ -61,6 +94,11 @@
         <width>16777215</width>
         <height>30</height>
        </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(241, 241, 241);
+
+</string>
       </property>
      </widget>
     </item>
@@ -159,7 +197,7 @@ QPushButton:default {
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="avatar">
+             <widget class="AvatarLabel" name="avatar">
               <property name="minimumSize">
                <size>
                 <width>40</width>
@@ -537,6 +575,12 @@ border-right: 1px solid gray;  /*只保留右边边框 */
         </property>
         <item>
          <widget class="QStackedWidget" name="stackedWidget">
+          <property name="minimumSize">
+           <size>
+            <width>250</width>
+            <height>0</height>
+           </size>
+          </property>
           <widget class="QWidget" name="chatView">
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <property name="leftMargin">
@@ -600,81 +644,9 @@ border-right: 1px solid gray;  /*只保留右边边框 */
                 </spacer>
                </item>
                <item>
-                <widget class="QPushButton" name="btnUpdateAvatar">
-                 <property name="styleSheet">
-                  <string notr="true">/**正常情况下样式**/
-QPushButton{
-	font: 10pt &quot;微软雅黑&quot;;
-    color: white;
-    background-color: gray;
-    border-color: #2f3640;
-    border-radius: 5px;
-    border-style: none;
-    border-width: 1px;
-    padding: 5px;
-}
-
-/**鼠标停留在按钮上的样式**/
-QPushButton::hover{	
-    color: #FFFFFF;
-    background-color: #718093;
-    border-color: #2f3640;
-}
-
-/**鼠标按压下去的样式**/
-QPushButton::pressed,QPushButton::checked{
-    color: #FFFFFF;
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
-}
-
-/**按钮失能情况下样式**/
-QPushButton::disabled{
-    color: #FFFFFF;
-    background-color: #dcdde1;
-    border-color: #dcdde1;
-}
-</string>
-                 </property>
-                 <property name="text">
-                  <string>修改头像</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QPushButton" name="addFriends">
                  <property name="styleSheet">
-                  <string notr="true">/**正常情况下样式**/
-QPushButton{
-	font: 10pt &quot;微软雅黑&quot;;
-    color: white;
-    background-color: gray;
-    border-color: #2f3640;
-    border-radius: 5px;
-    border-style: none;
-    border-width: 1px;
-    padding: 5px;
-}
-
-/**鼠标停留在按钮上的样式**/
-QPushButton::hover{	
-    color: #FFFFFF;
-    background-color: #718093;
-    border-color: #2f3640;
-}
-
-/**鼠标按压下去的样式**/
-QPushButton::pressed,QPushButton::checked{
-    color: #FFFFFF;
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
-}
-
-/**按钮失能情况下样式**/
-QPushButton::disabled{
-    color: #FFFFFF;
-    background-color: #dcdde1;
-    border-color: #dcdde1;
-}
-</string>
+                  <string notr="true"/>
                  </property>
                  <property name="text">
                   <string>添加好友</string>
@@ -803,38 +775,7 @@ QScrollBar::sub-page:vertical {
                      </size>
                     </property>
                     <property name="styleSheet">
-                     <string notr="true">/**正常情况下样式**/
-QPushButton{
-	font: 10pt &quot;微软雅黑&quot;;
-    color: white;
-    background-color: gray;
-    border-color: #2f3640;
-    border-radius: 5px;
-    border-style: none;
-    border-width: 1px;
-    padding: 5px;
-}
-
-/**鼠标停留在按钮上的样式**/
-QPushButton::hover{	
-    color: #FFFFFF;
-    background-color: #718093;
-    border-color: #2f3640;
-}
-
-/**鼠标按压下去的样式**/
-QPushButton::pressed,QPushButton::checked{
-    color: #FFFFFF;
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
-}
-
-/**按钮失能情况下样式**/
-QPushButton::disabled{
-    color: #FFFFFF;
-    background-color: #dcdde1;
-    border-color: #dcdde1;
-}
-</string>
+                     <string notr="true"/>
                     </property>
                     <property name="text">
                      <string>发送图片</string>
@@ -959,38 +900,7 @@ QScrollBar::sub-page:vertical {
                      </size>
                     </property>
                     <property name="styleSheet">
-                     <string notr="true">/**正常情况下样式**/
-QPushButton{
-	font: 10pt &quot;微软雅黑&quot;;
-    color: white;
-    background-color: gray;
-    border-color: #2f3640;
-    border-radius: 5px;
-    border-style: none;
-    border-width: 1px;
-    padding: 5px;
-}
-
-/**鼠标停留在按钮上的样式**/
-QPushButton::hover{	
-    color: #FFFFFF;
-    background-color: #718093;
-    border-color: #2f3640;
-}
-
-/**鼠标按压下去的样式**/
-QPushButton::pressed,QPushButton::checked{
-    color: #FFFFFF;
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
-}
-
-/**按钮失能情况下样式**/
-QPushButton::disabled{
-    color: #FFFFFF;
-    background-color: #dcdde1;
-    border-color: #dcdde1;
-}
-</string>
+                     <string notr="true"/>
                     </property>
                     <property name="text">
                      <string>发送</string>
@@ -1032,32 +942,22 @@ QPushButton::disabled{
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>17</height>
-    </rect>
-   </property>
-  </widget>
  </widget>
  <customwidgets>
   <customwidget>
    <class>MessageListView</class>
    <extends>QListView</extends>
-   <header>View\messagelistview.h</header>
+   <header>View/messagelistview.h</header>
   </customwidget>
   <customwidget>
    <class>OnlineStateLabel</class>
    <extends>QLabel</extends>
-   <header>View/onlinestatelabel.h</header>
+   <header>View/Components/onlinestatelabel.h</header>
   </customwidget>
   <customwidget>
    <class>CustomTitleBar</class>
    <extends>QWidget</extends>
-   <header>View/customtitlebar.h</header>
+   <header>View/Components/customtitlebar.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -1065,6 +965,11 @@ QPushButton::disabled{
    <extends>QWidget</extends>
    <header>View/UserDetailView.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AvatarLabel</class>
+   <extends>QLabel</extends>
+   <header>View/Components/avatarlabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

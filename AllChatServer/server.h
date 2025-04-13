@@ -36,30 +36,10 @@ public:
 protected:
     void incomingConnection(qintptr socketDescriptor) override;
 
-private slots:
-    void onReadyRead();
-    void handleData(QByteArray data,QTcpSocket *senderSocket);
-    void onClientDisconnected();
-
 private:
-    QMap<QTcpSocket *, QString> m_clients_name;   // 客户端对应的用户名
-    QMap<QString, QTcpSocket *> m_userIds_client;     // 用户 ID对应的客户端
-    QMap<QTcpSocket *,QString> m_clients_userId;     // 客户端对应的用户 ID
-    QHash<QString,QSet<QString>> m_friends;     // 每个用户对应的好友申请列表
-    QSet<QPair<QString,QString>> m_alreadyApply; //确保每个好友申请只发送一次
-
-    //todo 可以把东西全都存在数据库
-    QHash<QString,QByteArray> m_forward_contents;//如果过大就存起来
-
-    DataBase *dataBase;
-
-    DataTransfer *m_dataTransfer;
-
     QString generateUniqueId();              // 生成唯一 ID
     void broadcast_userOnlineList();                // 广播在线用户列表
     void broadcastMessage(const QString &sender, const QString &message); // 广播消息
-
-    message_type messageType;
 
     void privateMessage(QDataStream &in,QTcpSocket *senderSocket);//转发私聊信息
     void privateImage(QDataStream &in,QTcpSocket *senderSocket);//转发私聊图片
@@ -89,6 +69,26 @@ private:
     void handle_deleteFriend(QDataStream &in,QTcpSocket *senderSocket);
 
     QString getCurrentTime();
+
+private slots:
+    void onReadyRead();
+    void handleData(QByteArray data,QTcpSocket *senderSocket);
+    void onClientDisconnected();
+
+private:
+    QMap<QTcpSocket *, QString> m_clients_name;         // 客户端对应的用户名
+    QMap<QString, QTcpSocket *> m_userIds_client;       // 用户 ID对应的客户端
+    QMap<QTcpSocket *,QString> m_clients_userId;        // 客户端对应的用户 ID
+    QHash<QString,QSet<QString>> m_friends;             // 每个用户对应的好友申请列表
+    QSet<QPair<QString,QString>> m_alreadyApply;        //确保每个好友申请只发送一次
+
+    //todo 可以把东西全都存在数据库 //如果过大就存起来
+    QHash<QString,QByteArray> m_forward_contents;       //转发消息
+
+    DataBase *dataBase;
+    DataTransfer *m_dataTransfer;
+
+    message_type messageType;
 };
 
 #endif // SERVER_H

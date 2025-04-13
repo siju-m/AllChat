@@ -49,7 +49,7 @@ void ApplyDelegate::draw_avatar(QPainter *painter, const QStyleOptionViewItem &o
     }else{
         QPixmap pixmap(avatarPath);
         if (pixmap.isNull()) {
-            qDebug() << "Failed to load avatar:" << avatarPath;
+            qDebug() << "加载头像失败:" << avatarPath;
         } else {
             // 获取设备像素比（处理高DPI屏幕）
             qreal dpr = painter->device()->devicePixelRatio();
