@@ -6,7 +6,7 @@
 struct Strangers{
     QString userName;
     QString id;
-    QString applyMessage;
+    bool isFriend;
     QString avatarPath;
 };
 
@@ -18,14 +18,14 @@ public:
     enum Roles {
         UserNameRole = Qt::UserRole + 1,
         IdRole,
-        ApplyMessageRole,
+        IsFriendRole,
         AvatarRole
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
 
-    void addFriends_ToList(const QString &userName,const QString &id,const QString &applyMessage="", const QString &avatarPath="");
+    void addFriends_ToList(const QString &userName,const QString &id, bool isFriend, const QString &avatarPath="");
 
     void removeItem(int row);
     void clear();

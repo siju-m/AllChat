@@ -31,10 +31,10 @@ public:
     void setCenter_text(const QString &newCenter_text);
 
 protected:
-    void paintEvent(QPaintEvent *event);
-    bool event(QEvent* e);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+    void paintEvent(QPaintEvent *event) override;
+    bool event(QEvent* e) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 signals:
     void execute_animation_signal(Login_button::AnimationState state);

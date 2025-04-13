@@ -35,7 +35,6 @@ public:
 
     int animation_duration() const;
     void setAnimation_duration(int newAnimation_duration);
-    void updateMask();
     void createRoundPath(QPainterPath& path);
     void crop_corner();
 
@@ -46,9 +45,9 @@ signals:
     void regist(const QString &username, const QString &password);
 
 protected:
-    void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent* event);
-    void resizeEvent(QResizeEvent* event);
+    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 public slots:
     void setRightShow();
@@ -57,7 +56,7 @@ public slots:
     void onAnimation4Finished();
 
 private:
-    int currentSequence = 1;
+    int currentSequence = 2;
     bool animation_execute_duration = false;
     bool animation_restore_duration = false;
     int m_animation_duration = 600;

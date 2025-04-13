@@ -3,7 +3,7 @@
 Input_box::Input_box(QString icon, QWidget* parent) : QLineEdit{ parent }
 {
     this->icon = QPixmap(icon);
-    this->resize(388, 58);
+    this->resize(308, 58);
     setTextMargins(25, 0, 25, 0);
 
     QFont font = this->font();

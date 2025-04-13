@@ -23,7 +23,7 @@ void ApplyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     // 绘制用户名
     draw_userName(painter,option,index);
     //绘制申请消息
-    draw_applyMsg(painter,option,index);
+    // draw_applyMsg(painter,option,index);
     //同意按钮
     draw_btn(painter,option);
 
@@ -99,23 +99,23 @@ void ApplyDelegate::draw_userName(QPainter *painter, const QStyleOptionViewItem 
     painter->drawText(usernameRect, Qt::AlignLeft | Qt::AlignTop, userName);
 }
 
-void ApplyDelegate::draw_applyMsg(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    QString applyMessage = index.data(StrangerModel::ApplyMessageRole).toString();
-    QRect itemRect = option.rect;
+// void ApplyDelegate::draw_applyMsg(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+// {
+//     QString applyMessage = index.data(StrangerModel::ApplyMessageRole).toString();
+//     QRect itemRect = option.rect;
 
-    QTextDocument doc;
-    applyMessage = (applyMessage.size()>10? applyMessage.last(10)+"...":applyMessage);
-    doc.setHtml(applyMessage);//只显示消息前面部分内容
-    doc.setTextWidth(itemRect.width()); // 设置最大宽度
-    int messageWidth = doc.idealWidth(); // 获取文本的实际宽度
+//     QTextDocument doc;
+//     applyMessage = (applyMessage.size()>10? applyMessage.last(10)+"...":applyMessage);
+//     doc.setHtml(applyMessage);//只显示消息前面部分内容
+//     doc.setTextWidth(itemRect.width()); // 设置最大宽度
+//     int messageWidth = doc.idealWidth(); // 获取文本的实际宽度
 
-    QRect messageRect = QRect(itemRect.left()+60, itemRect.top()+35, messageWidth, 20);
-    painter->setPen(Qt::gray);
-    QFont font = QFont("Arial", 10, QFont::Medium);
-    painter->setFont(font);
-    painter->drawText(messageRect, Qt::AlignLeft | Qt::AlignTop, applyMessage);
-}
+//     QRect messageRect = QRect(itemRect.left()+60, itemRect.top()+35, messageWidth, 20);
+//     painter->setPen(Qt::gray);
+//     QFont font = QFont("Arial", 10, QFont::Medium);
+//     painter->setFont(font);
+//     painter->drawText(messageRect, Qt::AlignLeft | Qt::AlignTop, applyMessage);
+// }
 
 void ApplyDelegate::draw_btn(QPainter *painter, const QStyleOptionViewItem &option) const
 {

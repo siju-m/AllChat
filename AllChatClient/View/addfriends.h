@@ -24,6 +24,7 @@ protected:
 signals:
     void send_slelectByName(const QString &username);
     void sendData(const QString &id);
+    void showMessage(const QString &id);
 public slots:
     void slelect_byName();
 private:

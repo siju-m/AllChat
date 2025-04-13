@@ -38,4 +38,9 @@ User CurrentUser::toUser()
     return User(m_userName, m_userId, true, m_avatarPath);
 }
 
+QMap<QString, User> &CurrentUser::getFriendList()
+{
+    return m_friendList;
+}
+
 

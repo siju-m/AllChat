@@ -3,16 +3,16 @@
 Login_form::Login_form(QWidget *parent)
     : QWidget{parent}
 {
-    this->resize(477, 620);
+    this->resize(parent->width()/2, parent->height());
 
     username = new Input_box(":/Icon/account.png", this);
-    username->move(46, 191);
+    username->move((width()-username->width())/2, 171);
     username->setPlaceholderText("用户名");
     username->setMaxLength(11);
     username->setValidator(new QIntValidator(0, 2147483647, this));
 
     password = new Input_box(":/Icon/password.png", this);
-    password->move(46, 283);
+    password->move((width()-password->width())/2, 263);
     password->setPlaceholderText("密码");
     password->setEchoMode(QLineEdit::Password);
     password->setMaxLength(16);
@@ -20,7 +20,7 @@ Login_form::Login_form(QWidget *parent)
 
     login_button = new Login_button(this);
     login_button->setCenter_text("登录");
-    login_button->move(46, 401);
+    login_button->move((width()-login_button->width())/2, 381);
 
     this->animations();
     connect(login_button, &Login_button::execute_animation_signal, this, &Login_form::execute_animation);

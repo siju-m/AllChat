@@ -7,7 +7,7 @@
 Responsive_form::Responsive_form(QWidget *parent)
     : QWidget{parent}
 {
-    this->setFixedSize(955, 620);
+    this->setFixedSize(800, 520);
     this->setWindowFlags(Qt::FramelessWindowHint);
 
     transparent_transition_interface2 = new Transparent_transition_interface("欢迎!", "已经拥有账户?", "登录", this);
@@ -196,7 +196,7 @@ void Responsive_form::crop_corner()
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     QPainterPath path;
-    path.addRoundedRect(0, 0, width(), height(), 34, 34);
+    path.addRoundedRect(0, 0, width(), height(), 0, 0);
     painter.setClipPath(path);
     painter.setPen(Qt::NoPen);
 
@@ -205,18 +205,18 @@ void Responsive_form::crop_corner()
     painter.drawRect(0, 0, width(), height());
 }
 
-void Responsive_form::resizeEvent(QResizeEvent* event)
+void Responsive_form::keyPressEvent(QKeyEvent *event)
 {
-    QWidget::resizeEvent(event);
-    // updateMask();
-}
+    if (event->key() == Qt::Key_Return) {
 
-void Responsive_form::updateMask()
-{
-    QPainterPath path;
-    createRoundPath(path);
-    QRegion region = QRegion(path.toFillPolygon().toPolygon());
-    setMask(region);
+        if(currentSequence == 2){
+            // 登录
+            emit login_form->login_button->clicked();
+        }else if(currentSequence == 1){
+            // 注册
+            emit registration_form->login_button->clicked();
+        }
+    }
 }
 
 void Responsive_form::createRoundPath(QPainterPath& path)
@@ -227,17 +227,20 @@ void Responsive_form::createRoundPath(QPainterPath& path)
 
 void Responsive_form::mousePressEvent(QMouseEvent* event)
 {
+
     if (event->button() == Qt::LeftButton) {
+        QWidget *w = childAt(event->pos());
+        // 如果不是按钮，就可以拖动
+        if (!qobject_cast<QAbstractButton*>(w)) {
 #ifdef Q_OS_WIN
-        ReleaseCapture();
-        SendMessage(HWND(window()->winId()), WM_SYSCOMMAND, SC_MOVE + HTCAPTION, 0);
+            ReleaseCapture();
+            SendMessage(HWND(window()->winId()), WM_SYSCOMMAND, SC_MOVE + HTCAPTION, 0);
 #else
-        window()->windowHandle()->startSystemMove();
+            window()->windowHandle()->startSystemMove();
 #endif
-        event->accept();
-    } else {
-        QWidget::mousePressEvent(event);
+        }
     }
+    QWidget::mousePressEvent(event);
 }
 
 int Responsive_form::animation_duration() const

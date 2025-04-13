@@ -5,11 +5,14 @@
 #include <QGraphicsDropShadowEffect>
 #include <QMessageBox>
 
+#include <Core/currentuser.h>
+
 AddFriends::AddFriends(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::AddFriends)
 {
     ui->setupUi(this);
+    this->setFixedSize(600,450);
     setWindowFlag(Qt::FramelessWindowHint);         //无边框
     setAttribute(Qt::WA_TranslucentBackground);     //窗口透明
     //设置投影效果
@@ -36,9 +39,10 @@ void AddFriends::updateListView(QMap<QString, QString> id_name,QMap<QString,QStr
 {
     m_stranger_model->clear();
     QList<QString> ids = id_name.keys();
+    QMap<QString, User> &m_friendList = CurrentUser::getInstance()->getFriendList();
     for(auto &id:ids){
         //在列表显示
-        m_stranger_model->addFriends_ToList(id_name[id],id,"",id_avatar[id]);
+        m_stranger_model->addFriends_ToList(id_name[id],id,m_friendList.contains(id),id_avatar[id]);
     }
 }
 
@@ -60,6 +64,7 @@ void AddFriends::initStrangerList()
     m_stranger_model = new StrangerModel(this);
     ui->strangerList->setModel(m_stranger_model);
     m_stranger_delegate = new StrangerDelegate(this);
+    ui->strangerList->viewport()->setMouseTracking(true);
     ui->strangerList->setItemDelegate(m_stranger_delegate);
     ui->strangerList->setVerticalScrollMode(QListView::ScrollPerPixel); // 平滑滚动
     ui->strangerList->setResizeMode(QListView::Adjust);                 // 自动调整项大小
@@ -72,6 +77,10 @@ void AddFriends::initStrangerList()
         m_stranger_model->removeItem(row);
         // QMessageBox::information(this, "成功", "已发送好友申请!");
         TipsBox::showNotice("已发送好友申请!", SA_SUCCESS, this);
+    });
+    connect(m_stranger_delegate,&StrangerDelegate::sendClicked,this,[=](const QString &id,const int &row){
+        emit showMessage(id);
+        close();
     });
 }
 

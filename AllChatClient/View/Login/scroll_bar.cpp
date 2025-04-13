@@ -3,7 +3,7 @@
 Scroll_bar::Scroll_bar(QWidget *parent)
     : QWidget{parent}
 {
-    this->resize(1910, 620);
+    this->resize(parent->width()*2, parent->height());
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
 }
@@ -29,7 +29,7 @@ void Scroll_bar::crop_corner()
     painter.setClipPath(path);
     painter.setPen(Qt::NoPen);
 
-    QBrush Brush(QColor(123, 150, 228, 255));
+    QBrush Brush(QColor(53, 93, 144, 255));
     painter.setBrush(Brush);
     painter.drawRect(0, 0, width(), height());
 }

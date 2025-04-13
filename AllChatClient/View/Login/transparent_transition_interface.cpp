@@ -6,7 +6,7 @@ Transparent_transition_interface::Transparent_transition_interface(QString large
     this->large_text = large_text;
     this->small_text = small_text;
 
-    this->resize(477, 620);
+    this->resize(377, 520);
 
     button = new Hollow_button(this);
     button->setCenter_text(btn_text);
@@ -21,8 +21,8 @@ void Transparent_transition_interface::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::TextAntialiasing);
-    painter.setViewport(0, 0, 477, 620);
-    painter.setWindow(0, 0, 477, 620);
+    painter.setViewport(0, 0, 377, 520);
+    painter.setWindow(0, 0, 377, 520);
 
     this->draw_text();
     this->draw_text2();

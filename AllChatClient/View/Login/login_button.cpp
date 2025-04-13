@@ -2,7 +2,7 @@
 
 Login_button::Login_button(QWidget* parent) : QPushButton{ parent }
 {
-    this->resize(392, 57);
+    this->resize(312, 57);
     this->setCursor(Qt::PointingHandCursor);
     setMouseTracking(true);
     this->start_animation();
@@ -30,7 +30,7 @@ void Login_button::paintEvent(QPaintEvent* event)
     painter.setClipPath(path);
     painter.setPen(Qt::NoPen);
 
-    QBrush Brush(QColor(123, 150, 228, m_color_opacity));
+    QBrush Brush(QColor(53, 93, 144, m_color_opacity));
     painter.setBrush(Brush);
     painter.drawRect(0, 0, width(), height());
 

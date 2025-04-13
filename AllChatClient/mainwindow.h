@@ -98,7 +98,7 @@ private:
     ChatHistoryManager *m_historyManager;
     DataTransfer *m_dataTransfer;
     // CommonEnum::message_type messageType;
-    QMap<QString, User> m_friendList; // 用于存储好友列表 id和userName
+    QMap<QString, User> &m_friendList; // 用于存储好友列表 id和userName
     FriendsModel *friends_model;//存储好友数据
     ChatModel *chat_model;//聊天对象数据
     StrangerModel *apply_model;//存储申请添加好友的用户数据

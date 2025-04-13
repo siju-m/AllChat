@@ -21,7 +21,8 @@ MainWindow::MainWindow(DataTransfer *dataTransfer, QWidget *parent)
     m_user(CurrentUser::getInstance()),
     m_sideBar_btnGroup(new QButtonGroup(this)),
     m_historyManager(new ChatHistoryManager(this)),
-    m_dataTransfer(dataTransfer)
+    m_dataTransfer(dataTransfer),
+    m_friendList(m_user->getFriendList())
 {
     ui->setupUi(this);
     setWindowTitle("AllChat");
@@ -87,6 +88,7 @@ void MainWindow::initFriendsList()
         ui->friendInfo->showUserInfo(id,m_friendList[id]);
     });
     connect(ui->friendInfo,&UserDetailView::showMessage,this,[=](const QString &id){
+        // todo 封装
         m_sideBar_btnGroup->button(0)->click();
         int row = chat_model->get_rowById(id);
         // qDebug()<<row;
@@ -154,6 +156,15 @@ void MainWindow::initAddFriends()
         // this->sendData(CommonEnum::ADD_FRIEND,id);
         Packet data(CommonEnum::ADD_FRIEND,id);
         m_dataTransfer->sendData(data);
+    });
+    connect(&add_friends,&AddFriends::showMessage,this,[=](const QString &id){
+        // todo 封装
+        m_sideBar_btnGroup->button(0)->click();
+        int row = chat_model->get_rowById(id);
+        // qDebug()<<row;
+        QModelIndex index = ui->chatList->model()->index(row, 0);
+        emit ui->chatList->clicked(index);
+        ui->chatList->setCurrentIndex(index);
     });
     connect(this,&MainWindow::updateStrangerList,&add_friends,&AddFriends::updateListView);
 }

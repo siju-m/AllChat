@@ -2,6 +2,7 @@
 #define CURRENTUSER_H
 
 #include "Model/user.h"
+#include <QMap>
 #include <QString>
 
 
@@ -24,6 +25,8 @@ public:
     QString get_avatarPath();
 
     User toUser();
+
+    QMap<QString, User>& getFriendList();
 private:
     CurrentUser() = default;
     static CurrentUser* m_userInfo;
@@ -31,6 +34,7 @@ private:
     QString m_userId = QString();
     QString m_userName = QString();
     QString m_avatarPath = QString();
+    QMap<QString, User> m_friendList;
 };
 
 #endif // CURRENTUSER_H

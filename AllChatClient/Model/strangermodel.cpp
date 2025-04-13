@@ -19,16 +19,16 @@ QVariant StrangerModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case UserNameRole: return msg.userName;
     case IdRole: return msg.id;
-    case ApplyMessageRole: return msg.applyMessage;
+    case IsFriendRole: return msg.isFriend;
     case AvatarRole: return msg.avatarPath;
     default: return QVariant();
     }
 }
 
-void StrangerModel::addFriends_ToList(const QString &userName, const QString &id, const QString &applyMessage, const QString &avatarPath)
+void StrangerModel::addFriends_ToList(const QString &userName, const QString &id, bool isFriend, const QString &avatarPath)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_strangers.append({userName,id,applyMessage,avatarPath});
+    m_strangers.append({userName,id,isFriend,avatarPath});
     endInsertRows();
 }
 

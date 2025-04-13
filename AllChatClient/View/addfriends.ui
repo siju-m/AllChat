@@ -44,19 +44,26 @@ border-radius:10px
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <property name="leftMargin">
-       <number>5</number>
+       <number>0</number>
       </property>
       <property name="topMargin">
-       <number>5</number>
+       <number>0</number>
       </property>
       <property name="rightMargin">
-       <number>5</number>
+       <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>5</number>
+       <number>15</number>
       </property>
       <item>
-       <widget class="DialogTitleBar" name="titleBar" native="true"/>
+       <widget class="DialogTitleBar" name="titleBar" native="true">
+        <property name="styleSheet">
+         <string notr="true">
+#titleBar QPushButton{
+	border-top-right-radius:10px;
+}</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QWidget" name="widget" native="true">
@@ -88,7 +95,7 @@ border-radius:10px
 QPushButton{
 	font: 10pt &quot;微软雅黑&quot;;
     color: white;
-    background-color: rgb(123, 150, 228);
+    background-color: rgb(53, 93, 144);
 	color: rgb(255, 255, 255);
     border-radius: 8px;
     border-style: none;
@@ -99,7 +106,7 @@ QPushButton{
 /**鼠标停留在按钮上的样式**/
 QPushButton::hover{	
     color: #FFFFFF;
-    background-color: #718093;
+    background-color: rgb(93, 125, 166);
     border-color: #2f3640;
 }
 
@@ -128,6 +135,12 @@ QPushButton::disabled{
       <item>
        <widget class="QWidget" name="widget_2" native="true">
         <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="leftMargin">
+          <number>6</number>
+         </property>
+         <property name="rightMargin">
+          <number>6</number>
+         </property>
          <item>
           <widget class="QListView" name="strangerList">
            <property name="styleSheet">

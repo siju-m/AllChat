@@ -3,23 +3,23 @@
 Registration_form::Registration_form(QWidget *parent)
     : QWidget{parent}
 {
-    this->resize(477, 620);
+    this->resize(parent->width()/2, parent->height());
 
     username = new Input_box(":/Icon/account.png", this);
-    username->move(46, 160);
+    username->move((width()-username->width())/2, 140);
     username->setPlaceholderText("用户名");
     username->setMaxLength(11);
     username->setValidator(new QIntValidator(0, 2147483647, this));
 
     password1 = new Input_box(":/Icon/password.png", this);
-    password1->move(46, 250);
+    password1->move((width()-username->width())/2, 230);
     password1->setPlaceholderText("密码");
     password1->setMaxLength(16);
     // email->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"), this));
     password1->setValidator(new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9]+$"), this));
 
     password2 = new Input_box(":/Icon/password.png", this);
-    password2->move(46, 340);
+    password2->move((width()-username->width())/2, 320);
     password2->setPlaceholderText("确认密码");
     password2->setEchoMode(QLineEdit::Password);
     password2->setMaxLength(16);
@@ -27,7 +27,7 @@ Registration_form::Registration_form(QWidget *parent)
 
     login_button = new Login_button(this);
     login_button->setCenter_text("注册");
-    login_button->move(46, 430);
+    login_button->move((width()-username->width())/2, 410);
 
     this->animations();
     connect(login_button, &Login_button::execute_animation_signal, this, &Registration_form::execute_animation);

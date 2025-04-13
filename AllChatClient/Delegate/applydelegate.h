@@ -16,7 +16,7 @@ public:
 private:
     void draw_avatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void draw_userName(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void draw_applyMsg(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    // void draw_applyMsg(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void draw_btn(QPainter *painter, const QStyleOptionViewItem &option) const;
 signals:
     void applyResult(const QString &id,const int &row);

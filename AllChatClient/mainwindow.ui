@@ -36,7 +36,7 @@
 QPushButton{
 	font: 10pt &quot;微软雅黑&quot;;
     color: white;
-    background-color: rgb(123, 150, 228);
+    background-color: rgb(53, 93, 144);
 	color: rgb(255, 255, 255);
     border-radius: 8px;
     border-style: none;
@@ -47,7 +47,7 @@ QPushButton{
 /**鼠标停留在按钮上的样式**/
 QPushButton::hover{	
     color: #FFFFFF;
-    background-color: #718093;
+    background-color: rgb(93, 125, 166);
     border-color: #2f3640;
 }
 
