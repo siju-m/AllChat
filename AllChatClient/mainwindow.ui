@@ -32,38 +32,7 @@
     </size>
    </property>
    <property name="styleSheet">
-    <string notr="true">/**正常情况下样式**/
-QPushButton{
-	font: 10pt &quot;微软雅黑&quot;;
-    color: white;
-    background-color: rgb(53, 93, 144);
-	color: rgb(255, 255, 255);
-    border-radius: 8px;
-    border-style: none;
-    border-width: 1px;
-    padding: 5px;
-}
-
-/**鼠标停留在按钮上的样式**/
-QPushButton::hover{	
-    color: #FFFFFF;
-    background-color: rgb(93, 125, 166);
-    border-color: #2f3640;
-}
-
-/**鼠标按压下去的样式**/
-QPushButton::pressed,QPushButton::checked{
-    color: #FFFFFF;
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
-}
-
-/**按钮失能情况下样式**/
-QPushButton::disabled{
-    color: #FFFFFF;
-    background-color: #dcdde1;
-    border-color: #dcdde1;
-}
-</string>
+    <string notr="true"/>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <property name="spacing">
@@ -646,7 +615,38 @@ border-right: 1px solid gray;  /*只保留右边边框 */
                <item>
                 <widget class="QPushButton" name="addFriends">
                  <property name="styleSheet">
-                  <string notr="true"/>
+                  <string notr="true">/**正常情况下样式**/
+QPushButton{
+	font: 10pt &quot;微软雅黑&quot;;
+    color: white;
+    background-color: rgb(53, 93, 144);
+	color: rgb(255, 255, 255);
+    border-radius: 8px;
+    border-style: none;
+    border-width: 1px;
+    padding: 5px;
+}
+
+/**鼠标停留在按钮上的样式**/
+QPushButton::hover{	
+    color: #FFFFFF;
+    background-color: rgb(93, 125, 166);
+    border-color: #2f3640;
+}
+
+/**鼠标按压下去的样式**/
+QPushButton::pressed,QPushButton::checked{
+    color: #FFFFFF;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
+}
+
+/**按钮失能情况下样式**/
+QPushButton::disabled{
+    color: #FFFFFF;
+    background-color: #dcdde1;
+    border-color: #dcdde1;
+}
+</string>
                  </property>
                  <property name="text">
                   <string>添加好友</string>
@@ -768,17 +768,64 @@ QScrollBar::sub-page:vertical {
                   </property>
                   <item>
                    <widget class="QPushButton" name="btnImage">
-                    <property name="maximumSize">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
                      <size>
-                      <width>60</width>
-                      <height>16777215</height>
+                      <width>25</width>
+                      <height>25</height>
                      </size>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>25</width>
+                      <height>25</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>发送图片</string>
+                    </property>
+                    <property name="statusTip">
+                     <string/>
+                    </property>
+                    <property name="whatsThis">
+                     <string/>
+                    </property>
                     <property name="styleSheet">
-                     <string notr="true"/>
+                     <string notr="true">/**正常情况下样式**/
+QPushButton{
+    border: none;
+	background: transparent;
+    border-image: url(:/Icon/images_black.png);
+
+}
+
+/**鼠标停留在按钮上的样式**/
+QPushButton::hover{	
+	border-image: url(:/Icon/images_blue.png);
+}
+
+/**鼠标按压下去的样式**/
+QPushButton::pressed,QPushButton::checked{
+}
+
+/**按钮失能情况下样式**/
+QPushButton::disabled{
+}
+</string>
                     </property>
                     <property name="text">
-                     <string>发送图片</string>
+                     <string/>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>25</width>
+                      <height>25</height>
+                     </size>
                     </property>
                    </widget>
                   </item>
@@ -900,7 +947,38 @@ QScrollBar::sub-page:vertical {
                      </size>
                     </property>
                     <property name="styleSheet">
-                     <string notr="true"/>
+                     <string notr="true">/**正常情况下样式**/
+QPushButton{
+	font: 10pt &quot;微软雅黑&quot;;
+    color: white;
+    background-color: rgb(53, 93, 144);
+	color: rgb(255, 255, 255);
+    border-radius: 8px;
+    border-style: none;
+    border-width: 1px;
+    padding: 5px;
+}
+
+/**鼠标停留在按钮上的样式**/
+QPushButton::hover{	
+    color: #FFFFFF;
+    background-color: rgb(93, 125, 166);
+    border-color: #2f3640;
+}
+
+/**鼠标按压下去的样式**/
+QPushButton::pressed,QPushButton::checked{
+    color: #FFFFFF;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
+}
+
+/**按钮失能情况下样式**/
+QPushButton::disabled{
+    color: #FFFFFF;
+    background-color: #dcdde1;
+    border-color: #dcdde1;
+}
+</string>
                     </property>
                     <property name="text">
                      <string>发送</string>

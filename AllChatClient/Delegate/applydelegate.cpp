@@ -19,13 +19,13 @@ void ApplyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     painter->setRenderHint(QPainter::Antialiasing, true);          // 抗锯齿
 
     //绘制头像
-    draw_avatar(painter,option,index);
+    draw_avatar(painter, option, index);
     // 绘制用户名
-    draw_userName(painter,option,index);
+    draw_userName(painter, option, index);
     //绘制申请消息
-    // draw_applyMsg(painter,option,index);
+    draw_applyMsg(painter, option, index);
     //同意按钮
-    draw_btn(painter,option);
+    draw_btn(painter, option, index);
 
     painter->restore();
 }
@@ -99,38 +99,50 @@ void ApplyDelegate::draw_userName(QPainter *painter, const QStyleOptionViewItem 
     painter->drawText(usernameRect, Qt::AlignLeft | Qt::AlignTop, userName);
 }
 
-// void ApplyDelegate::draw_applyMsg(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-// {
-//     QString applyMessage = index.data(StrangerModel::ApplyMessageRole).toString();
-//     QRect itemRect = option.rect;
+void ApplyDelegate::draw_applyMsg(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    // QString applyMessage = index.data(StrangerModel::ApplyMessageRole).toString();
+    Q_UNUSED(index)
+    QString applyMessage("请求添加好友");
+    QRect itemRect = option.rect;
 
-//     QTextDocument doc;
-//     applyMessage = (applyMessage.size()>10? applyMessage.last(10)+"...":applyMessage);
-//     doc.setHtml(applyMessage);//只显示消息前面部分内容
-//     doc.setTextWidth(itemRect.width()); // 设置最大宽度
-//     int messageWidth = doc.idealWidth(); // 获取文本的实际宽度
+    QTextDocument doc;
+    applyMessage = (applyMessage.size()>10? applyMessage.last(10)+"...":applyMessage);
+    doc.setHtml(applyMessage);//只显示消息前面部分内容
+    doc.setTextWidth(itemRect.width()); // 设置最大宽度
+    int messageWidth = doc.idealWidth(); // 获取文本的实际宽度
 
-//     QRect messageRect = QRect(itemRect.left()+60, itemRect.top()+35, messageWidth, 20);
-//     painter->setPen(Qt::gray);
-//     QFont font = QFont("Arial", 10, QFont::Medium);
-//     painter->setFont(font);
-//     painter->drawText(messageRect, Qt::AlignLeft | Qt::AlignTop, applyMessage);
-// }
+    QRect messageRect = QRect(itemRect.left()+60, itemRect.top()+35, messageWidth, 20);
+    painter->setPen(Qt::gray);
+    QFont font = QFont("Arial", 10, QFont::Medium);
+    painter->setFont(font);
+    painter->drawText(messageRect, Qt::AlignLeft | Qt::AlignTop, applyMessage);
+}
 
-void ApplyDelegate::draw_btn(QPainter *painter, const QStyleOptionViewItem &option) const
+void ApplyDelegate::draw_btn(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QRect itemRect = option.rect;
     QRect agreeRect =  QRect(itemRect.right() -55, itemRect.top()+20, 40, 20);
-    painter->setBrush(QColor(Qt::green));
+    switch (m_buttonState[index]) {
+    case Normal:
+        painter->setBrush(QColor(53, 93, 144, 255));
+        break;
+    case Hover:
+        painter->setBrush(QColor(93, 125, 166, 255));
+        break;
+    default:
+        break;
+    }
     painter->setPen(Qt::NoPen);
     painter->drawRoundedRect(agreeRect,10,10);
-    painter->setPen(Qt::black);
-    painter->drawText(agreeRect.adjusted(6,3,0,0), Qt::AlignLeft | Qt::AlignTop, "同意");
+    painter->setPen(Qt::white);
+    painter->setFont(QFont("微软雅黑", 8, QFont::Bold));
+    painter->drawText(agreeRect.adjusted(9,3,0,0), Qt::AlignLeft | Qt::AlignTop, "同意");
 }
 
 bool ApplyDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-    if (event->type() == QEvent::MouseButtonPress) {
+    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseMove) {
         // MessageType type = static_cast<MessageType>(index.data(MessageModel::TypeRole).toInt());
         // if (type != MessageType::Image) return false;
 
@@ -142,11 +154,21 @@ bool ApplyDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const 
         // 判断点击位置是否在按钮区域内
         QString id = index.data(StrangerModel::IdRole).toString();
         if (agreeRect.contains(clickPos)) {
-            // 处理按钮点击逻辑
-            // qDebug()<<"yes";
-            emit applyResult(id,index.row());
-            return true;
+            if(event->type() == QEvent::MouseButtonPress){
+                // 处理按钮点击逻辑
+                // qDebug()<<"yes";
+                emit applyResult(id,index.row());
+                return true;
+            }else if(event->type() == QEvent::MouseMove){
+                m_buttonState[index] = Hover;
+            }
+        }else{
+            m_buttonState[index] = Normal;
         }
+        // 触发视图更新按钮
+        QWidget *widget = qobject_cast<QWidget *>(parent());
+        if (widget)
+            widget->update();
     }
     return QStyledItemDelegate::editorEvent(event, model, option, index);
 }

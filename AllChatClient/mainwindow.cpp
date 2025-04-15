@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "Delegate/applydelegate.h"
 #include "Delegate/friendsdelegate.h"
+#include "View/Components/tipsbox.h"
 
 #include <QImageReader>
+#include <QParallelAnimationGroup>
 #include <QQuickView>
 #include <QShortcut>
 #include <QShowEvent>
@@ -11,7 +13,7 @@
 
 #include <Model/Packet.h>
 
-
+#include <View/Components/confirmbox.h>
 
 MainWindow::MainWindow(DataTransfer *dataTransfer, QWidget *parent)
     : QMainWindow(parent),
@@ -35,7 +37,6 @@ MainWindow::MainWindow(DataTransfer *dataTransfer, QWidget *parent)
     connect(shortcut, &QShortcut::activated, this, &MainWindow::onSendClicked);
     connect(ui->btnImage, &QPushButton::clicked, this, &MainWindow::sendImage);
     connect(ui->avatar,&AvatarLabel::clicked, this,[=](){
-        // 取消了窗口的标题栏之后如果指定父对象会嵌到主窗口里面
         m_updateAvatar = new UpdateAvatar(this);
         connect(m_updateAvatar,&UpdateAvatar::send_updateAvatar,this,&MainWindow::send_updateAvatar);
         connect(m_updateAvatar,&UpdateAvatar::setAvatar,this,&MainWindow::setAvatar);
@@ -62,7 +63,6 @@ MainWindow::MainWindow(DataTransfer *dataTransfer, QWidget *parent)
     initSideBar();
     initFriendApplyList();
     initHistoryManager();
-
 }
 
 MainWindow::~MainWindow() {
@@ -87,22 +87,11 @@ void MainWindow::initFriendsList()
         QString id = index.data(FriendsModel::IdRole).toString();
         ui->friendInfo->showUserInfo(id,m_friendList[id]);
     });
-    connect(ui->friendInfo,&UserDetailView::showMessage,this,[=](const QString &id){
-        // todo 封装
-        m_sideBar_btnGroup->button(0)->click();
-        int row = chat_model->get_rowById(id);
-        // qDebug()<<row;
-        QModelIndex index = ui->chatList->model()->index(row, 0);
-        emit ui->chatList->clicked(index);
-        ui->chatList->setCurrentIndex(index);
-    });
+    connect(ui->friendInfo,&UserDetailView::showMessage,this,&MainWindow::switch_chatUser);
     connect(ui->friendInfo,&UserDetailView::deleteFriend,this,[=](const QString &id){
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "确认操作", "你确定要删除好友吗？",
-                                      QMessageBox::Yes | QMessageBox::No);
-        if (reply == QMessageBox::Yes) {
-            Packet data(CommonEnum::DELETEFRIEND,id);
-            m_dataTransfer->sendData(data);
+        if(ConfirmBox::question(this)){
+                Packet data(CommonEnum::DELETEFRIEND,id);
+                m_dataTransfer->sendData(data);
         }
     });
 }
@@ -157,15 +146,7 @@ void MainWindow::initAddFriends()
         Packet data(CommonEnum::ADD_FRIEND,id);
         m_dataTransfer->sendData(data);
     });
-    connect(&add_friends,&AddFriends::showMessage,this,[=](const QString &id){
-        // todo 封装
-        m_sideBar_btnGroup->button(0)->click();
-        int row = chat_model->get_rowById(id);
-        // qDebug()<<row;
-        QModelIndex index = ui->chatList->model()->index(row, 0);
-        emit ui->chatList->clicked(index);
-        ui->chatList->setCurrentIndex(index);
-    });
+    connect(&add_friends,&AddFriends::showMessage,this, &MainWindow::switch_chatUser);
     connect(this,&MainWindow::updateStrangerList,&add_friends,&AddFriends::updateListView);
 }
 
@@ -179,6 +160,13 @@ void MainWindow::initSideBar()
         ui->stackedList->setCurrentIndex(index);
         if (index >= 0 && index < ui->stackedWidget->count())
             ui->stackedWidget->setCurrentIndex(index);
+
+        if(button == ui->switchaddList){
+            QLabel *redDot = ui->switchaddList->findChild<QLabel*>("redDot");
+            if (redDot) {
+                redDot->setVisible(false); // 或其他操作
+            }
+        }
     });
 
     ui->stackedList->setCurrentIndex(0);//默认显示聊天列表
@@ -191,6 +179,7 @@ void MainWindow::initFriendApplyList()
     ApplyDelegate *apply_delegate = new ApplyDelegate(this);
     ui->friendApplyList->setModel(apply_model);
     ui->friendApplyList->setItemDelegate(apply_delegate);
+    ui->friendApplyList->viewport()->setMouseTracking(true);
 
     connect(apply_delegate,&ApplyDelegate::applyResult,this,[=](const QString &id,const int &row){
         send_addFriend_result(id);
@@ -245,19 +234,14 @@ void MainWindow::handle_deleteFriend_result(QDataStream &in)
     bool result;
     QString friendId;
     in>>result>>friendId;
-    QMessageBox msgBox;
     if(result){
-        msgBox.setWindowTitle("成功");
-        msgBox.setText("已删除好友");
+        TipsBox::showNotice("成功删除好友", SA_SUCCESS, this);
         m_friendList.remove(friendId);
         chat_model->removeItem(friendId);
         friends_model->removeItem(friendId);
     }else{
-        msgBox.setWindowTitle("失败");
-        msgBox.setText("删除好友失败");
+        TipsBox::showNotice("删除好友失败", SA_FAILED, this);
     }
-    msgBox.exec();
-
 }
 
 QString MainWindow::getCurrentTime()
@@ -268,12 +252,28 @@ QString MainWindow::getCurrentTime()
 
 void MainWindow::handle_addFriend(QDataStream &in)
 {
+    if(apply_model->isEmpty()){
+        // 创建一个 QLabel 当作红点
+        QLabel *redDot = new QLabel(ui->switchaddList);
+        redDot->setObjectName("redDot");
+        redDot->setFixedSize(10, 10);
+        redDot->move(ui->switchaddList->width() - 15, 3); // 右上角
+
+        // 设置红点样式
+        redDot->setStyleSheet("background-color: red; border-radius: 5px;");
+        redDot->show();
+    }else{
+        QLabel *redDot = ui->switchaddList->findChild<QLabel*>("redDot");
+        if (redDot) {
+            redDot->show();
+        }
+    }
     QString senderName,senderId;
     QByteArray avatar;
     in>>senderName>>senderId>>avatar;
     QString avatarPath = m_historyManager->storeImage(senderName,avatar);
     // qDebug()<<senderName<<senderId;
-    apply_model->addFriends_ToList(senderName,senderId,"请求添加好友",avatarPath);
+    apply_model->addFriends_ToList(senderName,senderId,false,avatarPath);
 }
 
 void MainWindow::send_addFriend_result(QString id)
@@ -286,9 +286,9 @@ void MainWindow::handle_addFriend_result(QDataStream &in)
 {
     QString senderName,senderId;
     in>>senderName>>senderId;
+    qDebug()<<senderId<<m_user->get_userId();
     if(ui->chatList->currentIndex().data(FriendsModel::IdRole).toString()==senderId)//接收的消息和当前聊天对象是同一个才在窗口显示
         addMessage_toList("我们已成功添加好友，现在可以开始聊天啦~",senderId,m_user->get_userId(),getCurrentTime());
-    // storeMessageToFile(senderId,m_friendList[senderId].userName,"我们已成功添加好友，现在可以开始聊天啦~",getCurrentTime());
     storeMessageToFile(senderId,m_friendList[senderId],"我们已成功添加好友，现在可以开始聊天啦~",getCurrentTime());
 }
 
@@ -389,6 +389,14 @@ void MainWindow::setAvatar(const QString &path)
     update();//通知重新绘制头像
 }
 
+void MainWindow::switch_chatUser(const QString &id)
+{
+    int row = chat_model->get_rowById(id);
+    QModelIndex index = ui->chatList->model()->index(row, 0);
+    m_sideBar_btnGroup->button(0)->click();
+    emit ui->chatList->clicked(index);
+    ui->chatList->setCurrentIndex(index);
+}
 
 void MainWindow::receiveImage(QDataStream &in)
 {

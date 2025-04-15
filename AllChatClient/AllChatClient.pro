@@ -22,6 +22,7 @@ SOURCES += \
     Model/message.cpp \
     Model/strangermodel.cpp \
     Model/user.cpp \
+    View/Components/confirmbox.cpp \
     View/Components/dialogtitlebar.cpp \
     View/Login/hollow_button.cpp \
     View/Login/input_box.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     Model/strangermodel.h \
     Model/user.h \
     Utils/CustomTypes.h \
+    View/Components/confirmbox.h \
     View/Components/dialogtitlebar.h \
     View/Login/hollow_button.h \
     View/Login/input_box.h \
@@ -105,4 +107,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     resource.qrc
 
-DISTFILES +=
+# INCLUDEPATH += $$PWD/include
+# LIBS += -L$$PWD/libs -lElaWidgetTools
+

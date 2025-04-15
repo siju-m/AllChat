@@ -14,5 +14,8 @@
         <file>Icon/success.png</file>
         <file>Icon/tips.png</file>
         <file>Icon/warning.png</file>
+        <file>Icon/notice.png</file>
+        <file>Icon/images_black.png</file>
+        <file>Icon/images_blue.png</file>
     </qresource>
 </RCC>

@@ -50,3 +50,8 @@ void StrangerModel::clear()
     m_strangers.clear();
     endRemoveRows();
 }
+
+bool StrangerModel::isEmpty()
+{
+    return m_strangers.isEmpty();
+}

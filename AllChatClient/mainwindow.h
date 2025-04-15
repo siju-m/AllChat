@@ -84,6 +84,9 @@ public:
     void send_updateAvatar(const QString &path);
 
     void setAvatar(const QString &path);
+
+    void switch_chatUser(const QString &id);
+
 signals:
     void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
 

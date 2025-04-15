@@ -25,7 +25,7 @@ protected:
 
 signals:
     void applyClicked(const QString &id,const int &row);
-    void sendClicked(const QString &id,const int &row);
+    void sendClicked(const QString &id);
 
 private:
     void draw_avatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;

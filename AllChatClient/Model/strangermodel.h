@@ -29,6 +29,7 @@ public:
 
     void removeItem(int row);
     void clear();
+    bool isEmpty();
 private:
     QVector<Strangers> m_strangers;
 };

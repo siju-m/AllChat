@@ -166,7 +166,7 @@ bool StrangerDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, con
                 // 处理按钮点击逻辑
                 bool isFriend = index.data(StrangerModel::IsFriendRole).toBool();
                 if(isFriend){
-                    emit sendClicked(id,index.row());
+                    emit sendClicked(id);
                 }else{
                     emit applyClicked(id,index.row());
                 }

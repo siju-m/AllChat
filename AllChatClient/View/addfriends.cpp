@@ -78,7 +78,7 @@ void AddFriends::initStrangerList()
         // QMessageBox::information(this, "成功", "已发送好友申请!");
         TipsBox::showNotice("已发送好友申请!", SA_SUCCESS, this);
     });
-    connect(m_stranger_delegate,&StrangerDelegate::sendClicked,this,[=](const QString &id,const int &row){
+    connect(m_stranger_delegate,&StrangerDelegate::sendClicked,this,[=](const QString &id){
         emit showMessage(id);
         close();
     });
