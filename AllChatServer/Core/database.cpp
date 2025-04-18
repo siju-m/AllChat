@@ -26,6 +26,15 @@ void DataBase::initDatabase() {
     if (!query.exec(createTable)) {
         qWarning() << "创建联系人表失败：" << query.lastError().text();
     }
+    createTable = "CREATE TABLE IF NOT EXISTS group_members ("
+                  "group_id INTEGER NOT NULL,"
+                  "user_id INTEGER NOT NULL,"
+                  "PRIMARY KEY (group_id, user_id),"
+                  "FOREIGN KEY (group_id) REFERENCES groups(group_id),"
+                  "FOREIGN KEY (user_id) REFERENCES users(user_id));";
+    if (!query.exec(createTable)) {
+        qWarning() << "创建群聊表失败：" << query.lastError().text();
+    }
 }
 
 bool DataBase::registerUser(const QString &username, const QString &password) {
@@ -230,6 +239,23 @@ bool DataBase::deleteFriend(const QString &userId, const QString &friendId)
     if(!query.exec()){
         qDebug() << "好友删除失败:" << query.lastError().text();
         return false;
+    }
+    return true;
+}
+
+bool DataBase::createGroup(const QVector<QString> &ids, const QString &groupId)
+{
+    QSqlQuery query;
+    query.prepare("INSERT INTO group_members (group_id, user_id) "
+                  "VALUES (:group_id, :user_id)");
+
+    for (const QString &userId : ids) {
+        query.bindValue(":group_id", groupId);
+        query.bindValue(":user_id", userId);
+
+        if (!query.exec()) {
+            qDebug() << "插入失败:" << query.lastError().text();
+        }
     }
     return true;
 }

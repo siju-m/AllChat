@@ -2,6 +2,8 @@
 
 #include <QMessageBox>
 
+DataTransfer* DataTransfer::m_instance = nullptr;
+
 DataTransfer::DataTransfer(QObject *parent):
     QObject(parent),
     m_socket(new QTcpSocket(this)),
@@ -9,9 +11,9 @@ DataTransfer::DataTransfer(QObject *parent):
     m_receivedBytes(0),
     m_currentReceivingState(WaitingForHeader)
 {
+
     connect(m_socket, &QTcpSocket::readyRead, this, &DataTransfer::onReadyRead);
     connect(m_socket, &QTcpSocket::disconnected, this, &DataTransfer::onDisconnected);
-
     ConnectServer();
 }
 

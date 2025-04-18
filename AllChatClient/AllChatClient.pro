@@ -1,6 +1,6 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network quick
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network #quick quickwidgets
 
 CONFIG += c++17
 
@@ -35,6 +35,7 @@ SOURCES += \
     View/UserDetailView.cpp \
     View/Components/avatarlabel.cpp \
     View/Components/customtitlebar.cpp \
+    View/creategroup.cpp \
     View/login.cpp \
     View/Components/onlinestatelabel.cpp \
     View/Components/tipsbox.cpp \
@@ -76,6 +77,7 @@ HEADERS += \
     View/UserDetailView.h \
     View/Components/avatarlabel.h \
     View/Components/customtitlebar.h \
+    View/creategroup.h \
     View/login.h \
     View/Components/onlinestatelabel.h \
     View/Components/tipsbox.h \
@@ -109,4 +111,6 @@ RESOURCES += \
 
 # INCLUDEPATH += $$PWD/include
 # LIBS += -L$$PWD/libs -lElaWidgetTools
+
+DISTFILES +=
 

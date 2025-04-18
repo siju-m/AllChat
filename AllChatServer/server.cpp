@@ -135,6 +135,9 @@ void Server::handleData(QByteArray data,QTcpSocket *senderSocket)
     case message_type::DELETEFRIEND:{
         handle_deleteFriend(in,senderSocket);
     }break;
+    case message_type::CreateGroup:{
+        handle_createGroup(in,senderSocket);
+    }break;
     default :  qDebug() << "接收到未知消息类型!";break;
     }
 }
@@ -279,6 +282,22 @@ void Server::handle_deleteFriend(QDataStream &in, QTcpSocket *senderSocket)
     sendData(senderSocket,packet);
     //todo 通知被删除者的方式需要优化
     updateFriendsList(friendId);
+}
+
+void Server::handle_createGroup(QDataStream &in, QTcpSocket *senderSocket)
+{
+    QVector<QString> ids;
+    in >> ids;
+    ids << m_clients_userId[senderSocket];
+    QString groupId = generateUniqueId();
+    bool result = dataBase->createGroup(ids, groupId);
+    if(result){
+        QByteArray packet = getPacket(CreateGroup, groupId);
+        for(const auto &id : ids){
+            sendData(id, packet);
+        }
+    }
+    // qDebug()<< m_clients_name[senderSocket]+"新建群聊" << ids;
 }
 
 QString Server::getCurrentTime()

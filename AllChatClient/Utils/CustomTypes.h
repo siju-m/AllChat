@@ -19,7 +19,8 @@ enum message_type{
     ONLINE_LIST,//在线用户列表
     UPDATE_AVATAR,
     UPDATE_AVATAR_RESULT,
-    DELETEFRIEND
+    DELETEFRIEND,
+    CreateGroup
 };
 }
 

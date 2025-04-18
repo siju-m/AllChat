@@ -15,12 +15,17 @@ public:
     DataBase(QObject *parent = nullptr);
 
 
-    void initDatabase();//初始化数据库
+    //初始化数据库
+    void initDatabase();
+    // 注册登录
     bool registerUser(const QString &username, const QString &password);
     QString loginUser(const QString &username, const QString &password);//如果验证成功就返回用户id，否则就返回空值
 
-    bool addFriends(const QString &userId,const QString &friendId);//添加好友
-    QSet<QString> selectFriends(const QString &userId);//查询好友
+    //添加好友
+    bool addFriends(const QString &userId,const QString &friendId);
+    //查询好友
+    QSet<QString> selectFriends(const QString &userId);
+
     QString selectNameById(const QString &userId);
     QMap<QString,QString> selectFriendsId_name(const QString &userId);
     QMap<QString,QString> selectUser_byName(const QString &name);//根据用户名模糊查询用户列表
@@ -31,6 +36,9 @@ public:
     QMap<QString,QByteArray> getFriendsAvatar(const QString &userId);
 
     bool deleteFriend(const QString &userId,const QString &friendId);
+
+    // 创建群聊
+    bool createGroup(const QVector<QString> &ids, const QString &groupId);
 };
 
 #endif // DATABASE_H

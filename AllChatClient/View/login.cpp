@@ -4,9 +4,9 @@
 #include <Core/currentuser.h>
 
 
-Login::Login(DataTransfer *dataTransfer, QObject *parent)
+Login::Login(QObject *parent)
     : QObject{parent}
-    , m_dataTransfer(dataTransfer)
+    , m_dataTransfer(DataTransfer::getInstance())
 {
     m_login_regist_view = new Responsive_form();
     m_login_regist_view->show();

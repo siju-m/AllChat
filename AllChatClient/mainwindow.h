@@ -37,7 +37,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(DataTransfer *dataTransfer, QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
     // void registerUser(const QString &username, const QString &password);
@@ -87,6 +87,9 @@ public:
 
     void switch_chatUser(const QString &id);
 
+    // 发送新建群聊请求
+    void sendCreateGroup(QVector<QString> ids);
+    void handle_createGroup(QDataStream &in);
 signals:
     void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
 
@@ -102,10 +105,10 @@ private:
     DataTransfer *m_dataTransfer;
     // CommonEnum::message_type messageType;
     QMap<QString, User> &m_friendList; // 用于存储好友列表 id和userName
-    FriendsModel *friends_model;//存储好友数据
-    ChatModel *chat_model;//聊天对象数据
-    StrangerModel *apply_model;//存储申请添加好友的用户数据
-    AddFriends add_friends;//添加好友窗口
+    FriendsModel *m_friends_model;//存储好友数据
+    ChatModel *m_chat_model;//聊天对象数据
+    StrangerModel *m_apply_model;//存储申请添加好友的用户数据
+    AddFriends m_add_friends;//添加好友窗口
 
 };
 

@@ -15,7 +15,6 @@ signals:
 
 private:
     MainWindow *m_window;
-    DataTransfer *m_dataTransfer;
     Login* m_login;
 };
 

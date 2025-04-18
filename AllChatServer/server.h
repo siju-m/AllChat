@@ -24,7 +24,8 @@ enum message_type{
     ONLINE_LIST,
     UPDATE_AVATAR,
     UPDATE_AVATAR_RESULT,
-    DELETEFRIEND
+    DELETEFRIEND,
+    CreateGroup
 };
 
 class Server : public QTcpServer {
@@ -67,6 +68,8 @@ private:
     void handle_updateAvatar(QDataStream &in,QTcpSocket *senderSocket);
 
     void handle_deleteFriend(QDataStream &in,QTcpSocket *senderSocket);
+
+    void handle_createGroup(QDataStream &in,QTcpSocket *senderSocket);
 
     QString getCurrentTime();
 

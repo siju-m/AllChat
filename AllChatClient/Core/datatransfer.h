@@ -5,7 +5,7 @@
 #include <QByteArray>
 #include <QObject>
 #include <QTcpSocket>
-
+#include <QCoreApplication>
 #include <Model/Packet.h>
 
 enum ReceivingState {
@@ -17,7 +17,14 @@ class DataTransfer : public QObject
 {
     Q_OBJECT
 public:
-    DataTransfer(QObject *parent = nullptr);
+    DataTransfer(const DataTransfer& obj) = delete;
+    DataTransfer& operator=(const DataTransfer& obj) = delete;
+    static DataTransfer* getInstance(){
+        if(m_instance == nullptr)
+            m_instance = new DataTransfer(qApp);
+        return m_instance;
+    }
+
     void onReadyRead(); // 处理服务器返回的数据
     void resetState();
 
@@ -33,6 +40,10 @@ signals:
     void registResult(CommonEnum::message_type result);
 
 private:
+
+    explicit DataTransfer(QObject *parent = nullptr);
+    static DataTransfer *m_instance;
+
     QTcpSocket *m_socket;
 
     qint32 m_currentDataLength ;    // 数据长度
