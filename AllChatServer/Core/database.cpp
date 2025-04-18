@@ -12,6 +12,7 @@ void DataBase::initDatabase() {
     }
 
     QSqlQuery query;
+    // 创建表 users
     QString createTable = "CREATE TABLE IF NOT EXISTS users ("
                           "id TEXT PRIMARY KEY, "
                           "username TEXT UNIQUE, "
@@ -20,18 +21,33 @@ void DataBase::initDatabase() {
     if (!query.exec(createTable)) {
         qWarning() << "创建用户表失败：" << query.lastError().text();
     }
+
+    // 创建表 friends
     createTable = "CREATE TABLE IF NOT EXISTS friends ("
                   "userId TEXT,"
                   "friendId TEXT)";
     if (!query.exec(createTable)) {
         qWarning() << "创建联系人表失败：" << query.lastError().text();
     }
+
+    // 创建表 groups
+    createTable = "CREATE TABLE IF NOT EXISTS groups ("
+                  "group_id TEXT PRIMARY KEY,"
+                  "group_name TEXT NOT NULL,"
+                  "creator_id TEXT NOT NULL,"
+                  "created_time DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                  "FOREIGN KEY (creator_id) REFERENCES users(id));";
+    if (!query.exec(createTable)) {
+        qWarning() << "创建群聊表失败：" << query.lastError().text();
+    }
+
+    // 创建表 group_members
     createTable = "CREATE TABLE IF NOT EXISTS group_members ("
-                  "group_id INTEGER NOT NULL,"
-                  "user_id INTEGER NOT NULL,"
+                  "group_id TEXT NOT NULL,"
+                  "user_id TEXT NOT NULL,"
                   "PRIMARY KEY (group_id, user_id),"
                   "FOREIGN KEY (group_id) REFERENCES groups(group_id),"
-                  "FOREIGN KEY (user_id) REFERENCES users(user_id));";
+                  "FOREIGN KEY (user_id) REFERENCES users(id));";
     if (!query.exec(createTable)) {
         qWarning() << "创建群聊表失败：" << query.lastError().text();
     }
@@ -243,7 +259,23 @@ bool DataBase::deleteFriend(const QString &userId, const QString &friendId)
     return true;
 }
 
-bool DataBase::createGroup(const QVector<QString> &ids, const QString &groupId)
+bool DataBase::createGroup(const QString &groupId, const QString &creatorId)
+{
+    QSqlQuery query;
+    query.prepare("INSERT INTO groups (group_id, group_name, creator_id, created_time) "
+                  "VALUES (:group_id, :group_name, :creator_id, CURRENT_TIMESTAMP)");
+    query.bindValue(":group_id", groupId);
+    query.bindValue(":group_name", "新建群聊");
+    query.bindValue(":creator_id", creatorId);
+
+    if(!query.exec()){
+        qDebug() << "新建群聊失败:" << query.lastError().text();
+        return false;
+    }
+    return true;
+}
+
+bool DataBase::insertGroupMember(const QVector<QString> &ids, const QString &groupId)
 {
     QSqlQuery query;
     query.prepare("INSERT INTO group_members (group_id, user_id) "
@@ -255,8 +287,48 @@ bool DataBase::createGroup(const QVector<QString> &ids, const QString &groupId)
 
         if (!query.exec()) {
             qDebug() << "插入失败:" << query.lastError().text();
+            QSqlDatabase::database().rollback();
         }
     }
+    QSqlDatabase::database().commit();
     return true;
+}
+
+QVector<QString> DataBase::selectGroupsByUserId(const QString &id)
+{
+    QVector<QString> groups;
+    QSqlQuery query;
+    query.prepare("SELECT g.* "
+                    "FROM group_members gm "
+                    "JOIN groups g ON gm.group_id = g.group_id "
+                    "WHERE gm.user_id = :userId;");
+    query.bindValue(":userId", id);
+    if (query.exec()) {
+        while (query.next()) {  // 遍历查询结果
+            groups << query.value(0).toString();
+        }
+    } else {
+        qDebug() << "用户群聊列表查询失败:" << query.lastError().text();
+    }
+    return groups;
+}
+
+QVector<QString> DataBase::selectUsersByGroupId(const QString &groupId)
+{
+    QVector<QString> users;
+    QSqlQuery query;
+    query.prepare("SELECT u.* "
+                  "FROM group_members gm "
+                  "JOIN users u ON gm.user_id = u.id "
+                  "WHERE gm.group_id = :groupId;");
+    query.bindValue(":groupId", groupId);
+    if (query.exec()) {
+        while (query.next()) {  // 遍历查询结果
+            users << query.value(0).toString();
+        }
+    } else {
+        qDebug() << "群成员列表查询失败:" << query.lastError().text();
+    }
+    return users;
 }
 

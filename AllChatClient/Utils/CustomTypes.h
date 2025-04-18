@@ -20,12 +20,15 @@ enum message_type{
     UPDATE_AVATAR,
     UPDATE_AVATAR_RESULT,
     DELETEFRIEND,
-    CreateGroup
+    CreateGroup,
+    Group_List,
+    Group_Chat
 };
 }
 
 namespace StateEnum{
 enum onlineState_type{
+    NONE,
     ONLINE,
     OFFLINE,
     BUSY

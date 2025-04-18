@@ -90,6 +90,8 @@ public:
     // 发送新建群聊请求
     void sendCreateGroup(QVector<QString> ids);
     void handle_createGroup(QDataStream &in);
+    void handle_GroupList(QDataStream &in);
+    void handle_groupChat(QDataStream &in);
 signals:
     void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
 

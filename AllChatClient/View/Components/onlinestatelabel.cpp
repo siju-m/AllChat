@@ -10,6 +10,9 @@ void OnlineStateLabel::paintEvent(QPaintEvent *event)
 {
     QLabel::paintEvent(event); // 先调用基类的绘制事件
 
+    if(m_onlineState == StateEnum::NONE)
+        return;
+
     QPainter painter(this);
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing); // 开启抗锯齿

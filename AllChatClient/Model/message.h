@@ -34,7 +34,6 @@ private:
     QString m_imagePath;
     QString m_msgTime;
     User m_sender;
-    // QString m_sender;
     QString m_chatId;
 };
 

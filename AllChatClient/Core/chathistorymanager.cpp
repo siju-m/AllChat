@@ -81,8 +81,7 @@ void ChatHistoryManager::loadChatHistoryFromFile(QString targetId)
             QJsonObject format = doc.object();
             QJsonObject obj = format["data"].toObject();
 
-            bool isOutgoing = obj["name"].toString()==m_user->get_userName();
-            QString senderId = isOutgoing?m_user->get_userId():targetId;
+            QString senderId = obj["id"].toString();
             QString time = obj["time"].toString();
             if(format["kinds"].toString()=="text"){
                 QString message = obj["message"].toString();

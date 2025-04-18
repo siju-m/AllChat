@@ -38,7 +38,10 @@ public:
     bool deleteFriend(const QString &userId,const QString &friendId);
 
     // 创建群聊
-    bool createGroup(const QVector<QString> &ids, const QString &groupId);
+    bool createGroup(const QString &groupId, const QString &creatorId);
+    bool insertGroupMember(const QVector<QString> &ids, const QString &groupId);
+    QVector<QString> selectGroupsByUserId(const QString &id);
+    QVector<QString> selectUsersByGroupId(const QString &groupId);
 };
 
 #endif // DATABASE_H

@@ -52,6 +52,7 @@ QByteArray Message::jsonData()
     QJsonObject obj;
     QJsonObject format;
     obj["name"] = m_sender.getUserName();
+    obj["id"] = m_sender.getUserId();
     obj["time"] = m_msgTime;
 
     if(m_type == Text){

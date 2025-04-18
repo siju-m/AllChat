@@ -25,7 +25,9 @@ enum message_type{
     UPDATE_AVATAR,
     UPDATE_AVATAR_RESULT,
     DELETEFRIEND,
-    CreateGroup
+    CreateGroup,
+    Group_List,
+    Group_Chat
 };
 
 class Server : public QTcpServer {
@@ -57,6 +59,7 @@ private:
     void store_forwardContents(const QByteArray &content,const QString &userId);//存储待转发消息
     void send_forwardContents(const QString &userId);//转发存储的消息
     void updateFriendsList(const QString &userId);//更新用户好友列表
+    void updateGroupsList(const QString &userId);//更新用户群聊列表
 
     void handle_slelectByName(QDataStream &in,QTcpSocket *senderSocket);//处理模糊查询用户列表请求
 
@@ -70,6 +73,7 @@ private:
     void handle_deleteFriend(QDataStream &in,QTcpSocket *senderSocket);
 
     void handle_createGroup(QDataStream &in,QTcpSocket *senderSocket);
+    void handle_groupChat(QDataStream &in,QTcpSocket *senderSocket);
 
     QString getCurrentTime();
 
@@ -84,6 +88,7 @@ private:
     QMap<QTcpSocket *,QString> m_clients_userId;        // 客户端对应的用户 ID
     QHash<QString,QSet<QString>> m_friends;             // 每个用户对应的好友申请列表
     QSet<QPair<QString,QString>> m_alreadyApply;        //确保每个好友申请只发送一次
+    // QHash<QString,QSet<QString>> m_groups;              // 群聊号对应的用户列表
 
     //todo 可以把东西全都存在数据库 //如果过大就存起来
     QHash<QString,QByteArray> m_forward_contents;       //转发消息

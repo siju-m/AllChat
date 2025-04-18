@@ -359,6 +359,12 @@ void MainWindow::handleData(QByteArray data)
     case CommonEnum::CreateGroup:{
         handle_createGroup(in);
     }break;
+    case CommonEnum::Group_List:{
+        handle_GroupList(in);
+    }break;
+    case CommonEnum::Group_Chat:{
+        handle_groupChat(in);
+    }break;
     default:qDebug() << "未知消息类型!";break;
     }
 }
@@ -420,6 +426,25 @@ void MainWindow::handle_createGroup(QDataStream &in)
     m_chat_model->addChat_toList("群聊", groupId, "", "", 0);
 }
 
+void MainWindow::handle_GroupList(QDataStream &in)
+{
+    QVector<QString> groups;
+    in >> groups;
+    for(const QString &groupId : groups)
+        m_chat_model->addChat_toList("群聊", groupId, "", "", 0);
+}
+
+void MainWindow::handle_groupChat(QDataStream &in)
+{
+    QString groupId, senderId, text, msgTime;
+    in >> groupId >> senderId >> text >> msgTime;
+    qDebug() << text;
+    if(ui->chatList->currentIndex().data(FriendsModel::IdRole).toString() == groupId)//接收的消息和当前聊天对象是同一个才在窗口显示
+        addMessage_toList(text, groupId, senderId, msgTime);
+    else m_chat_model->add_unreadMsgNum(groupId);
+    storeMessageToFile(groupId,m_friendList[senderId],text,msgTime);
+}
+
 void MainWindow::receiveImage(QDataStream &in)
 {
     QByteArray imageData;
@@ -454,10 +479,15 @@ QString MainWindow::storeImageToFile(const QString &targetId, const User &sender
 
 void MainWindow::loadChatHistoryFromFile(QString targetId) {
     //更新好友信息
-    ui->chatPartner->setText(m_friendList[targetId].getUserName());
-    ui->friendState->setOnlineState(m_friendList[targetId].getOnlineState()?StateEnum::ONLINE:StateEnum::OFFLINE);
-    ui->messageList->clear();
+    if(m_friendList.contains(targetId)){
+        ui->chatPartner->setText(m_friendList[targetId].getUserName());
+        ui->friendState->setOnlineState(m_friendList[targetId].getOnlineState()?StateEnum::ONLINE:StateEnum::OFFLINE);
+    }else{
+        ui->chatPartner->setText("");
+        ui->friendState->setOnlineState(StateEnum::NONE);
+    }
 
+    ui->messageList->clear();
     m_historyManager->loadChatHistoryFromFile(targetId);
 }
 
@@ -482,9 +512,10 @@ void MainWindow::addMessage_toList(const QString &text,const QString &chatId,con
 {
     ui->messageList->addTime_toList(chatId,time);
 
+    qDebug() << senderId;
     bool isOutgoing = (m_user->get_userId()==senderId);
-    QString userName = isOutgoing?m_user->get_userName():m_friendList[chatId].getUserName();
-    QString avatarPath = isOutgoing?m_user->get_avatarPath():m_friendList[chatId].getAvatarPath();
+    QString userName = isOutgoing?m_user->get_userName():m_friendList[senderId].getUserName();
+    QString avatarPath = isOutgoing?m_user->get_avatarPath():m_friendList[senderId].getAvatarPath();
 
     ui->messageList->addTextMessage(text,isOutgoing,userName,avatarPath,time);
 }
@@ -496,8 +527,8 @@ void MainWindow::addImage_toList(const QString &imagePath,const QString &chatId,
     ui->messageList->addTime_toList(chatId,time);
 
     bool isOutgoing = (m_user->get_userId()==senderId);
-    QString userName = isOutgoing?m_user->get_userName():m_friendList[chatId].getUserName();
-    QString avatarPath = isOutgoing?m_user->get_avatarPath():m_friendList[chatId].getAvatarPath();
+    QString userName = isOutgoing?m_user->get_userName():m_friendList[senderId].getUserName();
+    QString avatarPath = isOutgoing?m_user->get_avatarPath():m_friendList[senderId].getAvatarPath();
 
     ui->messageList->addImageMessage(imagePath,isOutgoing,userName,avatarPath,time);
 }
@@ -568,6 +599,7 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
         ui->chatList->selectionModel()->select(firstIndex, QItemSelectionModel::Select);
         m_chat_model->set_currentChatId(id);
     }
+    qDebug()<<m_friendList.keys();
 }
 
 void MainWindow::handle_onlineFriendsList(QDataStream &in)
@@ -586,7 +618,8 @@ void MainWindow::handle_onlineFriendsList(QDataStream &in)
     QModelIndex index = ui->chatList->currentIndex();
     if(index.row()!=-1){
         QString id = index.data(FriendsModel::IdRole).toString();
-        ui->friendState->setOnlineState(m_friendList[id].getOnlineState()?StateEnum::ONLINE:StateEnum::OFFLINE);
+        if(m_friendList.contains(id))
+            ui->friendState->setOnlineState(m_friendList[id].getOnlineState()?StateEnum::ONLINE:StateEnum::OFFLINE);
     }
 }
 
@@ -615,10 +648,18 @@ void MainWindow::onSendClicked() {//发送按钮的槽函数
         qDebug() << "接收信息的用户id:" << userId;
     }else return;
 
-    if(m_friendList[userId].getUserName() != m_user->get_userName()){
-        Packet data(CommonEnum::message_type::CHAT,userId,ui->lineEditMessage->toPlainText());
-        m_dataTransfer->sendData(data);
+    qDebug()<<m_friendList.keys();
+    CommonEnum::message_type type;
+    if(m_friendList.contains(userId)){
+        qDebug()<< 1;
+        type = CommonEnum::message_type::CHAT;
+    }else{
+        qDebug()<< 2;
+        type = CommonEnum::message_type::Group_Chat;
     }
+    Packet data(type,userId,ui->lineEditMessage->toPlainText());
+    m_dataTransfer->sendData(data);
+
     QString textMessage = ui->lineEditMessage->toPlainText();
     addMessage_toList(textMessage,userId,m_user->get_userId(),getCurrentTime());
     storeMessageToFile(userId,m_user->toUser(),textMessage,getCurrentTime());//保存聊天记录在硬盘中
