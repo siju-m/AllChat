@@ -73,8 +73,10 @@ public:
 
     QString getCurrentTime();
 
-    void onSendClicked();       // 发送消息
-    void sendImage(); //发送图片
+    // 发送消息
+    void onSendClicked();
+    // 发送图片
+    void sendImage();
 
     void handleData(QByteArray data);
     void send_updateAvatar(const QString &path);
@@ -83,11 +85,11 @@ public:
 
     void switch_chatUser(const QString &id);
 
-    // 发送新建群聊请求
-    void sendCreateGroup(QVector<QString> ids);
+    // 群聊
     void handle_createGroup(QDataStream &in);
     void handle_GroupList(QDataStream &in);
     void handle_groupChat(QDataStream &in);
+    void handle_strangerList(QDataStream &in);
 signals:
     void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
 
@@ -105,6 +107,7 @@ private:
     // CommonEnum::message_type messageType;
     QMap<QString, User> &m_friendList; // 用于存储好友列表 id和userName
     QMap<QString, User> &m_strangerList;
+    QSet<QString> &m_groupIds;
 
     FriendsModel *m_friends_model;//存储好友数据
     ChatModel *m_chat_model;//聊天对象数据

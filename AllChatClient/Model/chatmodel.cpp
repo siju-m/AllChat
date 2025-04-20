@@ -117,7 +117,7 @@ int ChatModel::get_currentChatRow()
     return m_ids.indexOf(m_current_chatId);
 }
 
-int ChatModel::get_rowById(const QString &targetId)
+int ChatModel::get_rowById(const QString &targetId) const
 {
     return m_ids.indexOf(targetId);
 }

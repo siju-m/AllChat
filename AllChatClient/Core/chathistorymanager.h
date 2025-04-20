@@ -11,7 +11,10 @@ class ChatHistoryManager : public QObject
 public:
     explicit ChatHistoryManager(QObject *parent = nullptr);
 
-    QString getChatHistoryFilePath();//获取聊天记录在文件中的路径
+    // 获取聊天记录在文件中的路径
+    QString getChatHistoryFilePath();
+    // 获取聊天文件夹路径
+    QString getChatFilePath(QString chatId);
     void addHistoryToFile(Message &msg);
     QString storeImage(QString imageName,const QByteArray &imageData);
 

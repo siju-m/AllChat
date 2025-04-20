@@ -24,10 +24,11 @@ enum message_type{
     ONLINE_LIST,
     UPDATE_AVATAR,
     UPDATE_AVATAR_RESULT,
-    DELETEFRIEND,
-    CreateGroup,
-    Group_List,
-    Group_Chat
+    DELETE_FRIEND,
+    CREATE_GROUP,
+    GROUP_LIST,
+    GROUP_STRANGER_LIST,
+    GROUP_CHAT
 };
 
 class Server : public QTcpServer {
@@ -54,12 +55,19 @@ private:
     void handleAddFriend(QDataStream &in,QTcpSocket *senderSocket);//处理添加好友请求
     void handleAddFriend_Result(QDataStream &in,QTcpSocket *senderSocket);//处理添加好友请求的结果
 
-    bool confirm_isOnline(const QString &id);//确认是否在线
+    //确认是否在线
+    bool confirm_isOnline(const QString &id);
 
-    void store_forwardContents(const QByteArray &content,const QString &userId);//存储待转发消息
-    void send_forwardContents(const QString &userId);//转发存储的消息
-    void updateFriendsList(const QString &userId);//更新用户好友列表
-    void updateGroupsList(const QString &userId);//更新用户群聊列表
+    //存储待转发消息
+    void store_forwardContents(const QByteArray &content,const QString &userId);
+    //转发存储的消息
+    void send_forwardContents(const QString &userId);
+    //更新用户好友列表
+    void updateFriendsList(const QString &userId);
+    //更新用户群聊列表
+    void updateGroupsList(const QString &userId);
+    // 更新群聊中没有好友的用户信息
+    void updateGroup_strangerList(const QString &userId);
 
     void handle_slelectByName(QDataStream &in,QTcpSocket *senderSocket);//处理模糊查询用户列表请求
 

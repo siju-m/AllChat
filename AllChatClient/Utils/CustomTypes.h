@@ -19,10 +19,11 @@ enum message_type{
     ONLINE_LIST,//在线用户列表
     UPDATE_AVATAR,
     UPDATE_AVATAR_RESULT,
-    DELETEFRIEND,
-    CreateGroup,
-    Group_List,
-    Group_Chat
+    DELETE_FRIEND,
+    CREATE_GROUP,
+    GROUP_LIST,
+    GROUP_STRANGER_LIST,
+    GROUP_CHAT
 };
 }
 

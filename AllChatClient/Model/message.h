@@ -9,6 +9,7 @@ class Message
 {
 public:
     enum MessageType{Text, Image};
+    enum ChatType{PRIVATE, GROUP};
     Message(MessageType type, const QString &data, const QString &time, const User &sender, const QString &chatId);
 
     MessageType getType() const;
@@ -31,6 +32,8 @@ public:
     QString getChatId() const;
     void setChatId(const QString &id);
 
+    ChatType getChatType();
+
     QString getAvatarPath() const;
     QString getSenderId() const;
     QString getSenderName() const;
@@ -41,6 +44,7 @@ private:
     QString m_msgTime;
     User m_sender;
     QString m_chatId;
+    ChatType m_chatType;
 };
 
 #endif // MESSAGE_H

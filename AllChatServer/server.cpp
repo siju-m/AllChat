@@ -31,7 +31,6 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
     QString username, password;
     in >> username >> password;
     bool success = loginUser(senderSocket,username, password);
-    qDebug()<<"用户登录"<<username<<success;
     if(!success){//避免重复登录
         QByteArray packet = getPacket(LOGIN_FAILED);
         sendData(senderSocket,packet);
@@ -43,6 +42,7 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
     sendData(m_clients_userId[senderSocket],packet);
     //向登录用户发送他的最新好友列表
     updateFriendsList(m_clients_userId[senderSocket]);
+
     // 更新群聊列表
     updateGroupsList(m_clients_userId[senderSocket]);
 
@@ -52,14 +52,18 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
     //判断是否有待转发的消息
     if(m_forward_contents.contains(m_clients_userId[senderSocket]))
         send_forwardContents(m_clients_userId[senderSocket]);
-    for(const auto &it:m_alreadyApply){
-        if(it.second==m_clients_userId[senderSocket]){
-            QString senderName = dataBase->selectNameById(it.first);
-            QByteArray avatar = dataBase->getAvatar(it.first);
-            QByteArray packet= getPacket(ADD_FRIEND,senderName,it.first,avatar);
+    for(auto it = m_alreadyApply.begin(); it != m_alreadyApply.end(); ++it)
+    {
+        if(it->second==m_clients_userId[senderSocket]){
+            QString senderName = dataBase->selectNameById(it->first);
+            QByteArray avatar = dataBase->getAvatar(it->first);
+            QByteArray packet= getPacket(ADD_FRIEND,senderName,it->first,avatar);
             sendData(m_clients_userId[senderSocket],packet);
         }
     }
+
+    //发送陌生人的信息
+    updateGroup_strangerList(m_clients_userId[senderSocket]);
 }
 
 void Server::handleRegist(QDataStream &in, QTcpSocket *senderSocket)
@@ -125,13 +129,13 @@ void Server::handleData(QByteArray data,QTcpSocket *senderSocket)
     case message_type::UPDATE_AVATAR:{
         handle_updateAvatar(in,senderSocket);
     }break;
-    case message_type::DELETEFRIEND:{
+    case message_type::DELETE_FRIEND:{
         handle_deleteFriend(in,senderSocket);
     }break;
-    case message_type::CreateGroup:{
+    case message_type::CREATE_GROUP:{
         handle_createGroup(in,senderSocket);
     }break;
-    case message_type::Group_Chat:{
+    case message_type::GROUP_CHAT:{
         handle_groupChat(in,senderSocket);
     }break;
     default :  qDebug() << "接收到未知消息类型!";break;
@@ -222,10 +226,16 @@ void Server::updateFriendsList(const QString &userId)
 void Server::updateGroupsList(const QString &userId)
 {
     QMap<QString, QString> groups = dataBase->selectGroupsByUserId(userId);
-    QByteArray strangerList = dataBase->selectGroupStrangers(userId);
     if(groups.isEmpty())
         return;
-    QByteArray packet = getPacket(Group_List, groups, strangerList);
+    QByteArray packet = getPacket(GROUP_LIST, groups);
+    sendData(userId,packet);
+}
+
+void Server::updateGroup_strangerList(const QString &userId)
+{
+    QByteArray strangerList = dataBase->selectGroupStrangers(userId);
+    QByteArray packet = getPacket(GROUP_STRANGER_LIST, strangerList);
     sendData(userId,packet);
 }
 
@@ -283,7 +293,7 @@ void Server::handle_deleteFriend(QDataStream &in, QTcpSocket *senderSocket)
     in>>friendId;
     QString userId = m_clients_userId[senderSocket];
     bool success = dataBase->deleteFriend(userId,friendId);
-    QByteArray packet = getPacket(DELETEFRIEND,success,friendId);
+    QByteArray packet = getPacket(DELETE_FRIEND,success,friendId);
     sendData(senderSocket,packet);
     //todo 通知被删除者的方式需要优化
     updateFriendsList(friendId);
@@ -302,7 +312,7 @@ void Server::handle_createGroup(QDataStream &in, QTcpSocket *senderSocket)
 
     bool result = dataBase->insertGroupMember(ids, groupId);
     if(result){
-        QByteArray packet = getPacket(CreateGroup, groupId, groupName);
+        QByteArray packet = getPacket(CREATE_GROUP, groupId, groupName);
         for(const auto &id : ids){
             sendData(id, packet);
         }
@@ -311,20 +321,48 @@ void Server::handle_createGroup(QDataStream &in, QTcpSocket *senderSocket)
 
 void Server::handle_groupChat(QDataStream &in, QTcpSocket *senderSocket)
 {
-    QString groupId,text;
-    in >> groupId >> text;
+    QString groupId, type;
+    in >> groupId >> type;
+
+    QString senderId = m_clients_userId[senderSocket];
+    QByteArray data;
+    // qDebug()<<type;
+    if(type == "TEXT")
+    {
+        QString text;
+        in >> text;
+        data = getPacket(GROUP_CHAT, groupId, senderId, type, text, getCurrentTime());
+    }
+    else if(type == "IMAGE")
+    {
+        QByteArray image;
+        in >> image;
+        data = getPacket(GROUP_CHAT, groupId, senderId, type, image, getCurrentTime());
+    }
 
     QVector<QString> ids = dataBase->selectUsersByGroupId(groupId);
-    qDebug()<<ids;
-    QString senderId = m_clients_userId[senderSocket];
-    qDebug()<<"sender: "<<senderId;
+    // qDebug()<<ids;
+    // qDebug()<<"sender: "<<senderId;
     for(const QString &id : ids){
         if(id != senderId){
             // qDebug()<<"给"+m_clients_name[m_userIds_client[id]]+"发送群聊消息"<< text;
-            QByteArray data = getPacket(Group_Chat, groupId, senderId, text, getCurrentTime());
             sendData(id, data);
         }
     }
+    // QString groupId,text;
+    // in >> groupId >> text;
+
+    // QVector<QString> ids = dataBase->selectUsersByGroupId(groupId);
+    // qDebug()<<ids;
+    // QString senderId = m_clients_userId[senderSocket];
+    // qDebug()<<"sender: "<<senderId;
+    // for(const QString &id : ids){
+    //     if(id != senderId){
+    //         // qDebug()<<"给"+m_clients_name[m_userIds_client[id]]+"发送群聊消息"<< text;
+    //         QByteArray data = getPacket(GROUP_CHAT, groupId, senderId, text, getCurrentTime());
+    //         sendData(id, data);
+    //     }
+    // }
 }
 
 QString Server::getCurrentTime()

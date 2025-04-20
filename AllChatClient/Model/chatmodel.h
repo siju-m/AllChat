@@ -41,7 +41,7 @@ public:
     bool compareByTime(const QString &a, const QString &b);//给sort的自定义比较函数
 
     int get_currentChatRow();
-    int get_rowById(const QString &targetId);
+    int get_rowById(const QString &targetId) const;
     void set_currentChatId(const QString &id);
 
     void add_unreadMsgNum(const QString &id);

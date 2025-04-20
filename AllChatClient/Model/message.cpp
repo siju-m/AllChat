@@ -3,6 +3,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include <Core/currentuser.h>
+
 
 Message::Message(MessageType type, const QString &data, const QString &time, const User &sender, const QString &chatId):
     m_type(type),
@@ -10,10 +12,22 @@ Message::Message(MessageType type, const QString &data, const QString &time, con
     m_sender(sender),
     m_chatId(chatId)
 {
-    if(type == Text){
+    if(type == Text)
+    {
         m_text = data;
-    }else if(type == Image){
+    }
+    else if(type == Image)
+    {
         m_imagePath = data;
+    }
+
+    if(CurrentUser::getInstance()->getGroupsIdList().contains(chatId))
+    {
+        m_chatType = GROUP;
+    }
+    else
+    {
+        m_chatType = PRIVATE;
     }
 }
 
@@ -82,6 +96,11 @@ QString Message::getChatId() const
 void Message::setChatId(const QString &id)
 {
     m_chatId = id;
+}
+
+Message::ChatType Message::getChatType()
+{
+    return m_chatType;
 }
 
 QString Message::getAvatarPath() const

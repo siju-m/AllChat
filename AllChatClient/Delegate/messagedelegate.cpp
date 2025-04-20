@@ -286,7 +286,7 @@ bool MessageDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, cons
 QSize MessageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
     MessageType type = static_cast<MessageType>(index.data(MessageModel::TypeRole).toInt());
     const int verticalSpacing = 20;
-    const int bottumMargin = 15;
+    const int bottumMargin = 20;
     switch(type){
     case MessageType::Text:{
         // 文本高度计算

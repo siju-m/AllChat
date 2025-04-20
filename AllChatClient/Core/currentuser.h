@@ -3,6 +3,7 @@
 
 #include "Model/user.h"
 #include <QMap>
+#include <QSet>
 #include <QString>
 
 
@@ -28,6 +29,7 @@ public:
 
     QMap<QString, User>& getFriendList();
     QMap<QString, User>& getStrangerList();
+    QSet<QString>& getGroupsIdList();
 private:
     CurrentUser() = default;
     static CurrentUser* m_userInfo;
@@ -37,6 +39,7 @@ private:
     QString m_avatarPath = QString();
     QMap<QString, User> m_friendList;
     QMap<QString, User> m_strangerList;
+    QSet<QString> m_groups_idList;
 };
 
 #endif // CURRENTUSER_H

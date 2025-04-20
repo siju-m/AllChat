@@ -48,4 +48,9 @@ QMap<QString, User> &CurrentUser::getStrangerList()
     return m_strangerList;
 }
 
+QSet<QString> &CurrentUser::getGroupsIdList()
+{
+    return m_groups_idList;
+}
+
 

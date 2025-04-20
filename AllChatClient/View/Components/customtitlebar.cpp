@@ -13,7 +13,7 @@ CustomTitleBar::CustomTitleBar(QWidget *parent) : QWidget(parent) {
     m_titleLabel->setStyleSheet("font: 'Roboto';font-weight: bold;");
 
     m_borderWidget = new QWidget(this);
-    m_borderWidget->setFixedSize(201,30);
+    m_borderWidget->setFixedSize(221,30);
     m_borderWidget->setStyleSheet("border-right: 1px solid gray;border-left: 1px solid gray;");
 
     QString btnStyle = "QPushButton{"

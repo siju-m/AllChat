@@ -405,13 +405,13 @@ background-color: #cccccc;</string>
        <widget class="QStackedWidget" name="stackedList">
         <property name="minimumSize">
          <size>
-          <width>200</width>
+          <width>220</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>200</width>
+          <width>220</width>
           <height>16777215</height>
          </size>
         </property>
@@ -573,6 +573,22 @@ border-right: 1px solid gray;  /*只保留右边边框 */
                </size>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout">
+               <item>
+                <spacer name="horizontalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>8</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
                <item>
                 <widget class="QLabel" name="chatPartner">
                  <property name="text">

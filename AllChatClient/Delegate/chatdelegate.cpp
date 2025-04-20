@@ -109,6 +109,8 @@ void ChatDelegate::draw_userName(QPainter *painter, const QStyleOptionViewItem &
     // 绘制用户名
     QFont font("Arial", 12, QFont::Bold); // 字体为 Arial，大小为 20，加粗
     QFontMetrics metrics(font);
+    int maxWidth = 100; // 最多显示宽度（像素）
+    userName = metrics.elidedText(userName, Qt::ElideRight, maxWidth);//截取过长文字
     int nameWidth = metrics.horizontalAdvance(userName); // 获取文本宽度
     int nameHeight = metrics.height(); // 获取文本高度
     QRect usernameRect = QRect(itemRect.left()+60, itemRect.top()+10, nameWidth, nameHeight);

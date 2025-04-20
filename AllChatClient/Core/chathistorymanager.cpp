@@ -19,7 +19,7 @@ QString ChatHistoryManager::getChatHistoryFilePath() {
     QString projectRootPath = QCoreApplication::applicationDirPath();
 
     // 确保聊天记录的目录存在
-    QDir dir(projectRootPath + "/chat_history");
+    QDir dir(projectRootPath + "/chat_history/"+m_user->get_userId());
     if (!dir.exists()) {
         dir.mkpath(".");
     }
@@ -27,9 +27,28 @@ QString ChatHistoryManager::getChatHistoryFilePath() {
     return dir.path();
 }
 
-void ChatHistoryManager::addHistoryToFile(Message &msg)
+QString ChatHistoryManager::getChatFilePath(QString chatId)
 {
     QString filePath = getChatHistoryFilePath();
+    if(!m_user->getGroupsIdList().contains(chatId))
+    {
+        filePath += "/Private";
+    }
+    else
+    {
+        filePath += "/Group";
+    }
+    QDir dir(filePath);
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+    return dir.path();
+}
+
+void ChatHistoryManager::addHistoryToFile(Message &msg)
+{
+    QString filePath = getChatFilePath(msg.getChatId());
+
     filePath+=QString("/%1_%2.txt").arg(msg.getChatId()).arg(m_user->get_userName());
     // qDebug()<<filePath;
     QFile file(filePath);
@@ -69,7 +88,8 @@ QString ChatHistoryManager::storeImage(QString imageName, const QByteArray &imag
 void ChatHistoryManager::loadChatHistoryFromFile(QString targetId)
 {
     //更新好友信息
-    QString filePath = getChatHistoryFilePath();//因为多个个客户端会运行在同一台机器上，需要接收端id加发送端用户名来作为文件名
+    QString filePath = getChatFilePath(targetId);//因为多个个客户端会运行在同一台机器上，需要接收端id加发送端用户名来作为文件名
+
     filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_user->get_userName());
     QFile file(filePath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -117,7 +137,7 @@ void ChatHistoryManager::loadChatHistoryFromFile(QString targetId)
 
 QPair<QString, QString> ChatHistoryManager::getLastMessage(const QString &targetId)
 {
-    QString filePath = getChatHistoryFilePath();//因为多个个客户端会运行在同一台机器上，需要接收端id加发送端用户名来作为文件名
+    QString filePath = getChatFilePath(targetId);//因为多个个客户端会运行在同一台机器上，需要接收端id加发送端用户名来作为文件名
     filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_user->get_userName());
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
