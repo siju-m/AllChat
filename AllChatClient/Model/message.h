@@ -11,23 +11,29 @@ public:
     enum MessageType{Text, Image};
     Message(MessageType type, const QString &data, const QString &time, const User &sender, const QString &chatId);
 
+    MessageType getType() const;
+
     // 文本消息
-    QString getText();
-    void setText(QString text);
+    QString getText() const;
+    void setText(const QString &text);
 
     // 图片消息路径
-    QString getImage();
-    void setImage(QString path);
+    QString getImage() const;
+    void setImage(const QString &path);
 
-    QString getTime();
-    void setTime(QString time);
+    QString getTime() const;
+    void setTime(const QString &time);
 
     // 聊天记录的json二进制
-    QByteArray jsonData();
+    QByteArray jsonData() const;
 
     // 消息所属的聊天id
-    QString getChatId();
-    void setChatId(QString id);
+    QString getChatId() const;
+    void setChatId(const QString &id);
+
+    QString getAvatarPath() const;
+    QString getSenderId() const;
+    QString getSenderName() const;
 private:
     MessageType m_type;
     QString m_text;

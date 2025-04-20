@@ -259,13 +259,13 @@ bool DataBase::deleteFriend(const QString &userId, const QString &friendId)
     return true;
 }
 
-bool DataBase::createGroup(const QString &groupId, const QString &creatorId)
+bool DataBase::createGroup(const QString &groupId, const QString &groupName, const QString &creatorId)
 {
     QSqlQuery query;
     query.prepare("INSERT INTO groups (group_id, group_name, creator_id, created_time) "
                   "VALUES (:group_id, :group_name, :creator_id, CURRENT_TIMESTAMP)");
     query.bindValue(":group_id", groupId);
-    query.bindValue(":group_name", "新建群聊");
+    query.bindValue(":group_name", groupName);
     query.bindValue(":creator_id", creatorId);
 
     if(!query.exec()){
@@ -294,9 +294,9 @@ bool DataBase::insertGroupMember(const QVector<QString> &ids, const QString &gro
     return true;
 }
 
-QVector<QString> DataBase::selectGroupsByUserId(const QString &id)
+QMap<QString, QString> DataBase::selectGroupsByUserId(const QString &id)
 {
-    QVector<QString> groups;
+    QMap<QString, QString> groups;
     QSqlQuery query;
     query.prepare("SELECT g.* "
                     "FROM group_members gm "
@@ -305,7 +305,7 @@ QVector<QString> DataBase::selectGroupsByUserId(const QString &id)
     query.bindValue(":userId", id);
     if (query.exec()) {
         while (query.next()) {  // 遍历查询结果
-            groups << query.value(0).toString();
+            groups.insert(query.value(0).toString(), query.value(1).toString());
         }
     } else {
         qDebug() << "用户群聊列表查询失败:" << query.lastError().text();
@@ -330,5 +330,50 @@ QVector<QString> DataBase::selectUsersByGroupId(const QString &groupId)
         qDebug() << "群成员列表查询失败:" << query.lastError().text();
     }
     return users;
+}
+
+QByteArray DataBase::selectGroupStrangers(const QString &userId)
+{
+    struct User{
+        QString id;
+        QString name;
+        QByteArray avatar;
+    };
+    QVector<User> users;
+
+    QSqlQuery query;
+    query.prepare("SELECT DISTINCT u.id, u.username, u.avatar "
+                  "FROM group_members gm1 "
+                   "JOIN group_members gm2 ON gm1.group_id = gm2.group_id "
+                    "JOIN users u ON gm2.user_id = u.id "
+                    "WHERE gm1.user_id = :myId "
+                    "AND gm2.user_id != :myId "
+                    "AND NOT EXISTS ( "
+                            "SELECT 1 "
+                            "FROM friends f "
+                            "WHERE "
+                            "(f.userId = :myId AND f.friendId = gm2.user_id) OR "
+                            "(f.friendId = :myId AND f.userId = gm2.user_id));");
+    query.bindValue(":myId", userId);
+    if (query.exec()) {
+        while (query.next()) {  // 遍历查询结果
+            User user{query.value(0).toString(), query.value(1).toString(), query.value(2).toByteArray()};
+            // qDebug() << query.value(0).toString();
+            users << user;
+        }
+    } else {
+        qDebug() << "群成员列表查询失败:" << query.lastError().text();
+    }
+
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15); // 或你当前 Qt 版本
+    out << users.size();
+    for(const auto &user : users){
+        out << user.id;
+        out << user.name;
+        out << user.avatar;
+    }
+    return data;
 }
 

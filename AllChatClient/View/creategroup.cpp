@@ -3,6 +3,7 @@
 #include "Delegate/friendsdelegate.h"
 
 #include <QGraphicsDropShadowEffect>
+#include <QLabel>
 #include <QPushButton>
 #include <QScrollBar>
 #include <QStringListModel>
@@ -12,14 +13,13 @@ CreateGroup::CreateGroup(FriendsModel *model, QWidget *parent)
     : QDialog{parent}
     , m_model(model)
 {
-    this->resize(400, 300);
+    this->resize(400, 600);
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_DeleteOnClose);
     this->setAttribute(Qt::WA_TranslucentBackground);     //窗口透明
     this->setMinimumSize(250, 200);
 
     initFrame();
-
 
     initButtons();
     connect(m_btnConfirm, &QPushButton::clicked, this, &CreateGroup::createGroup);
@@ -33,9 +33,28 @@ CreateGroup::CreateGroup(FriendsModel *model, QWidget *parent)
     layout2->addWidget(m_btnConfirm);
     layout2->addWidget(m_btnCancel);
 
-    QVBoxLayout *layout3 = new QVBoxLayout(m_frame);
-    layout3->addWidget(m_friendList);
-    layout3->addWidget(btnGroup);
+
+    QLabel *notice = new QLabel("群名称", this);
+    m_nameInput = new QLineEdit(this);
+    m_nameInput->setStyleSheet("QLineEdit {"
+        "border: 1px solid #ccc;"
+        "border-radius: 10px;"
+        "padding: 6px 10px;"
+        "font-size: 14px;"
+        "background-color: #f9f9f9;}"
+    "QLineEdit:focus {"
+        "border: 1px solid #0078d7;"
+        "background-color: #ffffff;}"
+    );
+    QWidget *inputWidget = new QWidget(this);
+    QHBoxLayout *layout3 = new QHBoxLayout(inputWidget);
+    layout3->addWidget(notice);
+    layout3->addWidget(m_nameInput);
+
+    QVBoxLayout *layout4 = new QVBoxLayout(m_frame);
+    layout4->addWidget(inputWidget);
+    layout4->addWidget(m_friendList);
+    layout4->addWidget(btnGroup);
 }
 
 void CreateGroup::initFrame()
@@ -118,8 +137,13 @@ void CreateGroup::createGroup()
         QString id = m_model->data(it, FriendsModel::IdRole).toString();
         ids << id;
     }
-    // emit sendCreateGroup(ids);
+
+    QString groupName = m_nameInput->text();
+    if(groupName.isEmpty())
+    {
+        groupName = "新建群聊";
+    }
     // 请求数据在内部进行
-    DataTransfer::getInstance()->sendData(Packet(CommonEnum::CreateGroup, ids));
+    DataTransfer::getInstance()->sendData(Packet(CommonEnum::CreateGroup, ids, groupName));
     this->close();
 }

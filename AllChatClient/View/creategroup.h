@@ -5,6 +5,7 @@
 #include <QDialog>
 #include <QFrame>
 #include <QListView>
+#include <QLineEdit>
 
 class CreateGroup : public QDialog
 {
@@ -28,6 +29,7 @@ private:
     QPushButton *m_btnCancel;
     QListView *m_friendList;
     FriendsModel *m_model;
+    QLineEdit *m_nameInput;
 };
 
 #endif // CREATEGROUP_H

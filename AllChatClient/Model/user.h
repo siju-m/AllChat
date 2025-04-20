@@ -8,13 +8,13 @@ class User
 {
 public:
     User();
-    User(QString userName, QString id, bool onlineState = false, QString avatarPath = QString());
+    User(QString userName, QString id, QString avatarPath = QString(), bool onlineState = false);
 
     void setUserName(const QString &name);
     QString getUserName() const;
 
     void setUserId(const QString &id);
-    QString getUserId();
+    QString getUserId() const;
 
     void setOnlineState(const bool &state);
     bool getOnlineState() const;

@@ -27,6 +27,7 @@ public:
     User toUser();
 
     QMap<QString, User>& getFriendList();
+    QMap<QString, User>& getStrangerList();
 private:
     CurrentUser() = default;
     static CurrentUser* m_userInfo;
@@ -35,6 +36,7 @@ private:
     QString m_userName = QString();
     QString m_avatarPath = QString();
     QMap<QString, User> m_friendList;
+    QMap<QString, User> m_strangerList;
 };
 
 #endif // CURRENTUSER_H

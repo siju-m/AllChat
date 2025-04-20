@@ -40,14 +40,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    // void registerUser(const QString &username, const QString &password);
-    // void loginUser(const QString &username, const QString &password);
     void send_slelectByName(const QString &username);
 
     void initAddFriends();
     void initHistoryManager();
     void initSideBar();
-    // void initMessageList();
     void initFriendsList();
     void initChatList();
     void initFriendApplyList();
@@ -65,8 +62,7 @@ public:
     QString storeImageToFile(const QString &targetId, const User &sender, const QByteArray &imageData, const QString &msgTime);
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
 
-    void addMessage_toList(const QString &text,const QString &chatId,const QString &senderId,const QString &time);//添加消息到聊天界面
-    void addImage_toList(const QString &imagePath,const QString &chatId,const QString &senderId,const QString &time);//添加图片到聊天界面
+    void addMessage_toList(const Message &message);
 
     void handle_addFriend(QDataStream &in);//处理添加好友请求
     void send_addFriend_result(QString id);//发送处理后的好友请求
@@ -102,15 +98,18 @@ private:
     CurrentUser *m_user;
     QButtonGroup *m_sideBar_btnGroup;//管理侧边栏按钮
     UpdateAvatar *m_updateAvatar;
+    AddFriends m_add_friends;//添加好友窗口
 
     ChatHistoryManager *m_historyManager;
     DataTransfer *m_dataTransfer;
     // CommonEnum::message_type messageType;
     QMap<QString, User> &m_friendList; // 用于存储好友列表 id和userName
+    QMap<QString, User> &m_strangerList;
+
     FriendsModel *m_friends_model;//存储好友数据
     ChatModel *m_chat_model;//聊天对象数据
     StrangerModel *m_apply_model;//存储申请添加好友的用户数据
-    AddFriends m_add_friends;//添加好友窗口
+
 
 };
 

@@ -72,12 +72,12 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 
     // 绘制用户名
     QTextDocument doc;
-    doc.setHtml(userName);
+    doc.setPlainText(userName);
     doc.setTextWidth(250); // 设置最大宽度
     int nameWidth = doc.idealWidth(); // 获取文本的实际宽度
     QRect usernameRect = isOutgoing
                              ? QRect(itemRect.right()-nameWidth-55, itemRect.top(), 250, 20)
-                             : QRect(itemRect.left()+65, itemRect.top(), 20, 20);
+                             : QRect(itemRect.left()+65, itemRect.top(), 250, 20);
     painter->setPen(Qt::black);
     painter->drawText(usernameRect, Qt::AlignLeft | Qt::AlignTop, userName);
 

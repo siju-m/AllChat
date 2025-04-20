@@ -35,12 +35,17 @@ QString CurrentUser::get_avatarPath()
 
 User CurrentUser::toUser()
 {
-    return User(m_userName, m_userId, true, m_avatarPath);
+    return User(m_userName, m_userId, m_avatarPath, true);
 }
 
 QMap<QString, User> &CurrentUser::getFriendList()
 {
     return m_friendList;
+}
+
+QMap<QString, User> &CurrentUser::getStrangerList()
+{
+    return m_strangerList;
 }
 
 

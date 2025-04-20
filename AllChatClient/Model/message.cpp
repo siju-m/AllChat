@@ -17,37 +17,42 @@ Message::Message(MessageType type, const QString &data, const QString &time, con
     }
 }
 
-QString Message::getText()
+Message::MessageType Message::getType() const
+{
+    return m_type;
+}
+
+QString Message::getText() const
 {
     return m_text;
 }
 
-void Message::setText(QString text)
+void Message::setText(const QString &text)
 {
     m_text = text;
 }
 
-QString Message::getImage()
+QString Message::getImage() const
 {
     return m_imagePath;
 }
 
-void Message::setImage(QString path)
+void Message::setImage(const QString &path)
 {
     m_imagePath = path;
 }
 
-QString Message::getTime()
+QString Message::getTime() const
 {
     return m_msgTime;
 }
 
-void Message::setTime(QString time)
+void Message::setTime(const QString &time)
 {
     m_msgTime = time;
 }
 
-QByteArray Message::jsonData()
+QByteArray Message::jsonData() const
 {
     QJsonObject obj;
     QJsonObject format;
@@ -69,12 +74,27 @@ QByteArray Message::jsonData()
     return doc.toJson(QJsonDocument::Compact);
 }
 
-QString Message::getChatId()
+QString Message::getChatId() const
 {
     return m_chatId;
 }
 
-void Message::setChatId(QString id)
+void Message::setChatId(const QString &id)
 {
     m_chatId = id;
+}
+
+QString Message::getAvatarPath() const
+{
+    return m_sender.getAvatarPath();
+}
+
+QString Message::getSenderId() const
+{
+    return m_sender.getUserId();
+}
+
+QString Message::getSenderName() const
+{
+    return m_sender.getUserName();
 }

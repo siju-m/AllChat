@@ -83,12 +83,31 @@ void ChatHistoryManager::loadChatHistoryFromFile(QString targetId)
 
             QString senderId = obj["id"].toString();
             QString time = obj["time"].toString();
+
+            User sender;
+            if(senderId == m_user->get_userId())
+            {
+                sender = m_user->toUser();
+            }
+            else if(m_user->getFriendList().contains(senderId))
+            {
+                sender = m_user->getFriendList()[senderId];
+            }
+            else if(m_user->getStrangerList().contains(senderId))
+            {
+                sender = m_user->getStrangerList()[senderId];
+            }
+
             if(format["kinds"].toString()=="text"){
                 QString message = obj["message"].toString();
-                emit addMessage_toList(message, targetId, senderId, time);
+                Message msg(Message::Text, message, time, sender, targetId);
+                emit addMessage_toList(msg);
+                // emit addMessage_toList(message, targetId, senderId, time);
             }else if(format["kinds"].toString()=="image"){
                 QString imagePath = obj["imagePath"].toString();
-                emit addImage_toList(imagePath, targetId, senderId, time);
+                Message msg(Message::Image, imagePath, time, sender, targetId);
+                emit addMessage_toList(msg);
+                // emit addImage_toList(imagePath, targetId, senderId, time);
             }
 
         }

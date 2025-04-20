@@ -1,5 +1,6 @@
 #include "messagelistview.h"
 
+#include "Core/currentuser.h"
 #include "imageviewer.h"
 
 #include <Delegate/messagedelegate.h>
@@ -86,17 +87,36 @@ bool MessageListView::compareTime(const QString &pastTime, const QString &lastTi
     return false;
 }
 
-void MessageListView::addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time)
+void MessageListView::addMessage(const Message &message)
 {
-    m_message_model->addTextMessage(text,isOutgoing,userName,avatarPath,time);
+    bool isOutgoing = (message.getSenderId() == CurrentUser::getInstance()->get_userId());
+    const QString senderName = message.getSenderName();
+    const QString avatarPath = message.getAvatarPath();
+    const QString time = message.getTime();
+    if(message.getType() == Message::Text)
+    {
+        const QString text = message.getText();
+        m_message_model->addTextMessage(text,isOutgoing,senderName,avatarPath,time);
+    }
+    else if(message.getType() == Message::Image)
+    {
+        const QString imagePath = message.getImage();
+        m_message_model->addImageMessage(imagePath,isOutgoing,senderName,avatarPath,time);
+    }
     this->scrollToBottom();// 自动滚动到底部
 }
 
-void MessageListView::addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time)
-{
-    m_message_model->addImageMessage(imagePath,isOutgoing,userName,avatarPath,time);
-    this->scrollToBottom();
-}
+// void MessageListView::addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time)
+// {
+//     m_message_model->addTextMessage(text,isOutgoing,userName,avatarPath,time);
+//     this->scrollToBottom();// 自动滚动到底部
+// }
+
+// void MessageListView::addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time)
+// {
+//     m_message_model->addImageMessage(imagePath,isOutgoing,userName,avatarPath,time);
+//     this->scrollToBottom();
+// }
 
 void MessageListView:: wheelEvent(QWheelEvent *event)  {
     showAndHideScrollBars(); // 显示滚动条

@@ -10,15 +10,6 @@ Server::Server(QObject *parent)
     dataBase->initDatabase();
 
     connect(m_dataTransfer,&DataTransfer::handleData,this,&Server::handleData);
-    // QFile file("D:/msiju/Downloads/1.jpg");
-    // if (!file.open(QIODevice::ReadOnly)) {
-    //     qDebug() << "Failed to open file" ;
-    // }else{
-    //     QByteArray imageData = file.readAll();
-    //     dataBase->updateAvatar("429491ac-7e22-4e76-b3fa-bb6b856e515f",imageData);
-    // }
-
-    // qDebug()<<dataBase->getAvatar("bebfa97f-9e55-4666-8c00-16c77fa8ecf8").isEmpty();
 }
 
 bool Server::loginUser(QTcpSocket *socket,const QString &username, const QString &password) {
@@ -230,10 +221,11 @@ void Server::updateFriendsList(const QString &userId)
 
 void Server::updateGroupsList(const QString &userId)
 {
-    QVector<QString> groups = dataBase->selectGroupsByUserId(userId);
+    QMap<QString, QString> groups = dataBase->selectGroupsByUserId(userId);
+    QByteArray strangerList = dataBase->selectGroupStrangers(userId);
     if(groups.isEmpty())
         return;
-    QByteArray packet = getPacket(Group_List, groups);
+    QByteArray packet = getPacket(Group_List, groups, strangerList);
     sendData(userId,packet);
 }
 
@@ -300,19 +292,21 @@ void Server::handle_deleteFriend(QDataStream &in, QTcpSocket *senderSocket)
 void Server::handle_createGroup(QDataStream &in, QTcpSocket *senderSocket)
 {
     QVector<QString> ids;
-    in >> ids;
+    QString groupName;
+    in >> ids >> groupName;
     ids << m_clients_userId[senderSocket];
     QString groupId = generateUniqueId();
-    if(!dataBase->createGroup(groupId, m_clients_userId[senderSocket]))
+
+    if(!dataBase->createGroup(groupId, groupName, m_clients_userId[senderSocket]))
         return;
+
     bool result = dataBase->insertGroupMember(ids, groupId);
     if(result){
-        QByteArray packet = getPacket(CreateGroup, groupId);
+        QByteArray packet = getPacket(CreateGroup, groupId, groupName);
         for(const auto &id : ids){
             sendData(id, packet);
         }
     }
-    // qDebug()<< m_clients_name[senderSocket]+"新建群聊" << ids;
 }
 
 void Server::handle_groupChat(QDataStream &in, QTcpSocket *senderSocket)
