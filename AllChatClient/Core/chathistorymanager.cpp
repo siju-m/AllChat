@@ -165,3 +165,24 @@ QPair<QString, QString> ChatHistoryManager::getLastMessage(const QString &target
 
     return {lastMessage,lastMessageTime};
 }
+
+// QString ChatHistoryManager::getFirstMessageTime(const QString &targetId)
+// {
+//     QString filePath = getChatFilePath(targetId);//因为多个个客户端会运行在同一台机器上，需要接收端id加发送端用户名来作为文件名
+//     filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_user->get_userName());
+//     QFile file(filePath);
+//     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+//         return "";
+//     }
+//     QString firstLine;
+//     QTextStream in(&file);
+//     firstLine = in.readLine();
+
+//     file.close();
+//     QJsonDocument doc = QJsonDocument::fromJson(firstLine.toUtf8());
+//     QJsonObject format = doc.object();
+//     QJsonObject obj = format["data"].toObject();
+//     QString firstMessageTime = obj["time"].toString();
+
+//     return firstMessageTime;
+// }

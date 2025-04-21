@@ -62,9 +62,15 @@ void UserDetailView::showUserInfo(const QString &id, const User &user)
     ui->id->setFont(font);
     ui->id->setText("UID: "+id);
     ui->id->setStyleSheet("color: gray;");
-    StateEnum::onlineState_type onlineState = (StateEnum::onlineState_type)(state?0:1);
+    StateEnum::onlineState_type onlineState = state?StateEnum::ONLINE:StateEnum::OFFLINE;
     ui->onlineState->setOnlineState(onlineState,{1,6,15,15});
     QString stateText = "      ";
     stateText.append(state?"在线":"离线");
     ui->onlineState->setText(stateText);
+}
+
+void UserDetailView::hideUserInfo()
+{
+    this->hide();
+    this->setEnabled(false);
 }

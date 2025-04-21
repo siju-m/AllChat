@@ -10,15 +10,18 @@ Message::Message(MessageType type, const QString &data, const QString &time, con
     m_type(type),
     m_msgTime(time),
     m_sender(sender),
-    m_chatId(chatId)
+    m_chatId(chatId),
+    m_plainText(QString())
 {
     if(type == Text)
     {
         m_text = data;
+        m_plainText = data;
     }
     else if(type == Image)
     {
         m_imagePath = data;
+        m_plainText = "图片";
     }
 
     if(CurrentUser::getInstance()->getGroupsIdList().contains(chatId))
@@ -116,4 +119,9 @@ QString Message::getSenderId() const
 QString Message::getSenderName() const
 {
     return m_sender.getUserName();
+}
+
+QString Message::getPlainText() const
+{
+    return m_plainText;
 }

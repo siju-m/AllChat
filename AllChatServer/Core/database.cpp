@@ -294,23 +294,41 @@ bool DataBase::insertGroupMember(const QVector<QString> &ids, const QString &gro
     return true;
 }
 
-QMap<QString, QString> DataBase::selectGroupsByUserId(const QString &id)
+QByteArray DataBase::selectGroupsByUserId(const QString &id)
 {
-    QMap<QString, QString> groups;
+    struct Group
+    {
+        QString id;
+        QString name;
+        int count;
+    };
+    QVector<Group> groups;
     QSqlQuery query;
-    query.prepare("SELECT g.* "
-                    "FROM group_members gm "
-                    "JOIN groups g ON gm.group_id = g.group_id "
-                    "WHERE gm.user_id = :userId;");
+    query.prepare("SELECT g.group_id, g.group_name, COUNT(gm2.user_id) AS member_count "
+                    "FROM group_members gm1 "
+                    "JOIN groups g ON gm1.group_id = g.group_id "
+                    "JOIN group_members gm2 ON g.group_id = gm2.group_id "
+                    "WHERE gm1.user_id = :userId "
+                    "GROUP BY g.group_id, g.group_name;");
     query.bindValue(":userId", id);
     if (query.exec()) {
         while (query.next()) {  // 遍历查询结果
-            groups.insert(query.value(0).toString(), query.value(1).toString());
+            groups << Group{query.value(0).toString(), query.value(1).toString(), query.value(2).toInt()};
         }
     } else {
         qDebug() << "用户群聊列表查询失败:" << query.lastError().text();
     }
-    return groups;
+
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15); // 或你当前 Qt 版本
+    out << groups.size();
+    for(const auto &group : groups){
+        out << group.id;
+        out << group.name;
+        out << group.count;
+    }
+    return data;
 }
 
 QVector<QString> DataBase::selectUsersByGroupId(const QString &groupId)
@@ -375,5 +393,19 @@ QByteArray DataBase::selectGroupStrangers(const QString &userId)
         out << user.avatar;
     }
     return data;
+}
+
+int DataBase::getGroupMemberCount(const QString &groupId)
+{
+    QSqlQuery query;
+    query.prepare("SELECT COUNT(*) FROM group_members WHERE group_id = :groupId");
+    query.bindValue(":groupId", groupId);
+
+    if (query.exec() && query.next()) {
+        return query.value(0).toInt();
+    } else {
+        qDebug() << "统计群成员数量失败:" << query.lastError().text();
+        return -1;
+    }
 }
 

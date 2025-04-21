@@ -53,4 +53,9 @@ QSet<QString> &CurrentUser::getGroupsIdList()
     return m_groups_idList;
 }
 
+QMap<QString, Group> &CurrentUser::getGroupList()
+{
+    return m_groups;
+}
+
 

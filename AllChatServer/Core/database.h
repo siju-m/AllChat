@@ -45,11 +45,14 @@ public:
     // 添加群成员
     bool insertGroupMember(const QVector<QString> &ids, const QString &groupId);
     // 查询用户的群聊列表
-    QMap<QString, QString> selectGroupsByUserId(const QString &id);
+    QByteArray selectGroupsByUserId(const QString &id);
     // 查询群成员列表
     QVector<QString> selectUsersByGroupId(const QString &groupId);
     // 查询所有群里不是好友的用户列表
     QByteArray selectGroupStrangers(const QString &userId);
+    // 查询群成员数量
+    int getGroupMemberCount(const QString &groupId);
+
 };
 
 #endif // DATABASE_H

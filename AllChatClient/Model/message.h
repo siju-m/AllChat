@@ -37,6 +37,7 @@ public:
     QString getAvatarPath() const;
     QString getSenderId() const;
     QString getSenderName() const;
+    QString getPlainText() const;
 private:
     MessageType m_type;
     QString m_text;
@@ -45,6 +46,8 @@ private:
     User m_sender;
     QString m_chatId;
     ChatType m_chatType;
+    // 显示在未读消息的纯文本
+    QString m_plainText;
 };
 
 #endif // MESSAGE_H

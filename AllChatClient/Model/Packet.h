@@ -8,11 +8,12 @@
 class Packet
 {
 public:
+    Packet();
     template <typename... Args>
     Packet(Args&&... args) {
         QDataStream out(&m_packet, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_5_15);
-        (out << ... << std::forward<Args>(args));
+        (void)(out << ... << std::forward<Args>(args));
     }
     const QByteArray& getPacket() const;
 private:

@@ -72,6 +72,8 @@ void AddFriends::initStrangerList()
     ui->strangerList->setSelectionBehavior(QAbstractItemView::SelectItems);
     ui->strangerList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+    ui->strangerList->setUniformItemSizes(true);//启用统一项尺寸优化
+
     connect(m_stranger_delegate,&StrangerDelegate::applyClicked,this,[=](const QString &id,const int &row){
         emit sendData(id);
         m_stranger_model->removeItem(row);

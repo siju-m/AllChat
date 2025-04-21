@@ -12,7 +12,7 @@ public:
     void paintEvent(QPaintEvent *event) override;
     void setOnlineState(StateEnum::onlineState_type state,const QRect &position={5, 5, 20, 20});
 private:
-    StateEnum::onlineState_type m_onlineState = StateEnum::OFFLINE;
+    StateEnum::onlineState_type m_onlineState = StateEnum::NONE;
     QRect m_position;
 };
 

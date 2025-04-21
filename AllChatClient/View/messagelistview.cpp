@@ -54,6 +54,13 @@ void MessageListView::initScorllBar()
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &MessageListView::showAndHideScrollBars);
 }
 
+void MessageListView::clear(const QString &chatId)
+{
+    m_message_model->clear();
+    // 重置最新消息时间记录
+    m_message_model->update_lastTempTime(chatId, QString());
+}
+
 void MessageListView::clear()
 {
     m_message_model->clear();
@@ -105,6 +112,7 @@ void MessageListView::addMessage(const Message &message)
     }
     this->scrollToBottom();// 自动滚动到底部
 }
+
 
 // void MessageListView::addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time)
 // {

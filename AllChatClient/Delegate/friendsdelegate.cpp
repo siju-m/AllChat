@@ -32,9 +32,10 @@ QSize FriendsDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
 void FriendsDelegate::draw_back(QPainter *painter, const QStyleOptionViewItem &option) const
 {
     // 绘制选中状态背景
-    if (option.state & QStyle::State_Selected) {
+    if (option.state & QStyle::State_Selected)
+    {
         QPainterPath path;
-        path.addRoundedRect(option.rect.adjusted(2, 2, -2, -2), 10, 10); // 圆角矩形
+        path.addRoundedRect(option.rect, 0, 0); // 圆角矩形
 
         // 渐变填充
         QLinearGradient gradient(option.rect.topLeft(), option.rect.bottomRight());
@@ -43,10 +44,11 @@ void FriendsDelegate::draw_back(QPainter *painter, const QStyleOptionViewItem &o
         painter->fillPath(path, gradient);
 
         // 添加边框
-        QPen pen(QColor(30, 100, 220));
-        pen.setWidth(2);
-        painter->setPen(pen);
-        painter->drawPath(path);
+
+    }
+    else if (option.state & QStyle::State_MouseOver)
+    {
+        painter->fillRect(option.rect, QColor(222,229,237));
     }
 }
 

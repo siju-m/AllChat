@@ -26,6 +26,7 @@ public:
 
     void showAvatar(const QString &path);
     void showUserInfo(const QString &id,const User &user);
+    void hideUserInfo();
 signals:
     void showMessage(const QString &id);
     void deleteFriend(const QString &id);

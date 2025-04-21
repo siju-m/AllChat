@@ -20,6 +20,7 @@ public:
 
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
     QPair<QString,QString> getLastMessage(const QString &targetId);
+    // QString getFirstMessageTime(const QString &targetId);
 private:
     CurrentUser *m_user;
 signals:

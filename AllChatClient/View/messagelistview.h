@@ -17,12 +17,14 @@ public:
 
     void initMessageList();
     void initScorllBar();
+    void clear(const QString &chatId);
     void clear();
     void addTime_toList(const QString &chatId,const QString &time);
     bool compareTime(const QString &pastTime,const QString &lastTime);
     // void addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
     // void addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
     void addMessage(const Message &message);
+    // void resetLastMessageTime(const QString &chatId);
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;

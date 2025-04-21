@@ -123,6 +123,8 @@ void CreateGroup::initFriendList()
     m_friendList->setVerticalScrollMode(QListView::ScrollPerPixel); // 平滑滚动
     m_friendList->setResizeMode(QListView::Adjust);                 // 自动调整项大小
     m_friendList->setSelectionMode(QAbstractItemView::MultiSelection);
+    m_friendList->setUniformItemSizes(true);//启用统一项尺寸优化
+
 
     QScrollBar *verticalScrollBar = m_friendList->verticalScrollBar();
     verticalScrollBar->setSingleStep(5); // 垂直滚动步长
@@ -144,6 +146,6 @@ void CreateGroup::createGroup()
         groupName = "新建群聊";
     }
     // 请求数据在内部进行
-    DataTransfer::getInstance()->sendData(Packet(CommonEnum::CreateGroup, ids, groupName));
+    DataTransfer::getInstance()->sendData(Packet(CommonEnum::CREATE_GROUP, ids, groupName));
     this->close();
 }

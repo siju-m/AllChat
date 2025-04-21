@@ -521,7 +521,7 @@ border-right: 1px solid gray;  /*只保留右边边框 */
            <widget class="QListView" name="friendApplyList">
             <property name="maximumSize">
              <size>
-              <width>200</width>
+              <width>16777215</width>
               <height>16777215</height>
              </size>
             </property>
@@ -591,6 +591,17 @@ border-right: 1px solid gray;  /*只保留右边边框 */
                </item>
                <item>
                 <widget class="QLabel" name="chatPartner">
+                 <property name="font">
+                  <font>
+                   <pointsize>16</pointsize>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QLabel{
+font-weight: bold;
+}</string>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>

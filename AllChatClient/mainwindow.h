@@ -58,11 +58,12 @@ public:
     void handle_onlineFriendsList(QDataStream &in);//接收在线用户列表
     void handle_userInfo(QDataStream &in);//接收用户信息
 
-    void storeMessageToFile(const QString &targetId, const User &sender, const QString &message, const QString &msgTime);//将聊天记录存在文件中
-    QString storeImageToFile(const QString &targetId, const User &sender, const QByteArray &imageData, const QString &msgTime);
+    void storeMessageToFile(const Message &msg);//将聊天记录存在文件中
+    // QString storeImageToFile(const QString &targetId, const User &sender, const QByteArray &imageData, const QString &msgTime);
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
 
     void addMessage_toList(const Message &message);
+    void showMessage_toList(const Message &message);
 
     void handle_addFriend(QDataStream &in);//处理添加好友请求
     void send_addFriend_result(QString id);//发送处理后的好友请求
@@ -70,6 +71,8 @@ public:
 
     void handle_selectByName_reuslt(QDataStream &in);//处理返回的用户名模糊查询的用户列表
     void handle_deleteFriend_result(QDataStream &in);
+    // 清除聊天消息和聊天对象信息
+    void resetChatState();
 
     QString getCurrentTime();
 
@@ -108,6 +111,7 @@ private:
     QMap<QString, User> &m_friendList; // 用于存储好友列表 id和userName
     QMap<QString, User> &m_strangerList;
     QSet<QString> &m_groupIds;
+    QMap<QString, Group> &m_groupList;
 
     FriendsModel *m_friends_model;//存储好友数据
     ChatModel *m_chat_model;//聊天对象数据

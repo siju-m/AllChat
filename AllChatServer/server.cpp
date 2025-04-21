@@ -49,6 +49,10 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
     // 更新并广播在线用户列表
     broadcast_userOnlineList();
 
+
+    //发送陌生人的信息
+    updateGroup_strangerList(m_clients_userId[senderSocket]);
+
     //判断是否有待转发的消息
     if(m_forward_contents.contains(m_clients_userId[senderSocket]))
         send_forwardContents(m_clients_userId[senderSocket]);
@@ -61,9 +65,6 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
             sendData(m_clients_userId[senderSocket],packet);
         }
     }
-
-    //发送陌生人的信息
-    updateGroup_strangerList(m_clients_userId[senderSocket]);
 }
 
 void Server::handleRegist(QDataStream &in, QTcpSocket *senderSocket)
@@ -198,8 +199,9 @@ void Server::handleAddFriend_Result(QDataStream &in, QTcpSocket *senderSocket)
     updateFriendsList(id);//更新请求者的好友列表
     broadcast_userOnlineList();//更新在线状态
 
-    QByteArray packet = getPacket(messageType,m_clients_name[senderSocket],m_clients_userId[senderSocket]);
+    QByteArray packet = getPacket(messageType, m_clients_userId[senderSocket], id);
     sendData(id,packet);
+    sendData(m_clients_userId[senderSocket],packet);
 
     m_alreadyApply.remove(qMakePair(id,m_clients_userId[senderSocket]));
 }
@@ -225,7 +227,7 @@ void Server::updateFriendsList(const QString &userId)
 
 void Server::updateGroupsList(const QString &userId)
 {
-    QMap<QString, QString> groups = dataBase->selectGroupsByUserId(userId);
+    QByteArray groups = dataBase->selectGroupsByUserId(userId);
     if(groups.isEmpty())
         return;
     QByteArray packet = getPacket(GROUP_LIST, groups);
@@ -312,7 +314,7 @@ void Server::handle_createGroup(QDataStream &in, QTcpSocket *senderSocket)
 
     bool result = dataBase->insertGroupMember(ids, groupId);
     if(result){
-        QByteArray packet = getPacket(CREATE_GROUP, groupId, groupName);
+        QByteArray packet = getPacket(CREATE_GROUP, groupId, groupName, (int)ids.size());
         for(const auto &id : ids){
             sendData(id, packet);
         }
