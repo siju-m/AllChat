@@ -26,6 +26,9 @@ public:
     void set_avatarPath(QString path);
     QString get_avatarPath();
 
+    void set_currentChatId(QString chatId);
+    QString get_currentChatId();
+
     User toUser();
 
     QMap<QString, User>& getFriendList();
@@ -39,6 +42,7 @@ private:
     QString m_userId = QString();
     QString m_userName = QString();
     QString m_avatarPath = QString();
+    QString m_currentChatId = QString();
 
     QMap<QString, User> m_friendList;
     QMap<QString, User> m_strangerList;

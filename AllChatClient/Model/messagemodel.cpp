@@ -1,5 +1,7 @@
 #include "messagemodel.h"
 
+#include <Core/currentuser.h>
+
 
 MessageModel::MessageModel(QObject *parent) : QAbstractListModel(parent) {}
 
@@ -12,7 +14,7 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const{
     if (!index.isValid() || index.row() >= m_messages.size())
         return QVariant();
 
-    const Message &msg = m_messages[index.row()];
+    const ModelMessage &msg = m_messages[index.row()];
     switch (role) {
     case TypeRole: return msg.type;
     case TextRole: return msg.text;
@@ -37,10 +39,53 @@ void MessageModel::addImageMessage(const QString &imagePath, bool isOutgoing, co
     endInsertRows();
 }
 
+void MessageModel::addOlderMessage(const Message &message)
+{
+
+    bool isOutgoing = (message.getSenderId() == CurrentUser::getInstance()->get_userId());
+    const QString senderName = message.getSenderName();
+    const QString avatarPath = message.getAvatarPath();
+    const QString time = message.getTime();
+
+    beginInsertRows(QModelIndex(), 0, 0);
+    if(message.getType() == Message::Text)
+    {
+        const QString text = message.getText();
+        m_messages.prepend({MessageType::Text, text, "", isOutgoing, senderName,avatarPath,time});
+    }
+    else if(message.getType() == Message::Image)
+    {
+        const QString imagePath = message.getImage();
+        m_messages.prepend({MessageType::Image, "", imagePath, isOutgoing, senderName, avatarPath, time});
+    }
+    endInsertRows();
+}
+
+// void MessageModel::addOlderTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time)
+// {
+//     beginInsertRows(QModelIndex(), 0, 0);
+//     m_messages.prepend({MessageType::Text, text, "", isOutgoing, userName,avatarPath,time});
+//     endInsertRows();
+// }
+
+// void MessageModel::addOlderImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time)
+// {
+//     beginInsertRows(QModelIndex(), 0, 0); // 行号范围是 [0, 0]
+//     m_messages.prepend({MessageType::Image, "", imagePath, isOutgoing, userName, avatarPath, time});
+//     endInsertRows();
+// }
+
 void MessageModel::addTimeMessage(const QString &time)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_messages.append({MessageType::Time, "", "", true, "","",time});
+    endInsertRows();
+}
+
+void MessageModel::addOlderTimeMessage(const QString &time)
+{
+    beginInsertRows(QModelIndex(), 0, 0);
+    m_messages.prepend({MessageType::Time, "", "", true, "","",time});
     endInsertRows();
 }
 

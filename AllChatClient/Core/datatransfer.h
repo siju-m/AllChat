@@ -36,7 +36,7 @@ public:
 
 signals:
     void handleData(QByteArray data);
-    void loginResult(CommonEnum::message_type result);
+    void loginResult(CommonEnum::message_type result, QByteArray data);
     void registResult(CommonEnum::message_type result);
 
 private:

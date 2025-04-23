@@ -4,9 +4,10 @@
 #include <Core/currentuser.h>
 
 
-Login::Login(QObject *parent)
+Login::Login(ChatHistoryManager *historyManager, QObject *parent)
     : QObject{parent}
     , m_dataTransfer(DataTransfer::getInstance())
+    , m_historyManager(historyManager)
 {
     m_login_regist_view = new Responsive_form();
     m_login_regist_view->show();
@@ -37,12 +38,12 @@ void Login::registerUser(const QString &username, const QString &password) {
     m_dataTransfer->sendData(data);
 }
 
-void Login::handle_loginResult(CommonEnum::message_type result)
+void Login::handle_loginResult(CommonEnum::message_type result, QByteArray data)
 {
+    updateUserInfo(data);
     if(result == CommonEnum::message_type::LOGIN_SUCCESS){
         emit login_success();
     }
-
 }
 
 void Login::handle_registResult(CommonEnum::message_type result)
@@ -60,4 +61,22 @@ void Login::handle_registResult(CommonEnum::message_type result)
     }break;
     default:break;
     }
+}
+
+void Login::updateUserInfo(QByteArray &data)
+{
+    QDataStream in(data);
+    in.setVersion(QDataStream::Qt_5_15);
+    CurrentUser *user = CurrentUser::getInstance();
+
+    CommonEnum::message_type messageType;
+    in >> messageType;
+    QByteArray imageData;
+    QString id;
+    in >>id>> imageData;
+
+    user->set_userId(id);
+    if(imageData.isEmpty()) return;
+    QString avatarPath = m_historyManager->storeImage(user->get_userName(),imageData);
+    user->set_avatarPath(avatarPath);
 }

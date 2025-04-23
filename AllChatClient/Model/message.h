@@ -2,6 +2,7 @@
 #define MESSAGE_H
 
 #include "Model/user.h"
+#include <QDateTime>
 #include <QString>
 
 
@@ -10,10 +11,13 @@ class Message
 public:
     enum MessageType{Text, Image};
     enum ChatType{PRIVATE, GROUP};
+    Message();
     Message(MessageType type, const QString &data, const QString &time, const User &sender, const QString &chatId);
 
     MessageType getType() const;
+    QString getType_string() const;
 
+    QString getData() const;
     // 文本消息
     QString getText() const;
     void setText(const QString &text);
@@ -23,6 +27,7 @@ public:
     void setImage(const QString &path);
 
     QString getTime() const;
+    QDateTime getDateTime() const;
     void setTime(const QString &time);
 
     // 聊天记录的json二进制

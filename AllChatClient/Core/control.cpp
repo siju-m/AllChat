@@ -3,12 +3,13 @@
 Control::Control(QObject *parent)
     : QObject{parent}
 {
-
-    m_window = new MainWindow();
-    m_login = new Login();
+    ChatHistoryManager *historyManager = new ChatHistoryManager(this);
+    m_window = new MainWindow(historyManager);
+    m_login = new Login(historyManager);
 
     QObject::connect(m_login, &Login::login_success, this, [=](){
         m_login->deleteLater();
+        historyManager->initDatabase();
         m_window->show();
     });
 }

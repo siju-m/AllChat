@@ -33,6 +33,16 @@ QString CurrentUser::get_avatarPath()
     return m_avatarPath;
 }
 
+void CurrentUser::set_currentChatId(QString chatId)
+{
+    m_currentChatId = chatId;
+}
+
+QString CurrentUser::get_currentChatId()
+{
+    return m_currentChatId;
+}
+
 User CurrentUser::toUser()
 {
     return User(m_userName, m_userId, m_avatarPath, true);

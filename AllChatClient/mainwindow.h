@@ -37,7 +37,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(ChatHistoryManager *historyManager, QWidget *parent = nullptr);
     ~MainWindow();
 
     void send_slelectByName(const QString &username);
@@ -56,14 +56,13 @@ public:
     void updateUserList(const QMap<QString, QString> &newUserList ,const QMap<QString,QByteArray> &new_idAvatar); //更新用户列表
     void handle_userList(QDataStream &in);//接收好友数据
     void handle_onlineFriendsList(QDataStream &in);//接收在线用户列表
-    void handle_userInfo(QDataStream &in);//接收用户信息
 
     void storeMessageToFile(const Message &msg);//将聊天记录存在文件中
-    // QString storeImageToFile(const QString &targetId, const User &sender, const QByteArray &imageData, const QString &msgTime);
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
 
+    // void addOlderMessage_toList(const Message &message);
     void addMessage_toList(const Message &message);
-    void showMessage_toList(const Message &message);
+    // void showMessage_toList(const Message &message);
 
     void handle_addFriend(QDataStream &in);//处理添加好友请求
     void send_addFriend_result(QString id);//发送处理后的好友请求
@@ -93,12 +92,14 @@ public:
     void handle_GroupList(QDataStream &in);
     void handle_groupChat(QDataStream &in);
     void handle_strangerList(QDataStream &in);
+
+protected:
+    void showEvent(QShowEvent* event) override;
 signals:
     void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
 
 private:
     Ui::MainWindow *ui;
-    // QTcpSocket *socket;//可以换成QSslSocket来加密连接
 
     CurrentUser *m_user;
     QButtonGroup *m_sideBar_btnGroup;//管理侧边栏按钮
@@ -116,7 +117,6 @@ private:
     FriendsModel *m_friends_model;//存储好友数据
     ChatModel *m_chat_model;//聊天对象数据
     StrangerModel *m_apply_model;//存储申请添加好友的用户数据
-
 
 };
 

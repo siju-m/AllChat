@@ -1,6 +1,7 @@
 #ifndef MESSAGEMODEL_H
 #define MESSAGEMODEL_H
 
+#include "Model/message.h"
 #include <QAbstractListModel>
 #include <QPixmap>
 #include <QVector>
@@ -21,8 +22,11 @@ public:
 
     void addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
     void addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
+    // void addOlderTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
+    // void addOlderImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
+    void addOlderMessage(const Message &messages);
     void addTimeMessage(const QString &time);
-
+    void addOlderTimeMessage(const QString &time);
 
     enum Roles {
         TypeRole = Qt::UserRole + 1,
@@ -42,7 +46,7 @@ public:
 
 private:
 
-    struct Message {
+    struct ModelMessage {
         MessageType type;
         QString text;
         QString imagePath;
@@ -52,7 +56,7 @@ private:
         QString time;
     };
 
-    QVector<Message> m_messages;
+    QVector<ModelMessage> m_messages;
     QHash<QString,QString> m_temp_lastMsgTime;//存聊天对象消息时间的临时变量，避免一直排序
 };
 

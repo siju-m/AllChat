@@ -24,7 +24,11 @@ public:
     // void addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
     // void addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
     void addMessage(const Message &message);
-    // void resetLastMessageTime(const QString &chatId);
+    void addOlderMessage(const QVector<Message> &messages);
+
+signals:
+    void scrolledToTop();
+
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
@@ -34,9 +38,14 @@ private slots:
 
     void hideScrollBars();
 
+    void checkScrollTop(int value);
+
 private:
     QTimer *hideTimer;
     MessageModel *m_message_model;//存储消息数据
+
+    // 初次加载历史记录
+    bool m_isFirstLoad = true;
 };
 
 

@@ -5,7 +5,9 @@
 
 #include <Delegate/messagedelegate.h>
 
-MessageListView::MessageListView(QWidget *parent) : QListView(parent) {
+MessageListView::MessageListView(QWidget *parent) :
+    QListView(parent)
+{
     initMessageList();
 
     initScorllBar();
@@ -36,6 +38,8 @@ void MessageListView::initMessageList()
         viewer->resize(800, 600);
         viewer->exec(); // 或 show() 非模态显示
     });
+
+    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, &MessageListView::checkScrollTop);
 }
 
 void MessageListView::initScorllBar()
@@ -57,6 +61,7 @@ void MessageListView::initScorllBar()
 void MessageListView::clear(const QString &chatId)
 {
     m_message_model->clear();
+    m_isFirstLoad = true;
     // 重置最新消息时间记录
     m_message_model->update_lastTempTime(chatId, QString());
 }
@@ -111,6 +116,71 @@ void MessageListView::addMessage(const Message &message)
         m_message_model->addImageMessage(imagePath,isOutgoing,senderName,avatarPath,time);
     }
     this->scrollToBottom();// 自动滚动到底部
+}
+
+void MessageListView::addOlderMessage(const QVector<Message> &messages)
+{
+
+    // 插入前记录当前滚动位置
+    QScrollBar* vScroll = this->verticalScrollBar();
+    const int oldScrollPos = vScroll->value();
+
+    QString lastMsgTime;
+    for(auto &message : messages)
+    {
+        // bool isOutgoing = (message.getSenderId() == CurrentUser::getInstance()->get_userId());
+        // const QString senderName = message.getSenderName();
+        // const QString avatarPath = message.getAvatarPath();
+        const QString time = message.getTime();
+
+
+        if(lastMsgTime.isEmpty())
+        {
+            lastMsgTime = time;
+        }
+        else
+        {
+            bool isTooLong = compareTime(lastMsgTime,time);
+            if(isTooLong) m_message_model->addOlderTimeMessage(lastMsgTime);
+            lastMsgTime = time;
+        }
+
+        m_message_model->addOlderMessage(message);
+
+        // if(message.getType() == Message::Text)
+        // {
+        //     const QString text = message.getText();
+        //     m_message_model->addOlderTextMessage(text,isOutgoing,senderName,avatarPath,time);
+        // }
+        // else if(message.getType() == Message::Image)
+        // {
+        //     const QString imagePath = message.getImage();
+        //     m_message_model->addOlderImageMessage(imagePath,isOutgoing,senderName,avatarPath,time);
+        // }
+
+    }
+
+
+
+
+    if(m_isFirstLoad)
+    {
+        this->scrollToBottom();// 自动滚动到底部
+        m_isFirstLoad = false;
+    }
+    else
+    {
+        //todo 计算新加入项的高度需要精确计算
+        QTimer::singleShot(0, [=] {
+            if (QModelIndex newIndex = model()->index(0, 0); newIndex.isValid()) {
+                // 获取新插入项的高度（包括间距）
+                QRect rect = this->visualRect(newIndex);
+                const int rowHeight = rect.height();
+                // 调整滚动条位置：原位置 + 新插入项的高度
+                vScroll->setValue(oldScrollPos + rowHeight*messages.size());
+            }
+        });
+    }
 }
 
 
@@ -177,4 +247,9 @@ void MessageListView:: showAndHideScrollBars() {
 void MessageListView::hideScrollBars() {
     verticalScrollBar()->setVisible(false);
     horizontalScrollBar()->setVisible(false);
+}
+
+void MessageListView::checkScrollTop(int value)
+{
+    if (!m_isFirstLoad && value == 0) emit scrolledToTop();
 }

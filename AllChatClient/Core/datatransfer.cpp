@@ -1,4 +1,5 @@
 #include "datatransfer.h"
+#include "Core/currentuser.h"
 
 #include <QMessageBox>
 
@@ -47,10 +48,7 @@ void DataTransfer::handle_Data(QByteArray data)
     switch(type){
     case CommonEnum::LOGIN_SUCCESS:
     case CommonEnum::LOGIN_FAILED:{
-        emit loginResult(type);
-        if(type == CommonEnum::LOGIN_SUCCESS){
-            emit handleData(data);
-        }
+        emit loginResult(type, data);
     }break;
     case CommonEnum::REGISTER_SUCCESS:
     case CommonEnum::REGISTER_FAILED:{

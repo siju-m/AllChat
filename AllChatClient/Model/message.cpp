@@ -6,6 +6,9 @@
 #include <Core/currentuser.h>
 
 
+Message::Message()
+{}
+
 Message::Message(MessageType type, const QString &data, const QString &time, const User &sender, const QString &chatId):
     m_type(type),
     m_msgTime(time),
@@ -39,6 +42,31 @@ Message::MessageType Message::getType() const
     return m_type;
 }
 
+QString Message::getType_string() const
+{
+    switch (m_type) {
+    case Text:
+        return "text";
+    case Image:
+        return "image";
+    default:
+        return "";
+    }
+}
+
+QString Message::getData() const
+{
+    if(m_type == Text)
+    {
+        return m_text;
+    }
+    else if(m_type == Image)
+    {
+        return m_imagePath;
+    }
+    return QString();
+}
+
 QString Message::getText() const
 {
     return m_text;
@@ -64,6 +92,11 @@ QString Message::getTime() const
     return m_msgTime;
 }
 
+QDateTime Message::getDateTime() const
+{
+    return QDateTime::fromString(m_msgTime,"yyyy-MM-dd hh:mm:ss");
+}
+
 void Message::setTime(const QString &time)
 {
     m_msgTime = time;
@@ -73,7 +106,6 @@ QByteArray Message::jsonData() const
 {
     QJsonObject obj;
     QJsonObject format;
-    obj["name"] = m_sender.getUserName();
     obj["id"] = m_sender.getUserId();
     obj["time"] = m_msgTime;
 

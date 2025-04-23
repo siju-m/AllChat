@@ -21,12 +21,18 @@ public:
     void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
     QPair<QString,QString> getLastMessage(const QString &targetId);
     // QString getFirstMessageTime(const QString &targetId);
+    void initDatabase();
+
+private:
+
 private:
     CurrentUser *m_user;
+    QPair<QString, qulonglong> m_last_messageId;
+
 signals:
     // void addMessage_toList(const QString &text,const QString &chatId,const QString &senderId,const QString &time);//添加消息到聊天界面
     // void addImage_toList(const QString &imagePath,const QString &chatId,const QString &senderId,const QString &time);//添加图片到聊天界面
-    void addMessage_toList(const Message &message);
+    void addMessage_toList(const QVector<Message> &messages);
 };
 
 #endif // CHATHISTORYMANAGER_H
