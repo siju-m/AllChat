@@ -28,7 +28,8 @@ enum message_type{
     CREATE_GROUP,
     GROUP_LIST,
     GROUP_STRANGER_LIST,
-    GROUP_CHAT
+    GROUP_CHAT,
+    PRIVATE_FILE
 };
 
 class Server : public QTcpServer {
@@ -83,6 +84,8 @@ private:
     void handle_createGroup(QDataStream &in,QTcpSocket *senderSocket);
     void handle_groupChat(QDataStream &in,QTcpSocket *senderSocket);
 
+    void handle_privateFile(QDataStream &in,QTcpSocket *senderSocket);
+
     QString getCurrentTime();
 
 private slots:
@@ -98,7 +101,7 @@ private:
     QSet<QPair<QString,QString>> m_alreadyApply;        //确保每个好友申请只发送一次
     // QHash<QString,QSet<QString>> m_groups;              // 群聊号对应的用户列表
 
-    //todo 可以把东西全都存在数据库 //如果过大就存起来
+    //todo 服务器下线时就存在本地
     QHash<QString,QByteArray> m_forward_contents;       //转发消息
 
     DataBase *dataBase;

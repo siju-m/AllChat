@@ -79,6 +79,7 @@ public:
     void onSendClicked();
     // 发送图片
     void sendImage();
+    void sendFile();
 
     void handleData(QByteArray data);
     void send_updateAvatar(const QString &path);
@@ -92,6 +93,8 @@ public:
     void handle_GroupList(QDataStream &in);
     void handle_groupChat(QDataStream &in);
     void handle_strangerList(QDataStream &in);
+
+    void handle_privateFile(QDataStream &in);
 
 protected:
     void showEvent(QShowEvent* event) override;

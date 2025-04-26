@@ -26,29 +26,36 @@ protected:
 signals:
     void imageClicked(const QPixmap &image); // 点击图片时触发信号
 private:
+    void drawAvatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void drawUserName(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void drawImageMessage(QPainter *painter,
                           const QStyleOptionViewItem &option,
-                          const QModelIndex &index, bool isOutgoing,
-                          const QRect &avatarRect) const;
+                          const QModelIndex &index, bool isOutgoing) const;
     void drawTextMessage(QPainter *painter,
+                         const QStyleOptionViewItem &option,
+                         const QModelIndex &index, bool isOutgoing) const;
+    void drawFileMessage(QPainter *painter,
                          const QStyleOptionViewItem &option,
                          const QModelIndex &index, bool isOutgoing) const;
     void drawTime(QPainter *painter,
                   const QStyleOptionViewItem &option,
                   const QModelIndex &index) const;
+
     QString caculate_time(const QString &lastMsgTime) const;
     QRect calculateImageRect(const QStyleOptionViewItem &option,
                              bool isOutgoing,
-                             const QRect &avatarRect,
                              const QSize &imageSize) const;
 
     QRect getAvatarRect(const QStyleOptionViewItem &option, bool isOutgoing) const;
     QSize getImageSize(const QModelIndex &index) const;
 
-    //将间距值存在类里面方便调整option.rect之间的差异
-    qint32 m_listView_Spacing=10;
+    QString formatFileSize(qint64 size) const;
+
 protected:
     bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
 
+private:
+    //将间距值存在类里面方便调整option.rect之间的差异
+    qint32 m_listView_Spacing=10;
 };
 #endif // MESSAGEDELEGATE_H

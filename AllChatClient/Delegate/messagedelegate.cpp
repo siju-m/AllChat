@@ -1,5 +1,6 @@
 #include "messagedelegate.h"
 
+#include <QFileInfo>
 #include <QListView>
 
 
@@ -20,72 +21,27 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         painter->restore();
         return;
     }
-    const bool isOutgoing = index.data(MessageModel::IsOutgoingRole).toBool();
-    const QString userName = index.data(MessageModel::UserNameRole).toString();
-    const QString avatarPath = index.data(MessageModel::AvatarRole).toString();
 
-    // --- 头像绘制 ---
-    QRect itemRect = option.rect;
-
-    // 绘制头像（固定在左侧/右侧）
-    QRect avatarRect =getAvatarRect(option,isOutgoing);
-    if(avatarPath.isEmpty()){
-        painter->setBrush(QColor(200, 200, 200));
-        painter->setPen(Qt::NoPen);
-        painter->drawEllipse(avatarRect);
-    }else{
-        QPixmap pixmap(avatarPath);
-        if (pixmap.isNull()) {
-            qDebug() << "加载头像失败:" << avatarPath;
-        } else {
-            // 获取设备像素比（处理高DPI屏幕）
-            qreal dpr = painter->device()->devicePixelRatio();
-            QSize targetSize = avatarRect.size() * dpr;
-            // 使用高质量缩放并扩展至目标区域
-            QPixmap scaled = pixmap.scaled(
-                targetSize,
-                Qt::KeepAspectRatioByExpanding, // 保持比例并扩展至目标尺寸
-                Qt::SmoothTransformation       // 平滑处理
-                );
-            scaled.setDevicePixelRatio(dpr);
-
-            // 设置圆形剪裁路径（确保头像显示为椭圆）
-            QPainterPath clipPath;
-            clipPath.addEllipse(avatarRect);
-            painter->setClipPath(clipPath);
-
-            // 计算居中绘制位置（避免缩放后图像偏移）
-            QPoint drawPos = avatarRect.topLeft();
-            if (scaled.width() > targetSize.width()) {
-                drawPos.setX(drawPos.x() - (scaled.width() / dpr - avatarRect.width()) / 2);
-            }
-            if (scaled.height() > targetSize.height()) {
-                drawPos.setY(drawPos.y() - (scaled.height() / dpr - avatarRect.height()) / 2);
-            }
-
-            painter->drawPixmap(drawPos, scaled);
-            painter->setClipping(false); // 关闭剪裁以免影响后续绘制
-        }
-    }
-
-
+    // 绘制头像
+    drawAvatar(painter, option, index);
 
     // 绘制用户名
-    QTextDocument doc;
-    doc.setPlainText(userName);
-    doc.setTextWidth(250); // 设置最大宽度
-    int nameWidth = doc.idealWidth(); // 获取文本的实际宽度
-    QRect usernameRect = isOutgoing
-                             ? QRect(itemRect.right()-nameWidth-55, itemRect.top(), 250, 20)
-                             : QRect(itemRect.left()+65, itemRect.top(), 250, 20);
-    painter->setPen(Qt::black);
-    painter->drawText(usernameRect, Qt::AlignLeft | Qt::AlignTop, userName);
+    drawUserName(painter, option, index);
 
+
+    const bool isOutgoing = index.data(MessageModel::IsOutgoingRole).toBool();
     // --- 根据消息类型绘制内容 ---
-    if (type == MessageType::Text) {
+    if (type == MessageType::Text)
+    {
         drawTextMessage(painter, option, index, isOutgoing);
-    } else if (type == MessageType::Image) {
-        drawImageMessage(painter, option, index, isOutgoing, avatarRect);
+    }
+    else if (type == MessageType::Image)
+    {
+        drawImageMessage(painter, option, index, isOutgoing);
+    }
+    else if(type == MessageType::File)
+    {
+        drawFileMessage(painter, option, index, isOutgoing);
     }
 
     painter->restore();
@@ -93,7 +49,7 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 
 void MessageDelegate::drawTextMessage(QPainter *painter, const QStyleOptionViewItem &option,
                                       const QModelIndex &index, bool isOutgoing) const {
-    QString text = index.data(MessageModel::TextRole).toString();
+    QString text = index.data(MessageModel::ContentRole).toString();
 
     // 将纯文本中的换行符转换为HTML格式（可选步骤）
 
@@ -103,6 +59,42 @@ void MessageDelegate::drawTextMessage(QPainter *painter, const QStyleOptionViewI
     QTextDocument doc;
     // 如果text是纯文本应改用：
     doc.setPlainText(text);
+
+    doc.setTextWidth(maxBubbleWidth);
+    int textWidth = qMin((int)doc.idealWidth(), maxBubbleWidth);
+
+    // 动态设置气泡尺寸
+    int bubbleWidth = textWidth + 16; // 增加内边距
+    int textHeight = doc.size().height();
+    QRect bubbleRect = isOutgoing
+                           ? QRect(option.rect.right() - bubbleWidth - 60, option.rect.top() + 15, bubbleWidth, textHeight + 10)
+                           : QRect(option.rect.left() + 60, option.rect.top() + 15, bubbleWidth, textHeight + 10);
+
+    // 绘制气泡背景
+    painter->setBrush(isOutgoing ? QColor(149, 236, 105) : Qt::white);
+    painter->setPen(Qt::NoPen);
+    painter->drawRoundedRect(bubbleRect, 8, 8);
+
+    // 绘制文本
+    painter->save();
+    painter->translate(bubbleRect.topLeft() + QPoint(8, 5));
+    QRect textRect(0, 0, bubbleWidth - 16, option.rect.height());
+    doc.drawContents(painter, textRect);
+    painter->restore();
+}
+
+void MessageDelegate::drawFileMessage(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index, bool isOutgoing) const
+{
+    QString filePath = index.data(MessageModel::ContentRole).toString();
+    QFileInfo fileInfo(filePath);
+    QString text = fileInfo.fileName();
+    QString fileSize = this->formatFileSize(fileInfo.size());
+
+    int maxBubbleWidth = option.rect.width() - 120;
+
+    QTextDocument doc;
+    // 如果text是纯文本应改用：
+    doc.setPlainText(text + '\n' + fileSize);
 
     doc.setTextWidth(maxBubbleWidth);
     int textWidth = qMin((int)doc.idealWidth(), maxBubbleWidth);
@@ -160,14 +152,14 @@ QString MessageDelegate::caculate_time(const QString &lastMsgTime) const
 
 // 绘制图片消息（关键改进：独立处理图片）
 void MessageDelegate::drawImageMessage(QPainter *painter, const QStyleOptionViewItem &option,
-                                       const QModelIndex &index, bool isOutgoing, const QRect &avatarRect) const {
-    QPixmap image(index.data(MessageModel::ImageRole).toString());
+                                       const QModelIndex &index, bool isOutgoing) const {
+    QPixmap image(index.data(MessageModel::ContentRole).toString());
     if(image.isNull())
-        qDebug()<<"读取失败 "<<index.data(MessageModel::ImageRole).toString();
+        qDebug()<<"读取失败 "<<index.data(MessageModel::ContentRole).toString();
     // 计算图片显示区域
     qreal dpr = painter->device()->devicePixelRatio();//高dpi适配
     QSize scaledSize =getImageSize(index);
-    QRect imageRect = calculateImageRect(option, isOutgoing, avatarRect, scaledSize);
+    QRect imageRect = calculateImageRect(option, isOutgoing, scaledSize);
     QPixmap scaled = image.scaled(
         scaledSize* dpr,
         Qt::KeepAspectRatioByExpanding, // 保持比例并扩展至目标尺寸
@@ -185,9 +177,10 @@ void MessageDelegate::drawImageMessage(QPainter *painter, const QStyleOptionView
 
 // 实现calculateImageRect
 QRect MessageDelegate::calculateImageRect(const QStyleOptionViewItem &option, bool isOutgoing,
-                                          const QRect &avatarRect, const QSize &imageSize) const {
+                                          const QSize &imageSize) const {
     const int spacing = 15;
     QPoint startPoint;
+    const QRect avatarRect = getAvatarRect(option,isOutgoing);
 
     if (isOutgoing) {
         startPoint = QPoint(option.rect.right() - avatarRect.width() - imageSize.width() - spacing,
@@ -209,7 +202,6 @@ bool MessageDelegate::isClickOnImage(const QPoint &pos, const QModelIndex &index
     // 获取图片绘制区域
     QRect imageRect = calculateImageRect(option,
                                          isOutgoing,
-                                         getAvatarRect(option,isOutgoing),
                                          getImageSize(index)
                                          );
     // 判断点击位置是否在区域内
@@ -220,6 +212,72 @@ bool MessageDelegate::isClickOnImage(const QPoint &pos, const QModelIndex &index
 qint32 MessageDelegate::getListViewSpacing()
 {
     return m_listView_Spacing;
+}
+
+void MessageDelegate::drawAvatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    const bool isOutgoing = index.data(MessageModel::IsOutgoingRole).toBool();
+    const QString avatarPath = index.data(MessageModel::AvatarRole).toString();
+
+    // 绘制头像（固定在左侧/右侧）
+    QRect avatarRect =getAvatarRect(option,isOutgoing);
+    if(avatarPath.isEmpty()){
+        painter->setBrush(QColor(200, 200, 200));
+        painter->setPen(Qt::NoPen);
+        painter->drawEllipse(avatarRect);
+    }else{
+        QPixmap pixmap(avatarPath);
+        if (pixmap.isNull()) {
+            qDebug() << "加载头像失败:" << avatarPath;
+        } else {
+            // 获取设备像素比（处理高DPI屏幕）
+            qreal dpr = painter->device()->devicePixelRatio();
+            QSize targetSize = avatarRect.size() * dpr;
+            // 使用高质量缩放并扩展至目标区域
+            QPixmap scaled = pixmap.scaled(
+                targetSize,
+                Qt::KeepAspectRatioByExpanding, // 保持比例并扩展至目标尺寸
+                Qt::SmoothTransformation       // 平滑处理
+                );
+            scaled.setDevicePixelRatio(dpr);
+
+            // 设置圆形剪裁路径（确保头像显示为椭圆）
+            QPainterPath clipPath;
+            clipPath.addEllipse(avatarRect);
+            painter->setClipPath(clipPath);
+
+            // 计算居中绘制位置（避免缩放后图像偏移）
+            QPoint drawPos = avatarRect.topLeft();
+            if (scaled.width() > targetSize.width()) {
+                drawPos.setX(drawPos.x() - (scaled.width() / dpr - avatarRect.width()) / 2);
+            }
+            if (scaled.height() > targetSize.height()) {
+                drawPos.setY(drawPos.y() - (scaled.height() / dpr - avatarRect.height()) / 2);
+            }
+
+            painter->drawPixmap(drawPos, scaled);
+            painter->setClipping(false); // 关闭剪裁以免影响后续绘制
+        }
+    }
+}
+
+void MessageDelegate::drawUserName(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+
+    const QString userName = index.data(MessageModel::UserNameRole).toString();
+    const bool isOutgoing = index.data(MessageModel::IsOutgoingRole).toBool();
+    QRect itemRect = option.rect;
+
+    // 绘制用户名
+    QTextDocument doc;
+    doc.setPlainText(userName);
+    doc.setTextWidth(250); // 设置最大宽度
+    int nameWidth = doc.idealWidth(); // 获取文本的实际宽度
+    QRect usernameRect = isOutgoing
+                             ? QRect(itemRect.right()-nameWidth-55, itemRect.top(), 250, 20)
+                             : QRect(itemRect.left()+65, itemRect.top(), 250, 20);
+    painter->setPen(Qt::black);
+    painter->drawText(usernameRect, Qt::AlignLeft | Qt::AlignTop, userName);
 }
 
 // 获取头像绘制区域（已实现）
@@ -247,7 +305,7 @@ QRect MessageDelegate::getAvatarRect(const QStyleOptionViewItem &option, bool is
 // 获取图片显示尺寸（已实现）
 QSize MessageDelegate::getImageSize(const QModelIndex &index) const {
     const int maxImageSize = 300;
-    QPixmap image(index.data(MessageModel::ImageRole).toString());
+    QPixmap image(index.data(MessageModel::ContentRole).toString());
 
     // 保持宽高比缩放
     return image.size().scaled(
@@ -255,6 +313,22 @@ QSize MessageDelegate::getImageSize(const QModelIndex &index) const {
         maxImageSize,
         Qt::KeepAspectRatio
         );
+}
+
+QString MessageDelegate::formatFileSize(qint64 size) const
+{
+    const double KB = 1024.0;
+    const double MB = KB * 1024.0;
+    const double GB = MB * 1024.0;
+
+    if (size < KB)
+        return QString::number(size) + " B";
+    else if (size < MB)
+        return QString::number(size / KB, 'f', 2) + " KB";
+    else if (size < GB)
+        return QString::number(size / MB, 'f', 2) + " MB";
+    else
+        return QString::number(size / GB, 'f', 2) + " GB";
 }
 
 bool MessageDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
@@ -275,7 +349,7 @@ bool MessageDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, cons
         if (isClickOnImage(clickPos,index,newOption)) {
             // 处理按钮点击逻辑
             // qDebug() << "Button clicked in item at row:" << index.row();
-            QPixmap image(index.data(MessageModel::ImageRole).toString());
+            QPixmap image(index.data(MessageModel::ContentRole).toString());
             emit imageClicked(image);
             return true;
         }
@@ -291,7 +365,7 @@ QSize MessageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
     case MessageType::Text:{
         // 文本高度计算
         int maxWidth =option.rect.width() - 120;// 头像+边距
-        QString text = index.data(MessageModel::TextRole).toString();
+        QString text = index.data(MessageModel::ContentRole).toString();
         QTextDocument doc;
         doc.setPlainText(text);
         doc.setTextWidth(maxWidth); // 与气泡宽度一致
@@ -299,14 +373,22 @@ QSize MessageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
     }
     case MessageType::Image:{
         // 图片高度计算
-        QPixmap image(index.data(MessageModel::ImageRole).toString());
+        QPixmap image(index.data(MessageModel::ContentRole).toString());
         QSize scaledSize = image.size().scaled(300, 300, Qt::KeepAspectRatio);
         return QSize(option.rect.width(), scaledSize.height() + verticalSpacing+bottumMargin);
     }
     case MessageType::Time:{
         return QSize(option.rect.width(), 20+bottumMargin);
     }
-    default:return sizeHint(option,index);
+    case MessageType::File:{
+        int maxWidth =option.rect.width() - 120;// 头像+边距
+        QString text = index.data(MessageModel::ContentRole).toString();
+        QTextDocument doc;
+        doc.setPlainText(text);
+        doc.setTextWidth(maxWidth); // 与气泡宽度一致
+        return QSize(option.rect.width(), doc.size().height()*2 + verticalSpacing+bottumMargin);
+    }
+    default:return QStyledItemDelegate::sizeHint(option,index);
     }
 
 }

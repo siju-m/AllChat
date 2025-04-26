@@ -1,5 +1,6 @@
 #include "message.h"
 
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 
@@ -11,20 +12,27 @@ Message::Message()
 
 Message::Message(MessageType type, const QString &data, const QString &time, const User &sender, const QString &chatId):
     m_type(type),
+    m_content(data),
     m_msgTime(time),
     m_sender(sender),
     m_chatId(chatId),
     m_plainText(QString())
 {
-    if(type == Text)
-    {
-        m_text = data;
-        m_plainText = data;
-    }
-    else if(type == Image)
-    {
-        m_imagePath = data;
-        m_plainText = "图片";
+    switch (type) {
+        case Text:
+            m_plainText = data;
+            break;
+        case Image:
+            m_plainText = "图片";
+            break;
+        case File:
+        {
+            QFileInfo fileInfo(data);
+            m_plainText = fileInfo.fileName();
+            break;
+        }
+        default:
+            break;
     }
 
     if(CurrentUser::getInstance()->getGroupsIdList().contains(chatId))
@@ -49,43 +57,37 @@ QString Message::getType_string() const
         return "text";
     case Image:
         return "image";
+    case File:
+        return "file";
     default:
         return "";
     }
 }
 
-QString Message::getData() const
+QString Message::getContent() const
 {
-    if(m_type == Text)
-    {
-        return m_text;
-    }
-    else if(m_type == Image)
-    {
-        return m_imagePath;
-    }
-    return QString();
+    return m_content;
 }
 
-QString Message::getText() const
-{
-    return m_text;
-}
+// QString Message::getText() const
+// {
+//     return m_text;
+// }
 
-void Message::setText(const QString &text)
-{
-    m_text = text;
-}
+// void Message::setText(const QString &text)
+// {
+//     m_text = text;
+// }
 
-QString Message::getImage() const
-{
-    return m_imagePath;
-}
+// QString Message::getImage() const
+// {
+//     return m_imagePath;
+// }
 
-void Message::setImage(const QString &path)
-{
-    m_imagePath = path;
-}
+// void Message::setImage(const QString &path)
+// {
+//     m_imagePath = path;
+// }
 
 QString Message::getTime() const
 {
@@ -102,26 +104,26 @@ void Message::setTime(const QString &time)
     m_msgTime = time;
 }
 
-QByteArray Message::jsonData() const
-{
-    QJsonObject obj;
-    QJsonObject format;
-    obj["id"] = m_sender.getUserId();
-    obj["time"] = m_msgTime;
+// QByteArray Message::jsonData() const
+// {
+//     QJsonObject obj;
+//     QJsonObject format;
+//     obj["id"] = m_sender.getUserId();
+//     obj["time"] = m_msgTime;
 
-    if(m_type == Text){
-        obj["message"] = m_text;
-        format["kinds"] = "text";
-    }
-    else if(m_type == Image){
-        obj["imagePath"] = m_imagePath;
-        format["kinds"] = "image";
-    }
+//     if(m_type == Text){
+//         obj["message"] = m_text;
+//         format["kinds"] = "text";
+//     }
+//     else if(m_type == Image){
+//         obj["imagePath"] = m_imagePath;
+//         format["kinds"] = "image";
+//     }
 
-    format["data"] = obj;
-    QJsonDocument doc(format);
-    return doc.toJson(QJsonDocument::Compact);
-}
+//     format["data"] = obj;
+//     QJsonDocument doc(format);
+//     return doc.toJson(QJsonDocument::Compact);
+// }
 
 QString Message::getChatId() const
 {

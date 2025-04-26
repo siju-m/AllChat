@@ -9,7 +9,7 @@
 class Message
 {
 public:
-    enum MessageType{Text, Image};
+    enum MessageType{Text, Image, File};
     enum ChatType{PRIVATE, GROUP};
     Message();
     Message(MessageType type, const QString &data, const QString &time, const User &sender, const QString &chatId);
@@ -17,21 +17,21 @@ public:
     MessageType getType() const;
     QString getType_string() const;
 
-    QString getData() const;
+    QString getContent() const;
     // 文本消息
-    QString getText() const;
-    void setText(const QString &text);
+    // QString getText() const;
+    // void setText(const QString &text);
 
     // 图片消息路径
-    QString getImage() const;
-    void setImage(const QString &path);
+    // QString getImage() const;
+    // void setImage(const QString &path);
 
     QString getTime() const;
     QDateTime getDateTime() const;
     void setTime(const QString &time);
 
     // 聊天记录的json二进制
-    QByteArray jsonData() const;
+    // QByteArray jsonData() const;
 
     // 消息所属的聊天id
     QString getChatId() const;
@@ -45,8 +45,9 @@ public:
     QString getPlainText() const;
 private:
     MessageType m_type;
-    QString m_text;
-    QString m_imagePath;
+    // QString m_text;
+    // QString m_imagePath;
+    QString m_content;
     QString m_msgTime;
     User m_sender;
     QString m_chatId;

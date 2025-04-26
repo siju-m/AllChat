@@ -139,6 +139,9 @@ void Server::handleData(QByteArray data,QTcpSocket *senderSocket)
     case message_type::GROUP_CHAT:{
         handle_groupChat(in,senderSocket);
     }break;
+    case message_type::PRIVATE_FILE:{
+        handle_privateFile(in,senderSocket);
+    }break;
     default :  qDebug() << "接收到未知消息类型!";break;
     }
 }
@@ -351,20 +354,16 @@ void Server::handle_groupChat(QDataStream &in, QTcpSocket *senderSocket)
             sendData(id, data);
         }
     }
-    // QString groupId,text;
-    // in >> groupId >> text;
+}
 
-    // QVector<QString> ids = dataBase->selectUsersByGroupId(groupId);
-    // qDebug()<<ids;
-    // QString senderId = m_clients_userId[senderSocket];
-    // qDebug()<<"sender: "<<senderId;
-    // for(const QString &id : ids){
-    //     if(id != senderId){
-    //         // qDebug()<<"给"+m_clients_name[m_userIds_client[id]]+"发送群聊消息"<< text;
-    //         QByteArray data = getPacket(GROUP_CHAT, groupId, senderId, text, getCurrentTime());
-    //         sendData(id, data);
-    //     }
-    // }
+void Server::handle_privateFile(QDataStream &in, QTcpSocket *senderSocket)
+{
+    QString chatId, fileName;
+    QByteArray data;
+    in >> chatId >> fileName >> data;
+
+    QByteArray packet = getPacket(PRIVATE_FILE, m_clients_userId[senderSocket], fileName, data, getCurrentTime());
+    sendData(chatId, packet);
 }
 
 QString Server::getCurrentTime()

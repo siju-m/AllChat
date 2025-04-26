@@ -23,7 +23,8 @@ enum message_type{
     CREATE_GROUP,
     GROUP_LIST,
     GROUP_STRANGER_LIST,
-    GROUP_CHAT
+    GROUP_CHAT,
+    PRIVATE_FILE
 };
 }
 

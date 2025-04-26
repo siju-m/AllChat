@@ -56,6 +56,20 @@ Responsive_form::Responsive_form(QWidget *parent)
     connect(transparent_transition_interface->button, &Hollow_button::page_changed, this, &Responsive_form::execute_animation);
     connect(transparent_transition_interface2->button, &Hollow_button::page_changed, this, &Responsive_form::execute_animation);
 
+    QPushButton *btnClose = new QPushButton("", this);
+    btnClose->setIcon(QIcon(":/Icon/cross.png"));
+    btnClose->setStyleSheet("QPushButton{"
+                              "border:none;"
+                              "padding:5px;"
+                              "}"
+                              "QPushButton::hover{	"
+                              "color: #FFFFFF;"
+                              "background-color: #d22d1e;"
+                              "border-color: #2f3640;"
+                              "}");
+    btnClose->setFixedSize(30, 30);
+    btnClose->move(this->width()-btnClose->width(), 0);
+    connect(btnClose, &QPushButton::clicked, this, &Responsive_form::close);
 }
 
 void Responsive_form::setRightShow()

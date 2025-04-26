@@ -17,5 +17,7 @@
         <file>Icon/notice.png</file>
         <file>Icon/images_black.png</file>
         <file>Icon/images_blue.png</file>
+        <file>Icon/file.png</file>
+        <file>Icon/file_hover.png</file>
     </qresource>
 </RCC>

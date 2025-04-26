@@ -8,6 +8,7 @@
 #include <QWheelEvent>
 
 #include <Model/messagemodel.h>
+#include <Delegate/messagedelegate.h>
 
 class MessageListView : public QListView {
     Q_OBJECT
@@ -17,9 +18,8 @@ public:
 
     void initMessageList();
     void initScorllBar();
-    void clear(const QString &chatId);
     void clear();
-    void addTime_toList(const QString &chatId,const QString &time);
+    void addTime_toList(const QString &time);
     bool compareTime(const QString &pastTime,const QString &lastTime);
     // void addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
     // void addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
@@ -43,6 +43,7 @@ private slots:
 private:
     QTimer *hideTimer;
     MessageModel *m_message_model;//存储消息数据
+    MessageDelegate *m_message_delegate;
 
     // 初次加载历史记录
     bool m_isFirstLoad = true;

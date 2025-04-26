@@ -10,7 +10,6 @@
 #include <QShowEvent>
 #include <QSqlDatabase>
 #include <windows.h>
-
 #include <Model/Packet.h>
 
 #include <View/Components/confirmbox.h>
@@ -30,13 +29,15 @@ MainWindow::MainWindow(ChatHistoryManager *historyManager, QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("AllChat");
     this->resize(1000, 700);
-    this->setWindowFlags(Qt::CustomizeWindowHint);//去除标题栏但仍可调整大小
+    this->setWindowFlags(Qt::CustomizeWindowHint | Qt::Window);//去除标题栏但仍可调整大小
 
     // 绑定按钮槽函数
     connect(ui->btnSend, &QPushButton::clicked, this, &MainWindow::onSendClicked);
     QShortcut *shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return), this);
     connect(shortcut, &QShortcut::activated, this, &MainWindow::onSendClicked);
     connect(ui->btnImage, &QPushButton::clicked, this, &MainWindow::sendImage);
+    connect(ui->btnFile, &QPushButton::clicked, this, &MainWindow::sendFile);
+
     connect(ui->avatar,&AvatarLabel::clicked, this,[=](){
         m_updateAvatar = new UpdateAvatar(this);
         connect(m_updateAvatar,&UpdateAvatar::send_updateAvatar,this,&MainWindow::send_updateAvatar);
@@ -69,7 +70,6 @@ MainWindow::MainWindow(ChatHistoryManager *historyManager, QWidget *parent)
 
     // 聊天窗口划到顶部加载更早的消息
     connect(ui->messageList, &MessageListView::scrolledToTop, this, [=](){
-        qDebug() << "到顶了";
         m_historyManager->loadChatHistoryFromFile(m_user->get_currentChatId());
     });
 }
@@ -137,6 +137,9 @@ void MainWindow::handleData(QByteArray data)
         }break;
         case CommonEnum::GROUP_STRANGER_LIST:{
             handle_strangerList(in);
+        }break;
+        case CommonEnum::PRIVATE_FILE:{
+            handle_privateFile(in);
         }break;
         default:qDebug() << "未知消息类型!";break;
         }
@@ -477,10 +480,6 @@ void MainWindow::handle_GroupList(QDataStream &in)
         QPair<QString,QString> lastMessage = m_historyManager->getLastMessage(id);
         m_chat_model->addChat_toList(name, id, lastMessage.first, lastMessage.second, 0);
     }
-
-    // 选择排序后的第一个
-    // QString fristId = ui->chatList->model()->index(0, 0).data(FriendsModel::IdRole).toString();
-    // switch_chatUser(fristId);
 }
 
 void MainWindow::handle_groupChat(QDataStream &in)
@@ -537,6 +536,17 @@ void MainWindow::handle_strangerList(QDataStream &in)
         User user(name, id, path);
         m_strangerList.insert(id, user);
     }
+}
+
+void MainWindow::handle_privateFile(QDataStream &in)
+{
+    QString senderId, fileName, msgTime;
+    QByteArray data;
+    in >> senderId >> fileName >> data >> msgTime;
+    QString filePath = m_historyManager->storeFile(fileName, data);
+    // qDebug() << filePath;
+    Message msg(Message::File, filePath, msgTime, m_friendList[senderId], senderId);
+    addMessage_toList(msg);
 }
 
 void MainWindow::showEvent(QShowEvent *event)
@@ -598,7 +608,7 @@ void MainWindow::loadChatHistoryFromFile(QString targetId) {
         ui->friendState->setOnlineState(StateEnum::NONE);
     }
 
-    ui->messageList->clear(targetId);
+    ui->messageList->clear();
     m_historyManager->loadChatHistoryFromFile(targetId);
 }
 
@@ -612,8 +622,6 @@ void MainWindow::addMessage_toList(const Message &message)
     QString chatId = message.getChatId();
     if(m_user->get_currentChatId()==chatId)//接收的消息和当前聊天对象是同一个才在窗口显示
     {
-        QString time = message.getTime();
-        ui->messageList->addTime_toList(chatId,time);
         ui->messageList->addMessage(message);
     }
     else m_chat_model->add_unreadMsgNum(chatId);
@@ -785,6 +793,34 @@ void MainWindow::sendImage() {//发送图片的槽函数
     Message msg(Message::Image, imagePath, getCurrentTime(), m_user->toUser(), chatId);
     addMessage_toList(msg);
 
+}
+
+void MainWindow::sendFile()
+{
+    QString chatId = m_user->get_currentChatId();
+    if (chatId.isEmpty())
+        return;
+    qDebug() << "发送文件 接收对象：" << chatId;
+    QString filePath = QFileDialog::getOpenFileName(this, "Select File", "", "All Files (*.*)");
+    if(filePath.isEmpty())
+        return;
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "无法打开文件";
+        return;
+    }
+
+    QFileInfo fileinfo(filePath);
+    QString fileName = fileinfo.fileName();
+    QByteArray fileData = file.readAll();
+    file.close();
+
+    Packet data(CommonEnum::PRIVATE_FILE, chatId, fileName, fileData);
+    m_dataTransfer->sendData(data);
+
+    QString path = m_historyManager->storeFile(fileName, fileData);
+    Message msg(Message::File, path, getCurrentTime(), m_user->toUser(), chatId);
+    addMessage_toList(msg);
 }
 
 

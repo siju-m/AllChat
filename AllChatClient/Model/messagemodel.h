@@ -9,7 +9,7 @@
 
 
 
-enum MessageType { Text, Image ,Time};
+enum MessageType { Text, Image ,Time, File};
 //消息数据
 class MessageModel : public QAbstractListModel {
     Q_OBJECT
@@ -20,18 +20,14 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const override;
 
-    void addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
-    void addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
-    // void addOlderTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
-    // void addOlderImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time);
+    void addMessage(const Message &msg);
     void addOlderMessage(const Message &messages);
     void addTimeMessage(const QString &time);
     void addOlderTimeMessage(const QString &time);
 
     enum Roles {
         TypeRole = Qt::UserRole + 1,
-        TextRole,
-        ImageRole,
+        ContentRole,
         IsOutgoingRole,
         UserNameRole,
         AvatarRole,
@@ -40,16 +36,17 @@ public:
 
     void clear();
 
-    void update_lastTempTime(const QString &targetId,const QString &lastMessageTime);
-    QString get_lastTempTime(const QString &targetId);
+    // void update_lastTempTime(const QString &targetId,const QString &lastMessageTime);
+    QString get_lastTempTime();
 
+private:
+    MessageType getType(Message::MessageType type);
 
 private:
 
     struct ModelMessage {
         MessageType type;
-        QString text;
-        QString imagePath;
+        QString content;
         bool isOutgoing;
         QString userName;
         QString avatarPath;
