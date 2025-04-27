@@ -19,5 +19,6 @@
         <file>Icon/images_blue.png</file>
         <file>Icon/file.png</file>
         <file>Icon/file_hover.png</file>
+        <file>Icon/file_message.png</file>
     </qresource>
 </RCC>

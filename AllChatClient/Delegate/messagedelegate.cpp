@@ -2,6 +2,9 @@
 
 #include <QFileInfo>
 #include <QListView>
+#include <QTextCursor>
+
+#include <Model/messagemodel.h>
 
 
 
@@ -12,6 +15,7 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     painter->save();
 
     painter->setRenderHint(QPainter::Antialiasing, true);          // 抗锯齿
+    painter->setRenderHint(QPainter::TextAntialiasing); // 文字抗锯齿
     painter->setRenderHint(QPainter::SmoothPixmapTransform, true); // 平滑缩放
 
     // 公共参数
@@ -44,15 +48,16 @@ void MessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         drawFileMessage(painter, option, index, isOutgoing);
     }
 
+
     painter->restore();
 }
 
-void MessageDelegate::drawTextMessage(QPainter *painter, const QStyleOptionViewItem &option,
-                                      const QModelIndex &index, bool isOutgoing) const {
+void MessageDelegate::drawTextMessage(QPainter *painter,
+                                      const QStyleOptionViewItem &option,
+                                      const QModelIndex &index,
+                                      bool isOutgoing) const
+{
     QString text = index.data(MessageModel::ContentRole).toString();
-
-    // 将纯文本中的换行符转换为HTML格式（可选步骤）
-
     // 计算气泡区域
     int maxBubbleWidth = option.rect.width() - 120;
 
@@ -71,52 +76,93 @@ void MessageDelegate::drawTextMessage(QPainter *painter, const QStyleOptionViewI
                            : QRect(option.rect.left() + 60, option.rect.top() + 15, bubbleWidth, textHeight + 10);
 
     // 绘制气泡背景
-    painter->setBrush(isOutgoing ? QColor(149, 236, 105) : Qt::white);
+    painter->setBrush(isOutgoing ? QColor(0, 153, 255) : Qt::white);
     painter->setPen(Qt::NoPen);
     painter->drawRoundedRect(bubbleRect, 8, 8);
 
     // 绘制文本
-    painter->save();
+    painter->save();// 使用了坐标偏移需要保存之前的状态
     painter->translate(bubbleRect.topLeft() + QPoint(8, 5));
     QRect textRect(0, 0, bubbleWidth - 16, option.rect.height());
+
+    QTextCursor cursor(&doc);
+    cursor.select(QTextCursor::Document); // 选中整个文档
+    QTextCharFormat format;
+    format.setForeground(isOutgoing ? Qt::white : Qt::black); // 设置文字颜色为红色
+    cursor.mergeCharFormat(format);
+
     doc.drawContents(painter, textRect);
     painter->restore();
 }
 
-void MessageDelegate::drawFileMessage(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index, bool isOutgoing) const
+void MessageDelegate::drawFileMessage(QPainter *painter,
+                                      const QStyleOptionViewItem &option,
+                                      const QModelIndex &index,
+                                      bool isOutgoing) const
 {
     QString filePath = index.data(MessageModel::ContentRole).toString();
     QFileInfo fileInfo(filePath);
     QString text = fileInfo.fileName();
     QString fileSize = this->formatFileSize(fileInfo.size());
 
-    int maxBubbleWidth = option.rect.width() - 120;
+    // 气泡尺寸
+    QRect bubbleRect = getFileRect(option, isOutgoing);
 
     QTextDocument doc;
     // 如果text是纯文本应改用：
-    doc.setPlainText(text + '\n' + fileSize);
+    doc.setPlainText(text);
 
-    doc.setTextWidth(maxBubbleWidth);
-    int textWidth = qMin((int)doc.idealWidth(), maxBubbleWidth);
-
-    // 动态设置气泡尺寸
-    int bubbleWidth = textWidth + 16; // 增加内边距
-    int textHeight = doc.size().height();
-    QRect bubbleRect = isOutgoing
-                           ? QRect(option.rect.right() - bubbleWidth - 60, option.rect.top() + 15, bubbleWidth, textHeight + 10)
-                           : QRect(option.rect.left() + 60, option.rect.top() + 15, bubbleWidth, textHeight + 10);
+    int maxTextWidth = bubbleRect.width() - 60;
+    doc.setTextWidth(maxTextWidth);
+    QFont font("Microsoft YaHei", 11);
+    doc.setDefaultFont(font);
+    int textWidth = qMin((int)doc.idealWidth(), maxTextWidth);
 
     // 绘制气泡背景
-    painter->setBrush(isOutgoing ? QColor(149, 236, 105) : Qt::white);
+    painter->setBrush(Qt::white);
     painter->setPen(Qt::NoPen);
     painter->drawRoundedRect(bubbleRect, 8, 8);
 
     // 绘制文本
     painter->save();
-    painter->translate(bubbleRect.topLeft() + QPoint(8, 5));
-    QRect textRect(0, 0, bubbleWidth - 16, option.rect.height());
+    painter->translate(bubbleRect.topLeft() + QPoint(10, 10));
+    QRect textRect(0, 0, textWidth , bubbleRect.height());
     doc.drawContents(painter, textRect);
     painter->restore();
+
+    // 绘制文件大小
+    QTextDocument doc1;
+    QFont font1("Microsoft YaHei", 8);
+    doc1.setDefaultFont(font1);
+    painter->save();
+    doc1.setPlainText(fileSize);
+    doc1.setTextWidth(maxTextWidth);
+    textWidth = qMin((int)doc1.idealWidth(), maxTextWidth);
+    painter->translate(bubbleRect.topLeft() + QPoint(10, 60));
+    textRect = QRect(0, 0, textWidth , bubbleRect.height());
+    doc1.drawContents(painter, textRect);
+    painter->restore();
+
+    QPixmap image(":/Icon/file_message.png");
+    if(image.isNull())
+    {
+        qDebug()<<"读取失败 "<<index.data(MessageModel::ContentRole).toString();
+        return;
+    }
+    // 计算图片显示区域
+    qreal dpr = painter->device()->devicePixelRatio();//高dpi适配
+    QSize scaledSize(40, 40);
+    QRect imageRect(bubbleRect.x() + 170, bubbleRect.y()+15, 40, 40);
+    QPixmap scaled = image.scaled(
+        scaledSize * dpr,
+        Qt::KeepAspectRatioByExpanding, // 保持比例并扩展至目标尺寸
+        Qt::SmoothTransformation       // 平滑处理
+        );
+    scaled.setDevicePixelRatio(dpr);
+
+    painter->setPen(Qt::NoPen);
+    painter->drawPixmap(imageRect, scaled);
+    painter->setClipping(false);
 }
 
 void MessageDelegate::drawTime(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -209,9 +255,19 @@ bool MessageDelegate::isClickOnImage(const QPoint &pos, const QModelIndex &index
     return imageRect.contains(pos);
 }
 
-qint32 MessageDelegate::getListViewSpacing()
+bool MessageDelegate::isClickOnFile(const QPoint &pos, const QModelIndex &index, const QStyleOptionViewItem &option) const
 {
-    return m_listView_Spacing;
+    MessageType type = static_cast<MessageType>(index.data(MessageModel::TypeRole).toInt());
+    if (type != MessageType::File) return false;
+    const bool isOutgoing = index.data(MessageModel::IsOutgoingRole).toBool();
+
+    // 获取图片绘制区域
+    QRect FileRect = getFileRect(option,
+                                isOutgoing
+                                );
+    // 判断点击位置是否在区域内
+
+    return FileRect.contains(pos);
 }
 
 void MessageDelegate::drawAvatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -315,6 +371,29 @@ QSize MessageDelegate::getImageSize(const QModelIndex &index) const {
         );
 }
 
+QRect MessageDelegate::getFileRect(const QStyleOptionViewItem &option, bool isOutgoing) const
+{
+    const qint16 width = 220;
+    const qint64 height = 90;
+    if (isOutgoing) {
+        // 右侧头像
+        return QRect(
+            option.rect.right() - 60 - width,
+            option.rect.top() ,
+            width,
+            height
+            );
+    } else {
+        // 左侧头像
+        return QRect(
+            option.rect.left() + 60 ,
+            option.rect.top() ,
+            width,
+            height
+            );
+    }
+}
+
 QString MessageDelegate::formatFileSize(qint64 size) const
 {
     const double KB = 1024.0;
@@ -334,23 +413,24 @@ QString MessageDelegate::formatFileSize(qint64 size) const
 bool MessageDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
     if (event->type() == QEvent::MouseButtonPress) {
-        // MessageType type = static_cast<MessageType>(index.data(MessageModel::TypeRole).toInt());
-        // if (type != MessageType::Image) return false;
 
         QStyleOptionViewItem newOption = option;
-        newOption.rect.adjust(0,0,-(m_listView_Spacing*2),0);
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         // 获取鼠标点击位置
         QPoint clickPos = mouseEvent->pos();
 
         // 判断点击位置是否在按钮区域内
-        /*在发送方点击图片，检测区域会向右偏移一小段，点击接收方的图片就没有这个问题*/
-        /*是listview设定的间距，paint中的option没有把间距算作宽度，但是editorEvent把这个算进去了*/
-        if (isClickOnImage(clickPos,index,newOption)) {
+        if (isClickOnImage(clickPos,index,newOption))
+        {
             // 处理按钮点击逻辑
-            // qDebug() << "Button clicked in item at row:" << index.row();
             QPixmap image(index.data(MessageModel::ContentRole).toString());
             emit imageClicked(image);
+            return true;
+        }
+        else if(isClickOnFile(clickPos,index,newOption))
+        {
+            QString filePath = index.data(MessageModel::ContentRole).toString();
+            emit fileClicked(filePath);
             return true;
         }
     }
@@ -381,12 +461,8 @@ QSize MessageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
         return QSize(option.rect.width(), 20+bottumMargin);
     }
     case MessageType::File:{
-        int maxWidth =option.rect.width() - 120;// 头像+边距
-        QString text = index.data(MessageModel::ContentRole).toString();
-        QTextDocument doc;
-        doc.setPlainText(text);
-        doc.setTextWidth(maxWidth); // 与气泡宽度一致
-        return QSize(option.rect.width(), doc.size().height()*2 + verticalSpacing+bottumMargin);
+        QRect fileRect = getFileRect(option, false);
+        return QSize(option.rect.width(), fileRect.height() + bottumMargin);
     }
     default:return QStyledItemDelegate::sizeHint(option,index);
     }

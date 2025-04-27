@@ -12,3 +12,4 @@ int main(int argc, char *argv[]) {
     qDebug() << "服务器绑定的地址:" << server.serverAddress() << "端口:" << server.serverPort();
     return app.exec();
 }
+

@@ -103,16 +103,21 @@ void MessageModel::clear() {
     endResetModel();    // 通知视图更新完成
 }
 
-// void MessageModel::update_lastTempTime(const QString &targetId, const QString &lastMessageTime)
-// {
-//     m_temp_lastMsgTime[targetId]=lastMessageTime;
-// }
-
-QString MessageModel::get_lastTempTime()
+QString MessageModel::get_olderTime()
 {
-    // if(!m_temp_lastMsgTime.contains(targetId)) return QString();
-    // return m_temp_lastMsgTime[targetId];
-    if(m_messages.isEmpty())
+    if(m_messages.isEmpty() || m_messages.first().type == Time)
+    {
+        return QString();
+    }
+    else
+    {
+        return m_messages.first().time;
+    }
+}
+
+QString MessageModel::get_lastTime()
+{
+    if(m_messages.isEmpty() || m_messages.last().type == Time)
     {
         return QString();
     }
@@ -132,6 +137,7 @@ MessageType MessageModel::getType(Message::MessageType type)
     case Message::File:
         return MessageType::File;
     }
+    return MessageType::NONE;
 }
 
 

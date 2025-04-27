@@ -9,7 +9,7 @@
 
 
 
-enum MessageType { Text, Image ,Time, File};
+enum MessageType { Text, Image ,Time, File, NONE};
 //消息数据
 class MessageModel : public QAbstractListModel {
     Q_OBJECT
@@ -36,8 +36,8 @@ public:
 
     void clear();
 
-    // void update_lastTempTime(const QString &targetId,const QString &lastMessageTime);
-    QString get_lastTempTime();
+    QString get_lastTime();
+    QString get_olderTime();
 
 private:
     MessageType getType(Message::MessageType type);

@@ -1,7 +1,11 @@
 #include "server.h"
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QDebug>
+#include <QDir>
 #include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 Server::Server(QObject *parent)
     : QTcpServer(parent) ,dataBase(new DataBase(this)),
@@ -10,6 +14,10 @@ Server::Server(QObject *parent)
     dataBase->initDatabase();
 
     connect(m_dataTransfer,&DataTransfer::handleData,this,&Server::handleData);
+}
+
+Server::~Server()
+{
 }
 
 bool Server::loginUser(QTcpSocket *socket,const QString &username, const QString &password) {
@@ -370,6 +378,7 @@ QString Server::getCurrentTime()
 {
     return QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
 }
+
 
 void Server::store_forwardContents(const QByteArray &content,const QString &userId)
 {

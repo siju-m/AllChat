@@ -98,6 +98,8 @@ public:
 
 protected:
     void showEvent(QShowEvent* event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 signals:
     void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
 

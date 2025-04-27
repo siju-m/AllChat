@@ -72,6 +72,9 @@ MainWindow::MainWindow(ChatHistoryManager *historyManager, QWidget *parent)
     connect(ui->messageList, &MessageListView::scrolledToTop, this, [=](){
         m_historyManager->loadChatHistoryFromFile(m_user->get_currentChatId());
     });
+
+    // 点击发送按钮旁边的空白区域也能获取焦点
+    ui->widget_9->installEventFilter(this);
 }
 
 MainWindow::~MainWindow() {
@@ -553,6 +556,14 @@ void MainWindow::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event); // 调用基类实现
     showAvatar(m_user->get_avatarPath());
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == ui->widget_9 && event->type() == QEvent::MouseButtonPress) {
+        ui->lineEditMessage->setFocus();  // 点击空白区域时，让 plainTextEdit 获得焦点
+    }
+    return QWidget::eventFilter(watched, event);
 }
 
 void MainWindow::receiveImage(QDataStream &in)

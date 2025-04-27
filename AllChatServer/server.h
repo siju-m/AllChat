@@ -37,6 +37,7 @@ class Server : public QTcpServer {
 
 public:
     explicit Server(QObject *parent = nullptr);
+    ~Server();
 
 protected:
     void incomingConnection(qintptr socketDescriptor) override;

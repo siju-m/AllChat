@@ -552,6 +552,9 @@ border-right: 1px solid gray;  /*只保留右边边框 */
           </property>
           <widget class="QWidget" name="chatView">
            <layout class="QVBoxLayout" name="verticalLayout_8">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <property name="leftMargin">
              <number>0</number>
             </property>
