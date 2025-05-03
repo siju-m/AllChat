@@ -11,12 +11,14 @@ CONFIG += c++17
 SOURCES += \
     Core/datatransfer.cpp \
     Core/database.cpp \
+    Core/redisclient.cpp \
     main.cpp \
     server.cpp
 
 HEADERS += \
     Core/datatransfer.h \
     Core/database.h \
+    Core/redisclient.h \
     server.h
 
 FORMS +=
@@ -25,3 +27,7 @@ FORMS +=
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+#使用vcpkg install hiredis
+INCLUDEPATH += D:/app/vcpkg/installed/x64-windows/include
+LIBS += -LD:/app/vcpkg/installed/x64-windows/lib -lhiredis

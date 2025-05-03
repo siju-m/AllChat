@@ -3,8 +3,18 @@
 DataBase::DataBase(QObject *parent):QObject(parent){}
 
 void DataBase::initDatabase() {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("users.db");
+    // QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    // db.setDatabaseName("users.db");
+
+    // 添加 MySQL 数据库驱动
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+
+    // 设置数据库连接参数
+    db.setHostName("127.0.0.1");
+    db.setPort(3306);
+    db.setDatabaseName("AllChatServer"); // 数据库名
+    db.setUserName("root");          // 用户名
+    db.setPassword("123456");          // 密码
 
     if (!db.open()) {
         qWarning() << "数据库打开失败：" << db.lastError().text();
@@ -14,27 +24,27 @@ void DataBase::initDatabase() {
     QSqlQuery query;
     // 创建表 users
     QString createTable = "CREATE TABLE IF NOT EXISTS users ("
-                          "id TEXT PRIMARY KEY, "
-                          "username TEXT UNIQUE, "
-                          "password TEXT,"
-                          "avatar BLOB)";
+                          "id VARCHAR(36) PRIMARY KEY, "
+                          "username VARCHAR(50) UNIQUE, "
+                          "password VARCHAR(100),"
+                          "avatar LONGBLOB)";
     if (!query.exec(createTable)) {
         qWarning() << "创建用户表失败：" << query.lastError().text();
     }
 
     // 创建表 friends
     createTable = "CREATE TABLE IF NOT EXISTS friends ("
-                  "userId TEXT,"
-                  "friendId TEXT)";
+                  "userId VARCHAR(36),"
+                  "friendId VARCHAR(36))";
     if (!query.exec(createTable)) {
         qWarning() << "创建联系人表失败：" << query.lastError().text();
     }
 
     // 创建表 groups
-    createTable = "CREATE TABLE IF NOT EXISTS groups ("
-                  "group_id TEXT PRIMARY KEY,"
-                  "group_name TEXT NOT NULL,"
-                  "creator_id TEXT NOT NULL,"
+    createTable = "CREATE TABLE IF NOT EXISTS chat_groups ("
+                  "group_id VARCHAR(36) PRIMARY KEY,"
+                  "group_name VARCHAR(50) NOT NULL,"
+                  "creator_id VARCHAR(36) NOT NULL,"
                   "created_time DATETIME DEFAULT CURRENT_TIMESTAMP,"
                   "FOREIGN KEY (creator_id) REFERENCES users(id));";
     if (!query.exec(createTable)) {
@@ -43,10 +53,10 @@ void DataBase::initDatabase() {
 
     // 创建表 group_members
     createTable = "CREATE TABLE IF NOT EXISTS group_members ("
-                  "group_id TEXT NOT NULL,"
-                  "user_id TEXT NOT NULL,"
+                  "group_id VARCHAR(36) NOT NULL,"
+                  "user_id VARCHAR(36) NOT NULL,"
                   "PRIMARY KEY (group_id, user_id),"
-                  "FOREIGN KEY (group_id) REFERENCES groups(group_id),"
+                  "FOREIGN KEY (group_id) REFERENCES chat_groups(group_id),"
                   "FOREIGN KEY (user_id) REFERENCES users(id));";
     if (!query.exec(createTable)) {
         qWarning() << "创建群聊表失败：" << query.lastError().text();
@@ -262,7 +272,7 @@ bool DataBase::deleteFriend(const QString &userId, const QString &friendId)
 bool DataBase::createGroup(const QString &groupId, const QString &groupName, const QString &creatorId)
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO groups (group_id, group_name, creator_id, created_time) "
+    query.prepare("INSERT INTO chat_groups (group_id, group_name, creator_id, created_time) "
                   "VALUES (:group_id, :group_name, :creator_id, CURRENT_TIMESTAMP)");
     query.bindValue(":group_id", groupId);
     query.bindValue(":group_name", groupName);
@@ -306,7 +316,7 @@ QByteArray DataBase::selectGroupsByUserId(const QString &id)
     QSqlQuery query;
     query.prepare("SELECT g.group_id, g.group_name, COUNT(gm2.user_id) AS member_count "
                     "FROM group_members gm1 "
-                    "JOIN groups g ON gm1.group_id = g.group_id "
+                    "JOIN chat_groups g ON gm1.group_id = g.group_id "
                     "JOIN group_members gm2 ON g.group_id = gm2.group_id "
                     "WHERE gm1.user_id = :userId "
                     "GROUP BY g.group_id, g.group_name;");

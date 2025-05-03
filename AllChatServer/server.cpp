@@ -7,9 +7,10 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-Server::Server(QObject *parent)
-    : QTcpServer(parent) ,dataBase(new DataBase(this)),
-    m_dataTransfer(new DataTransfer(this))
+Server::Server(QObject *parent) :
+    QTcpServer(parent) ,dataBase(new DataBase(this)),
+    m_dataTransfer(new DataTransfer(this)),
+    m_redisClient(new RedisClient(this))
 {
     dataBase->initDatabase();
 
@@ -62,8 +63,10 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
     updateGroup_strangerList(m_clients_userId[senderSocket]);
 
     //判断是否有待转发的消息
-    if(m_forward_contents.contains(m_clients_userId[senderSocket]))
-        send_forwardContents(m_clients_userId[senderSocket]);
+    send_forwardContents(m_clients_userId[senderSocket]);
+
+    // if(m_forward_contents.contains(m_clients_userId[senderSocket]))
+    //     send_forwardContents(m_clients_userId[senderSocket]);
     for(auto it = m_alreadyApply.begin(); it != m_alreadyApply.end(); ++it)
     {
         if(it->second==m_clients_userId[senderSocket]){
@@ -224,8 +227,14 @@ bool Server::confirm_isOnline(const QString &id)
 
 void Server::send_forwardContents(const QString &userId)
 {
-    m_userIds_client[userId]->write(m_forward_contents[userId]);
-    m_forward_contents.remove(userId);
+    QByteArray forwardContent = m_redisClient->getForwardMessages(userId);
+    if(!forwardContent.isEmpty()){
+        m_userIds_client[userId]->write(forwardContent);
+        m_redisClient->deleteForwardMessages(userId);
+    }
+
+    // m_userIds_client[userId]->write(m_forward_contents[userId]);
+    // m_forward_contents.remove(userId);
 }
 
 void Server::updateFriendsList(const QString &userId)
@@ -382,11 +391,18 @@ QString Server::getCurrentTime()
 
 void Server::store_forwardContents(const QByteArray &content,const QString &userId)
 {
-    if(m_forward_contents.contains(userId)){
-        m_forward_contents[userId].append(content);
-    }else{
-        m_forward_contents[userId]=content;
+    QByteArray forwardContent = m_redisClient->getForwardMessages(userId);
+    if(!forwardContent.isEmpty()){
+        m_redisClient->addForwardMessage(userId, forwardContent.append(content));
     }
+    else{
+        m_redisClient->addForwardMessage(userId, content);
+    }
+    // if(m_forward_contents.contains(userId)){
+    //     m_forward_contents[userId].append(content);
+    // }else{
+    //     m_forward_contents[userId]=content;
+    // }
 }
 
 void Server::broadcast_userOnlineList() {
@@ -431,6 +447,6 @@ QByteArray Server::getPacket(Args... args)
     QByteArray packet;
     QDataStream stream(&packet, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_5_15);
-    (stream<<...<< args);
+    (void)(stream<<...<< args);
     return packet;
 }

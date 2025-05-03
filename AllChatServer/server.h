@@ -8,6 +8,7 @@
 #include <QUuid>
 #include <Core/datatransfer.h>
 #include "Core/database.h"
+#include <Core/redisclient.h>
 
 enum message_type{
     IMAGE,
@@ -107,6 +108,7 @@ private:
 
     DataBase *dataBase;
     DataTransfer *m_dataTransfer;
+    RedisClient *m_redisClient;
 
     message_type messageType;
 };
