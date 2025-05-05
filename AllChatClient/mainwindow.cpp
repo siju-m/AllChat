@@ -5,6 +5,8 @@
 #include "View/creategroup.h"
 
 #include <QImageReader>
+#include <QMenu>
+#include <QAction>
 #include <QParallelAnimationGroup>
 #include <QShortcut>
 #include <QShowEvent>
@@ -27,8 +29,9 @@ MainWindow::MainWindow(ChatHistoryManager *historyManager, QWidget *parent)
     m_groupList(m_user->getGroupList())
 {
     ui->setupUi(this);
-    setWindowTitle("AllChat");
+    this->setWindowTitle("AllChat");
     this->resize(1000, 700);
+    this->setWindowIcon(QIcon(":/Icon/app.png"));
     this->setWindowFlags(Qt::CustomizeWindowHint | Qt::Window);//去除标题栏但仍可调整大小
 
     // 绑定按钮槽函数
@@ -75,6 +78,8 @@ MainWindow::MainWindow(ChatHistoryManager *historyManager, QWidget *parent)
 
     // 点击发送按钮旁边的空白区域也能获取焦点
     ui->widget_9->installEventFilter(this);
+
+    initTray(); // 初始化托盘
 }
 
 MainWindow::~MainWindow() {
@@ -280,9 +285,30 @@ void MainWindow::initHistoryManager()
 
 void MainWindow::showAvatar(const QString &path)
 {
+    // QPixmap pixmap(path);
+    // if(pixmap.isNull()){
+    //     return;
+    // }
+    // QPixmap roundedPixmap(pixmap.size());
+    // roundedPixmap.fill(Qt::transparent);
+
+    // QPainter painter(&roundedPixmap);
+    // painter.setRenderHint(QPainter::Antialiasing);
+    // painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    // QPainterPath painterPath;
+    // painterPath.addEllipse(0, 0, pixmap.width(), pixmap.height());
+    // painter.setClipPath(painterPath);
+    // painter.drawPixmap(0, 0, pixmap);
+    QPixmap roundedPixmap = getRoundPix(path);
+    ui->avatar->setPixmap(roundedPixmap);
+}
+
+QPixmap MainWindow::getRoundPix(const QString &path)
+{
     QPixmap pixmap(path);
     if(pixmap.isNull()){
-        return;
+        return QPixmap();
     }
     QPixmap roundedPixmap(pixmap.size());
     roundedPixmap.fill(Qt::transparent);
@@ -296,7 +322,7 @@ void MainWindow::showAvatar(const QString &path)
     painter.setClipPath(painterPath);
     painter.drawPixmap(0, 0, pixmap);
 
-    ui->avatar->setPixmap(roundedPixmap);
+    return roundedPixmap;
 }
 
 void MainWindow::handle_selectByName_reuslt(QDataStream &in)
@@ -552,9 +578,59 @@ void MainWindow::handle_privateFile(QDataStream &in)
     addMessage_toList(msg);
 }
 
+void MainWindow::initTray()
+{
+    m_trayIcon = new QSystemTrayIcon(this);
+    m_trayIcon->setIcon(QIcon(":/Icon/app.png")); // 设置托盘图标
+    m_trayIcon->setToolTip("我的Qt应用");
+
+    // 创建托盘菜单
+    m_trayMenu = new QMenu(this);
+    QAction *restoreAction = new QAction("显示窗口", this);
+    QAction *quitAction = new QAction("退出", this);
+    m_trayMenu->addAction(restoreAction);
+    m_trayMenu->addAction(quitAction);
+
+    m_trayIcon->setContextMenu(m_trayMenu);
+
+    // 信号与槽
+    connect(restoreAction, &QAction::triggered, this, &QWidget::showNormal);
+    connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
+    connect(m_trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::onTrayIconActivated);
+
+    m_trayIcon->show(); // 显示托盘图标
+}
+
+void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    if (reason == QSystemTrayIcon::Trigger) {
+        showNormal(); // 单击还原
+    }
+}
+
+void MainWindow::showSysMsg(const Message &msg)
+{
+    QString name = msg.getSenderName();
+    QString text = msg.getPlainText();
+    QString avatarPath = msg.getAvatarPath();
+
+
+    QPixmap roundedPixmap = getRoundPix(avatarPath);
+
+    QPixmap pixmap = roundedPixmap.scaled(48, 48, Qt::KeepAspectRatio, Qt::SmoothTransformation); // 强制缩放为 48x48
+    QIcon scaledIcon(pixmap);
+
+    if(!avatarPath.isEmpty()){
+        m_trayIcon->showMessage(name, text, scaledIcon, 2000);
+    }else{
+        m_trayIcon->showMessage(name, text, QSystemTrayIcon::Information, 2000);
+    }
+}
+
 void MainWindow::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event); // 调用基类实现
+
     showAvatar(m_user->get_avatarPath());
 }
 
@@ -564,6 +640,19 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
         ui->lineEditMessage->setFocus();  // 点击空白区域时，让 plainTextEdit 获得焦点
     }
     return QWidget::eventFilter(watched, event);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (m_trayIcon->isVisible()) {
+        hide();
+        // static bool isFirst = true;
+        // if(isFirst){
+        //     m_trayIcon->showMessage("程序仍在运行", "点击托盘图标可还原窗口", QSystemTrayIcon::Information, 500);
+        //     isFirst = false;
+        // }
+        event->ignore(); // 忽略关闭事件
+    }
 }
 
 void MainWindow::receiveImage(QDataStream &in)
@@ -631,6 +720,10 @@ void MainWindow::loadChatHistoryFromFile(QString targetId) {
 void MainWindow::addMessage_toList(const Message &message)
 {
     QString chatId = message.getChatId();
+    if(!this->isVisible()){
+        showSysMsg(message);
+    }
+
     if(m_user->get_currentChatId()==chatId)//接收的消息和当前聊天对象是同一个才在窗口显示
     {
         ui->messageList->addMessage(message);

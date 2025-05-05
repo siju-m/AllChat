@@ -28,6 +28,8 @@
 #include <Model/strangermodel.h>
 #include <Model/user.h>
 
+#include <QSystemTrayIcon>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -50,6 +52,8 @@ public:
     void initFriendApplyList();
 
     void showAvatar(const QString &path);//绘制侧边栏的头像
+    QPixmap getRoundPix(const QString &path);
+
     void handle_message(QDataStream &in);
     void receiveImage(QDataStream &in);
 
@@ -96,9 +100,14 @@ public:
 
     void handle_privateFile(QDataStream &in);
 
+    void initTray();
+    void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
+    void showSysMsg(const Message &msg);
+
 protected:
     void showEvent(QShowEvent* event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
 signals:
     void updateStrangerList(QMap<QString,QString> id_name,QMap<QString,QString> id_avatar);
@@ -123,6 +132,8 @@ private:
     ChatModel *m_chat_model;//聊天对象数据
     StrangerModel *m_apply_model;//存储申请添加好友的用户数据
 
+    QSystemTrayIcon *m_trayIcon;   // 托盘图标
+    QMenu *m_trayMenu;             // 托盘菜单
 };
 
 #endif // MAINWINDOW_H

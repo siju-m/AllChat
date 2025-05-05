@@ -20,5 +20,6 @@
         <file>Icon/file.png</file>
         <file>Icon/file_hover.png</file>
         <file>Icon/file_message.png</file>
+        <file>Icon/app.png</file>
     </qresource>
 </RCC>
