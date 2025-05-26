@@ -21,5 +21,6 @@
         <file>Icon/file_hover.png</file>
         <file>Icon/file_message.png</file>
         <file>Icon/app.png</file>
+        <file>Icon/plus.png</file>
     </qresource>
 </RCC>

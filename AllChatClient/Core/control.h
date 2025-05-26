@@ -5,6 +5,8 @@
 #include "View/login.h"
 #include <QObject>
 
+#include "ElaWidget.h"
+
 class Control : public QObject
 {
     Q_OBJECT
@@ -16,6 +18,7 @@ signals:
 private:
     MainWindow *m_window;
     Login* m_login;
+    ElaWidget* ela;
 };
 
 #endif // CONTROL_H

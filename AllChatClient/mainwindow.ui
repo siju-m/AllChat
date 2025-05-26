@@ -402,10 +402,10 @@ background-color: #cccccc;</string>
        </widget>
       </item>
       <item>
-       <widget class="QStackedWidget" name="stackedList">
+       <widget class="QWidget" name="viewList" native="true">
         <property name="minimumSize">
          <size>
-          <width>220</width>
+          <width>0</width>
           <height>0</height>
          </size>
         </property>
@@ -416,7 +416,66 @@ background-color: #cccccc;</string>
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">QScrollBar:vertical {
+         <string notr="true">#viewList { 
+border: none;
+border-right: 1px solid gray;  /*只保留右边边框 */
+}</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <property name="spacing">
+          <number>3</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>1</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="SearchBar" name="chatSearch" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>220</width>
+             <height>45</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QStackedWidget" name="stackedList">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>220</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">#stackedList { 
+border: none;
+border-top: 1px solid gray;  /*只保留右边边框 */
+}
+QScrollBar:vertical {
     border: none;
     background: #f0f0f0;
     width: 10px;
@@ -447,94 +506,100 @@ QScrollBar::sub-page:vertical {
     background: none;
 }
 </string>
-        </property>
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <widget class="QWidget" name="page">
-         <layout class="QVBoxLayout" name="verticalLayout_7">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QListView" name="chatList">
-            <property name="styleSheet">
-             <string notr="true">QListView { 
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="page">
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QListView" name="chatList">
+               <property name="styleSheet">
+                <string notr="true">QListView { 
 border: none;
-border-right: 1px solid gray;  /*只保留右边边框 */
 }</string>
-            </property>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="page_3">
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QListView" name="friendList">
-            <property name="styleSheet">
-             <string notr="true">QListView { 
+           <widget class="QWidget" name="page_3">
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QListView" name="friendList">
+               <property name="styleSheet">
+                <string notr="true">QListView { 
 border: none;
-border-right: 1px solid gray;  /*只保留右边边框 */
 }</string>
-            </property>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="page_4">
-         <layout class="QVBoxLayout" name="verticalLayout_5">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QListView" name="friendApplyList">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>16777215</height>
-             </size>
-            </property>
+           <widget class="QWidget" name="page_4">
             <property name="styleSheet">
-             <string notr="true">QListView { 
-border: none;
-border-right: 1px solid gray;  /*只保留右边边框 */
-}</string>
+             <string notr="true"/>
             </property>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QListView" name="friendApplyList">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QListView { 
+border: none;
+}</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
-          </item>
-         </layout>
-        </widget>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
@@ -641,93 +706,6 @@ font-weight: bold;
                   </size>
                  </property>
                 </spacer>
-               </item>
-               <item>
-                <widget class="QPushButton" name="createGroup">
-                 <property name="styleSheet">
-                  <string notr="true">/**正常情况下样式**/
-QPushButton{
-	font: 10pt &quot;微软雅黑&quot;;
-    color: white;
-    background-color: rgb(53, 93, 144);
-	color: rgb(255, 255, 255);
-    border-radius: 8px;
-    border-style: none;
-    border-width: 1px;
-    padding: 5px;
-}
-
-/**鼠标停留在按钮上的样式**/
-QPushButton::hover{	
-    color: #FFFFFF;
-    background-color: rgb(93, 125, 166);
-    border-color: #2f3640;
-}
-
-/**鼠标按压下去的样式**/
-QPushButton::pressed,QPushButton::checked{
-    color: #FFFFFF;
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
-}
-
-/**按钮失能情况下样式**/
-QPushButton::disabled{
-    color: #FFFFFF;
-    background-color: #dcdde1;
-    border-color: #dcdde1;
-}
-</string>
-                 </property>
-                 <property name="text">
-                  <string>创建群聊</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="addFriends">
-                 <property name="styleSheet">
-                  <string notr="true">/**正常情况下样式**/
-QPushButton{
-	font: 10pt &quot;微软雅黑&quot;;
-    color: white;
-    background-color: rgb(53, 93, 144);
-	color: rgb(255, 255, 255);
-    border-radius: 8px;
-    border-style: none;
-    border-width: 1px;
-    padding: 5px;
-}
-
-/**鼠标停留在按钮上的样式**/
-QPushButton::hover{	
-    color: #FFFFFF;
-    background-color: rgb(93, 125, 166);
-    border-color: #2f3640;
-}
-
-/**鼠标按压下去的样式**/
-QPushButton::pressed,QPushButton::checked{
-    color: #FFFFFF;
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #273c75, stop:1 #487eb0);
-}
-
-/**按钮失能情况下样式**/
-QPushButton::disabled{
-    color: #FFFFFF;
-    background-color: #dcdde1;
-    border-color: #dcdde1;
-}
-</string>
-                 </property>
-                 <property name="text">
-                  <string>添加好友</string>
-                 </property>
-                 <property name="icon">
-                  <iconset>
-                   <normalon>:/Icon/user-add.png</normalon>
-                  </iconset>
-                 </property>
-                </widget>
                </item>
               </layout>
              </widget>
@@ -1183,6 +1161,12 @@ QPushButton::disabled{
    <class>AvatarLabel</class>
    <extends>QLabel</extends>
    <header>View/Components/avatarlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SearchBar</class>
+   <extends>QWidget</extends>
+   <header>View/searchbar.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

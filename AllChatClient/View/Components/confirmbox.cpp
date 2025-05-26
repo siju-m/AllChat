@@ -5,7 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-ConfirmBox::ConfirmBox(QWidget *parent)
+ConfirmBox::ConfirmBox(QWidget *parent, QString title_s, QString subTitle_s, QString confirm_s, QString cancel_s)
     : QDialog{parent}
 {
     this->setFixedSize(300, 200);
@@ -17,9 +17,9 @@ ConfirmBox::ConfirmBox(QWidget *parent)
                               "border-top-right-radius:10px;"
                               "border-top-left-radius:10px;"
                               "background-color: white;}");
-    QLabel *title = new QLabel("删除", this);
+    QLabel *title = new QLabel(title_s, this);
     title->setFont(QFont("微软雅黑", 28, QFont::DemiBold));
-    QLabel *subTitle = new QLabel("确认删除", this);
+    QLabel *subTitle = new QLabel(subTitle_s, this);
     subTitle->setFont(QFont("微软雅黑", 13));
     QVBoxLayout *layout1 = new QVBoxLayout(textWidget);
     layout1->setContentsMargins(15, 15, 5, 15);
@@ -27,8 +27,8 @@ ConfirmBox::ConfirmBox(QWidget *parent)
     layout1->addWidget(subTitle);
 
     QWidget *btnWidget = new QWidget(this);
-    QPushButton *confirm = new QPushButton("删除", this);
-    QPushButton *cancel = new QPushButton("取消", this);
+    QPushButton *confirm = new QPushButton(confirm_s, this);
+    QPushButton *cancel = new QPushButton(cancel_s, this);
     QString style("QPushButton{"
                         "font: 10pt '微软雅黑';"
                         "color: white;"
@@ -98,8 +98,8 @@ ConfirmBox::ConfirmBox(QWidget *parent)
     connect(cancel, &QPushButton::clicked, this, &ConfirmBox::reject);
 }
 
-bool ConfirmBox::question(QWidget *parent)
+bool ConfirmBox::question(QWidget *parent, QString title_s, QString subTitle_s, QString confirm_s, QString cancel_s)
 {
-    ConfirmBox *box = new ConfirmBox(parent);
+    ConfirmBox *box = new ConfirmBox(parent, title_s, subTitle_s, confirm_s, cancel_s);
     return box->exec();
 }

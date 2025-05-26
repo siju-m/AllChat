@@ -12,6 +12,7 @@
 #include <QShowEvent>
 #include <QSqlDatabase>
 #include <windows.h>
+#include <ElaMenu.h>
 #include <Model/Packet.h>
 
 #include <View/Components/confirmbox.h>
@@ -66,7 +67,7 @@ MainWindow::MainWindow(ChatHistoryManager *historyManager, QWidget *parent)
     initHistoryManager();
 
     // 弹出创建群聊窗口
-    connect(ui->createGroup, &QPushButton::clicked, this, [=](){
+    connect(ui->chatSearch, &SearchBar::createGroup, this, [=](){
         CreateGroup *createGroup = new CreateGroup(m_friends_model, this);
         createGroup->exec();
     });
@@ -175,7 +176,7 @@ void MainWindow::initFriendsList()
     });
     connect(ui->friendInfo,&UserDetailView::showMessage,this,&MainWindow::switch_chatUser);
     connect(ui->friendInfo,&UserDetailView::deleteFriend,this,[=](const QString &id){
-        if(ConfirmBox::question(this)){
+        if(ConfirmBox::question(this, "删除", "确认删除", "确定", "取消")){
             Packet data(CommonEnum::DELETE_FRIEND,id);
             m_dataTransfer->sendData(data);
             ui->friendInfo->hideUserInfo();
@@ -228,7 +229,7 @@ void MainWindow::initChatList()
 
 void MainWindow::initAddFriends()
 {
-    connect(ui->addFriends,&QPushButton::clicked,this,[=](){
+    connect(ui->chatSearch,&SearchBar::addFriend,this,[=](){
         m_add_friends.exec();
     });
     connect(&m_add_friends,&AddFriends::send_slelectByName,this,&MainWindow::send_slelectByName);
@@ -645,13 +646,10 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (m_trayIcon->isVisible()) {
-        hide();
-        // static bool isFirst = true;
-        // if(isFirst){
-        //     m_trayIcon->showMessage("程序仍在运行", "点击托盘图标可还原窗口", QSystemTrayIcon::Information, 500);
-        //     isFirst = false;
-        // }
-        event->ignore(); // 忽略关闭事件
+        if(ConfirmBox::question(this, "退出", "需要最小化？", "确定", "直接关闭")){
+            hide();
+            event->ignore(); // 忽略关闭事件
+        }
     }
 }
 

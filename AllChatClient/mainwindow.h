@@ -28,6 +28,7 @@
 #include <Model/strangermodel.h>
 #include <Model/user.h>
 
+#include "ElaWindow.h"
 #include <QSystemTrayIcon>
 
 QT_BEGIN_NAMESPACE
