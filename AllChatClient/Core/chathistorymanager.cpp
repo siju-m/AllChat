@@ -86,7 +86,7 @@ void ChatHistoryManager::addHistoryToFile(Message &msg)
     query.bindValue(":timestamp", msg.getDateTime());
 
     if (!query.exec()) {
-        qWarning() << "好友添加失败：" << query.lastError().text();
+        qWarning() << "消息添加失败：" << query.lastError().text();
     }
 }
 

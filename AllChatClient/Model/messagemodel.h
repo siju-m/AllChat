@@ -41,6 +41,8 @@ public:
 
 private:
     MessageType getType(Message::MessageType type);
+    void loadAvatar(const QString &avatarPath);
+    void loadImage(const QString &imagePath);
 
 private:
 
@@ -55,6 +57,9 @@ private:
 
     QVector<ModelMessage> m_messages;
     QHash<QString,QString> m_temp_lastMsgTime;//存聊天对象消息时间的临时变量，避免一直排序
+
+    QHash<QString, QPixmap> avatarCache;
+    QHash<QString, QPixmap> imageCache;
 };
 
 #endif // MESSAGEMODEL_H

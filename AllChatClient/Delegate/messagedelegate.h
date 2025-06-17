@@ -56,5 +56,6 @@ private:
 protected:
     bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
 
+private:
 };
 #endif // MESSAGEDELEGATE_H

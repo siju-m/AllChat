@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # 查找 Qt 模块
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Sql)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Sql Concurrent)
 
 # 添加头文件路径（如果有额外 include 文件夹，可在此添加）
 include_directories(
@@ -135,6 +135,7 @@ target_link_libraries(${PROJECT_NAME}
     Qt6::Widgets
     Qt6::Network
     Qt6::Sql
+    Qt6::Concurrent
 )
 
 # 可选：静态链接 libgcc/libstdc++

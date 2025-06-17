@@ -1,7 +1,7 @@
 #include "messagemodel.h"
+#include "Core/currentuser.h"
 
-#include <Core/currentuser.h>
-
+#include <QtConcurrent>
 
 MessageModel::MessageModel(QObject *parent) : QAbstractListModel(parent) {}
 
@@ -17,10 +17,15 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const{
     const ModelMessage &msg = m_messages[index.row()];
     switch (role) {
     case TypeRole: return msg.type;
-    case ContentRole: return msg.content;
+    case ContentRole:{
+        if(msg.type!=Image)
+            return msg.content;
+        else
+            return imageCache.contains(msg.content)?imageCache.value(msg.content):QPixmap();
+    }
     case IsOutgoingRole: return msg.isOutgoing;
     case UserNameRole: return msg.userName;
-    case AvatarRole: return msg.avatarPath;
+    case AvatarRole: return avatarCache.contains(msg.avatarPath)?avatarCache.value(msg.avatarPath):QPixmap();
     case TimeRole: return msg.time;
     default: return QVariant();
     }
@@ -35,6 +40,12 @@ void MessageModel::addMessage(const Message &msg)
     QString content = msg.getContent();
 
     MessageType type = getType(msg.getType());
+
+    loadAvatar(avatarPath);
+
+    if(type==Image){
+        loadImage(content);
+    }
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_messages.append({type, content, isOutgoing, senderName,avatarPath,time});
@@ -63,6 +74,12 @@ void MessageModel::addOlderMessage(const Message &message)
 
     MessageType type = getType(message.getType());
     const QString content = message.getContent();
+
+    loadAvatar(avatarPath);
+
+    if(type==Image){
+        loadImage(content);
+    }
 
     beginInsertRows(QModelIndex(), 0, 0);
     m_messages.prepend({type, content, isOutgoing, senderName, avatarPath, time});
@@ -138,6 +155,36 @@ MessageType MessageModel::getType(Message::MessageType type)
         return MessageType::File;
     }
     return MessageType::NONE;
+}
+
+void MessageModel::loadAvatar(const QString &avatarPath)
+{
+    if(!avatarCache.contains(avatarPath)){
+        (void)QtConcurrent::run([=]() {
+            QPixmap asyncPixmap;
+            asyncPixmap.load(avatarPath);
+            if (!asyncPixmap.isNull()) {
+                QMetaObject::invokeMethod(const_cast<MessageModel *>(this), [=]() {
+                    avatarCache.insert(avatarPath, asyncPixmap);
+                }, Qt::QueuedConnection);
+            }
+        });
+    }
+}
+
+void MessageModel::loadImage(const QString &imagePath)
+{
+    if(!imageCache.contains(imagePath)){
+        (void)QtConcurrent::run([=]() {
+            QPixmap asyncPixmap;
+            asyncPixmap.load(imagePath);
+            if (!asyncPixmap.isNull()) {
+                QMetaObject::invokeMethod(const_cast<MessageModel *>(this), [=]() {
+                    imageCache.insert(imagePath, asyncPixmap);
+                }, Qt::QueuedConnection);
+            }
+        });
+    }
 }
 
 

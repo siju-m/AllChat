@@ -4,8 +4,6 @@
 Control::Control(QObject *parent)
     : QObject{parent}
 {
-
-
     ChatHistoryManager *historyManager = new ChatHistoryManager(this);
 
     m_window = new MainWindow(historyManager);

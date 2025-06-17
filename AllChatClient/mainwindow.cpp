@@ -286,21 +286,6 @@ void MainWindow::initHistoryManager()
 
 void MainWindow::showAvatar(const QString &path)
 {
-    // QPixmap pixmap(path);
-    // if(pixmap.isNull()){
-    //     return;
-    // }
-    // QPixmap roundedPixmap(pixmap.size());
-    // roundedPixmap.fill(Qt::transparent);
-
-    // QPainter painter(&roundedPixmap);
-    // painter.setRenderHint(QPainter::Antialiasing);
-    // painter.setRenderHint(QPainter::SmoothPixmapTransform);
-
-    // QPainterPath painterPath;
-    // painterPath.addEllipse(0, 0, pixmap.width(), pixmap.height());
-    // painter.setClipPath(painterPath);
-    // painter.drawPixmap(0, 0, pixmap);
     QPixmap roundedPixmap = getRoundPix(path);
     ui->avatar->setPixmap(roundedPixmap);
 }
@@ -674,26 +659,6 @@ void MainWindow::storeMessageToFile(const Message &msg) {
     m_historyManager->addHistoryToFile(message);
 }
 
-
-// void MainWindow::storeMessageToFile(const QString &targetId, const User &sender, const QString &message, const QString &msgTime) {
-//     //更新聊天列表的最新消息
-//     //todo 添加未读消息数量
-//     m_chat_model->updateLastMessage(targetId,message,msgTime);
-
-//     Message msg(Message::Text, message, msgTime, sender, targetId);
-//     m_historyManager->addHistoryToFile(msg);
-// }
-
-// QString MainWindow::storeImageToFile(const QString &targetId, const User &sender,const QByteArray &imageData, const QString &msgTime){
-//     m_chat_model->updateLastMessage(targetId,"图片",msgTime);
-
-//     QString imgPath = m_historyManager->storeImage("",imageData);
-//     Message msg(Message::Image, imgPath, msgTime, sender, targetId);
-//     m_historyManager->addHistoryToFile(msg);
-//     return imgPath;
-// }
-
-
 void MainWindow::loadChatHistoryFromFile(QString targetId) {
     //更新好友信息
     if(!m_groupIds.contains(targetId)){
@@ -710,11 +675,6 @@ void MainWindow::loadChatHistoryFromFile(QString targetId) {
     m_historyManager->loadChatHistoryFromFile(targetId);
 }
 
-// void MainWindow::addOlderMessage_toList(const Message &message)
-// {
-//     ui->messageList->addOlderMessage(message);
-// }
-
 void MainWindow::addMessage_toList(const Message &message)
 {
     QString chatId = message.getChatId();
@@ -730,19 +690,6 @@ void MainWindow::addMessage_toList(const Message &message)
     // showMessage_toList(message);
     storeMessageToFile(message);
 }
-
-// void MainWindow::showMessage_toList(const Message &message)
-// {
-    // QString chatId = message.getChatId();
-    // if(ui->chatList->currentIndex().data(FriendsModel::IdRole).toString()==chatId)//接收的消息和当前聊天对象是同一个才在窗口显示
-    // {
-    //     QString time = message.getTime();
-    //     ui->messageList->addTime_toList(chatId,time);
-    //     ui->messageList->addMessage(message);
-    // }
-    // else m_chat_model->add_unreadMsgNum(chatId);
-// }
-
 
 void MainWindow::handle_message(QDataStream &in)
 {
@@ -813,11 +760,6 @@ void MainWindow::updateUserList(const QMap<QString, QString> &newUserList,const 
                                          m_friendList[it].getAvatarPath());
     }
 
-    // 默认选择第一行
-    // if(ui->chatList->model()->rowCount() > 0){
-    //     QString fristId = ui->chatList->model()->index(0, 0).data(FriendsModel::IdRole).toString();
-    //     switch_chatUser(fristId);
-    // }
 }
 
 void MainWindow::handle_onlineFriendsList(QDataStream &in)
