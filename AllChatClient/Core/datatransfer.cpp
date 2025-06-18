@@ -1,6 +1,4 @@
 #include "datatransfer.h"
-#include "Core/currentuser.h"
-
 #include <QMessageBox>
 
 DataTransfer* DataTransfer::m_instance = nullptr;

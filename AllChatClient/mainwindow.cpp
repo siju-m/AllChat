@@ -27,20 +27,14 @@ MainWindow::MainWindow(ChatHistoryManager *historyManager, QWidget *parent)
     m_friendList(m_user->getFriendList()),
     m_strangerList(m_user->getStrangerList()),
     m_groupIds(m_user->getGroupsIdList()),
-    m_groupList(m_user->getGroupList())
+    m_groupList(m_user->getGroupList()),
+    m_msgSenderView(new MessageSenderView(this, m_historyManager))
 {
     ui->setupUi(this);
     this->setWindowTitle("AllChat");
     this->resize(1000, 700);
     this->setWindowIcon(QIcon(":/Icon/app.png"));
     this->setWindowFlags(Qt::CustomizeWindowHint | Qt::Window);//去除标题栏但仍可调整大小
-
-    // 绑定按钮槽函数
-    connect(ui->btnSend, &QPushButton::clicked, this, &MainWindow::onSendClicked);
-    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return), this);
-    connect(shortcut, &QShortcut::activated, this, &MainWindow::onSendClicked);
-    connect(ui->btnImage, &QPushButton::clicked, this, &MainWindow::sendImage);
-    connect(ui->btnFile, &QPushButton::clicked, this, &MainWindow::sendFile);
 
     connect(ui->avatar,&AvatarLabel::clicked, this,[=](){
         m_updateAvatar = new UpdateAvatar(this);
@@ -78,9 +72,12 @@ MainWindow::MainWindow(ChatHistoryManager *historyManager, QWidget *parent)
     });
 
     // 点击发送按钮旁边的空白区域也能获取焦点
-    ui->widget_9->installEventFilter(this);
+    // ui->widget_9->installEventFilter(this);
 
     initTray(); // 初始化托盘
+
+    ui->chatView->layout()->addWidget(m_msgSenderView);
+    connect(m_msgSenderView, &MessageSenderView::sendMsg, this, &MainWindow::addMessage_toList);
 }
 
 MainWindow::~MainWindow() {
@@ -620,14 +617,6 @@ void MainWindow::showEvent(QShowEvent *event)
     showAvatar(m_user->get_avatarPath());
 }
 
-bool MainWindow::eventFilter(QObject *watched, QEvent *event)
-{
-    if (watched == ui->widget_9 && event->type() == QEvent::MouseButtonPress) {
-        ui->lineEditMessage->setFocus();  // 点击空白区域时，让 plainTextEdit 获得焦点
-    }
-    return QWidget::eventFilter(watched, event);
-}
-
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (m_trayIcon->isVisible()) {
@@ -781,90 +770,6 @@ void MainWindow::handle_onlineFriendsList(QDataStream &in)
         if(m_friendList.contains(id))
             ui->friendState->setOnlineState(m_friendList[id].getOnlineState()?StateEnum::ONLINE:StateEnum::OFFLINE);
     }
-}
-
-void MainWindow::onSendClicked() {//发送按钮的槽函数
-    if(ui->lineEditMessage->toPlainText().isEmpty())
-        return;
-    QString chatId = m_user->get_currentChatId();
-    if (!chatId.isEmpty()) {
-        qDebug() << "当前聊天对象id:" << chatId;
-    }else return;
-
-    Packet data;
-    if(m_friendList.contains(chatId)){
-        data = Packet(CommonEnum::CHAT, chatId, ui->lineEditMessage->toPlainText());
-    }else{
-        QString type("TEXT");
-        data = Packet(CommonEnum::GROUP_CHAT, chatId, type, ui->lineEditMessage->toPlainText());
-    }
-    m_dataTransfer->sendData(data);
-
-    QString textMessage = ui->lineEditMessage->toPlainText();
-    Message msg(Message::Text, textMessage, getCurrentTime(), m_user->toUser(), chatId);
-    addMessage_toList(msg);
-    ui->lineEditMessage->clear(); // 清空输入框
-}
-
-void MainWindow::sendImage() {//发送图片的槽函数
-    QString chatId = m_user->get_currentChatId();
-    if (chatId.isEmpty())
-        return;
-    QString imagePath = QFileDialog::getOpenFileName(this, "Select image File", "", "image Files (*.jpg *.png)");
-    if(imagePath.isEmpty())
-        return;
-    QFile imageFile(imagePath);
-    if (!imageFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "无法打开图片文件";
-        return;
-    }
-
-    // 读取图片数据
-    QByteArray imageData = imageFile.readAll();
-    imageFile.close();
-
-    Packet data;
-    if(m_friendList.contains(chatId)){
-        data = Packet(CommonEnum::IMAGE,chatId, imageData);
-    }else{
-        QString type("IMAGE");
-        data = Packet(CommonEnum::GROUP_CHAT, chatId, type, imageData);
-    }
-    m_dataTransfer->sendData(data);
-
-
-    imagePath = m_historyManager->storeImage("", imageData);
-    Message msg(Message::Image, imagePath, getCurrentTime(), m_user->toUser(), chatId);
-    addMessage_toList(msg);
-
-}
-
-void MainWindow::sendFile()
-{
-    QString chatId = m_user->get_currentChatId();
-    if (chatId.isEmpty())
-        return;
-    qDebug() << "发送文件 接收对象：" << chatId;
-    QString filePath = QFileDialog::getOpenFileName(this, "Select File", "", "All Files (*.*)");
-    if(filePath.isEmpty())
-        return;
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "无法打开文件";
-        return;
-    }
-
-    QFileInfo fileinfo(filePath);
-    QString fileName = fileinfo.fileName();
-    QByteArray fileData = file.readAll();
-    file.close();
-
-    Packet data(CommonEnum::PRIVATE_FILE, chatId, fileName, fileData);
-    m_dataTransfer->sendData(data);
-
-    QString path = m_historyManager->storeFile(fileName, fileData);
-    Message msg(Message::File, path, getCurrentTime(), m_user->toUser(), chatId);
-    addMessage_toList(msg);
 }
 
 

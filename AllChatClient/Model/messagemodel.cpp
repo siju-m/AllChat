@@ -52,18 +52,6 @@ void MessageModel::addMessage(const Message &msg)
     endInsertRows();
 }
 
-// void MessageModel::addTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time) {
-//     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-//     m_messages.append({MessageType::Text, text, "", isOutgoing, userName,avatarPath,time});
-//     endInsertRows();
-// }
-
-// void MessageModel::addImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time) {
-//     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-//     m_messages.append({MessageType::Image, "", imagePath, isOutgoing, userName,avatarPath,time});
-//     endInsertRows();
-// }
-
 void MessageModel::addOlderMessage(const Message &message)
 {
 
@@ -85,20 +73,6 @@ void MessageModel::addOlderMessage(const Message &message)
     m_messages.prepend({type, content, isOutgoing, senderName, avatarPath, time});
     endInsertRows();
 }
-
-// void MessageModel::addOlderTextMessage(const QString &text, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time)
-// {
-//     beginInsertRows(QModelIndex(), 0, 0);
-//     m_messages.prepend({MessageType::Text, text, "", isOutgoing, userName,avatarPath,time});
-//     endInsertRows();
-// }
-
-// void MessageModel::addOlderImageMessage(const QString &imagePath, bool isOutgoing, const QString &userName, const QString &avatarPath, const QString &time)
-// {
-//     beginInsertRows(QModelIndex(), 0, 0); // 行号范围是 [0, 0]
-//     m_messages.prepend({MessageType::Image, "", imagePath, isOutgoing, userName, avatarPath, time});
-//     endInsertRows();
-// }
 
 void MessageModel::addTimeMessage(const QString &time)
 {

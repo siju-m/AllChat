@@ -45,6 +45,11 @@ Message::Message(MessageType type, const QString &data, const QString &time, con
     }
 }
 
+QString Message::getCurrentTime()
+{
+    return QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+}
+
 Message::MessageType Message::getType() const
 {
     return m_type;
@@ -69,26 +74,6 @@ QString Message::getContent() const
     return m_content;
 }
 
-// QString Message::getText() const
-// {
-//     return m_text;
-// }
-
-// void Message::setText(const QString &text)
-// {
-//     m_text = text;
-// }
-
-// QString Message::getImage() const
-// {
-//     return m_imagePath;
-// }
-
-// void Message::setImage(const QString &path)
-// {
-//     m_imagePath = path;
-// }
-
 QString Message::getTime() const
 {
     return m_msgTime;
@@ -103,27 +88,6 @@ void Message::setTime(const QString &time)
 {
     m_msgTime = time;
 }
-
-// QByteArray Message::jsonData() const
-// {
-//     QJsonObject obj;
-//     QJsonObject format;
-//     obj["id"] = m_sender.getUserId();
-//     obj["time"] = m_msgTime;
-
-//     if(m_type == Text){
-//         obj["message"] = m_text;
-//         format["kinds"] = "text";
-//     }
-//     else if(m_type == Image){
-//         obj["imagePath"] = m_imagePath;
-//         format["kinds"] = "image";
-//     }
-
-//     format["data"] = obj;
-//     QJsonDocument doc(format);
-//     return doc.toJson(QJsonDocument::Compact);
-// }
 
 QString Message::getChatId() const
 {

@@ -59,6 +59,7 @@ set(SOURCES
     Model/messagemodel.cpp
     Delegate/strangerdelegate.cpp
     View/searchbar.cpp
+    View/messagesenderview.cpp
 )
 
 # 所有头文件（可选，用于 IDE 支持）
@@ -104,6 +105,7 @@ set(HEADERS
     Model/messagemodel.h
     Delegate/strangerdelegate.h    
     View/searchbar.h
+    View/messagesenderview.h
 )
 
 # UI 文件

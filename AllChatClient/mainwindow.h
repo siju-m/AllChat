@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "View/messagesenderview.h"
 #include "ui_mainwindow.h"
 #include <QTcpSocket>
 #include <QMessageBox>
@@ -80,12 +81,6 @@ public:
 
     QString getCurrentTime();
 
-    // 发送消息
-    void onSendClicked();
-    // 发送图片
-    void sendImage();
-    void sendFile();
-
     void handleData(QByteArray data);
     void send_updateAvatar(const QString &path);
 
@@ -107,7 +102,6 @@ public:
 
 protected:
     void showEvent(QShowEvent* event) override;
-    bool eventFilter(QObject *watched, QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
 
 signals:
@@ -123,7 +117,6 @@ private:
 
     ChatHistoryManager *m_historyManager;
     DataTransfer *m_dataTransfer;
-    // CommonEnum::message_type messageType;
     QMap<QString, User> &m_friendList; // 用于存储好友列表 id和userName
     QMap<QString, User> &m_strangerList;
     QSet<QString> &m_groupIds;
@@ -135,6 +128,7 @@ private:
 
     QSystemTrayIcon *m_trayIcon;   // 托盘图标
     QMenu *m_trayMenu;             // 托盘菜单
+    MessageSenderView* m_msgSenderView;
 };
 
 #endif // MAINWINDOW_H
