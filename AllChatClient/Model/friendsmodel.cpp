@@ -1,4 +1,6 @@
 #include "friendsmodel.h"
+#include <QPixmap>
+#include <qtconcurrentrun.h>
 
 
 FriendsModel::FriendsModel(QObject *parent): QAbstractListModel(parent)
@@ -22,7 +24,7 @@ QVariant FriendsModel::data(const QModelIndex &index, int role) const
     case UserNameRole: return msg.userName;
     case IdRole: return msg.id;
     case OnlineRole: return msg.onlineState;
-    case AvatarRole: return msg.avatarPath;
+    case AvatarRole: return avatarCache.contains(msg.avatarPath)?avatarCache.value(msg.avatarPath):QPixmap();
     default: return QVariant();
     }
 }
@@ -30,6 +32,7 @@ QVariant FriendsModel::data(const QModelIndex &index, int role) const
 void FriendsModel::addFriends_ToList(const QString &userName, const QString &id, const StateEnum::onlineState_type &onlineState, const QString &avatarPath)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    loadImage(avatarPath, rowCount());
     m_friends.append({userName, id, onlineState,avatarPath});
     endInsertRows();
 }
@@ -74,6 +77,7 @@ void FriendsModel::clear()
 {
     if (m_friends.isEmpty()) return;
 
+    avatarCache.clear();
     beginRemoveRows(QModelIndex(), 0, m_friends.size()-1); // 通知视图删除开始
     m_friends.clear();
     endRemoveRows(); // 通知视图删除完成
@@ -84,4 +88,20 @@ Qt::ItemFlags FriendsModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+}
+
+void FriendsModel::loadImage(const QString &imagePath, int index)
+{
+    if(!avatarCache.contains(imagePath)){
+        (void)QtConcurrent::run([=]() {
+            QPixmap asyncPixmap;
+            asyncPixmap.load(imagePath);
+            if (!asyncPixmap.isNull()) {
+                QMetaObject::invokeMethod(const_cast<FriendsModel *>(this), [=]() {
+                    avatarCache.insert(imagePath, asyncPixmap);
+                    emit this->dataChanged(this->index(index, 0), this->index(index, 0));
+                }, Qt::QueuedConnection);
+            }
+        });
+    }
 }

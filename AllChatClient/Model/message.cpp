@@ -5,6 +5,7 @@
 #include <QJsonObject>
 
 #include <Core/currentuser.h>
+#include <Core/contactmanager.h>
 
 
 Message::Message()
@@ -35,7 +36,7 @@ Message::Message(MessageType type, const QString &data, const QString &time, con
             break;
     }
 
-    if(CurrentUser::getInstance()->getGroupsIdList().contains(chatId))
+    if(ContactManager::getInstance()->isInGroup(chatId))
     {
         m_chatType = GROUP;
     }
@@ -45,17 +46,12 @@ Message::Message(MessageType type, const QString &data, const QString &time, con
     }
 }
 
-QString Message::getCurrentTime()
-{
-    return QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-}
-
 Message::MessageType Message::getType() const
 {
     return m_type;
 }
 
-QString Message::getType_string() const
+QString Message::getTypeString() const
 {
     switch (m_type) {
     case Text:

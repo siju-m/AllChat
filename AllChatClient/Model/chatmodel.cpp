@@ -1,6 +1,7 @@
 #include "chatmodel.h"
 
 #include <QDateTime>
+#include <qtconcurrentrun.h>
 
 ChatModel::ChatModel(QObject *parent)
     : QAbstractListModel{parent}
@@ -23,7 +24,7 @@ QVariant ChatModel::data(const QModelIndex &index, int role) const
     case LastMessageRole: return msg.lastMessage;
     case LastMessageTimeRole: return msg.lastMessageTime;
     case UnreadMsgNumRole: return msg.unreadMsgNum;
-    case AvatarRole: return msg.avatarPath;
+    case AvatarRole: return avatarCache.contains(msg.avatarPath)?avatarCache.value(msg.avatarPath):QPixmap();
     default: return QVariant();
     }
 }
@@ -31,6 +32,8 @@ QVariant ChatModel::data(const QModelIndex &index, int role) const
 void ChatModel::addChat_toList(const QString &userName, const QString &id, const QString &lastMessage, const QString &lastMessageTime,const int &unreadMsgNum, const QString &avatarPath)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
+
+    loadImage(avatarPath, rowCount());
 
     m_ids.append(id);
     m_id_chats[id] = {userName, lastMessage,lastMessageTime,unreadMsgNum,avatarPath};
@@ -71,6 +74,7 @@ void ChatModel::clear()
 {
     if (m_id_chats.isEmpty()) return;
 
+    avatarCache.clear();
     beginRemoveRows(QModelIndex(), 0, m_id_chats.size()-1); // 通知视图删除开始
     m_id_chats.clear();
     m_ids.clear();
@@ -145,3 +149,18 @@ void ChatModel::clear_unreadMsgNum(const QString &id)
     emit dataChanged(index,index,{row});
 }
 
+void ChatModel::loadImage(const QString &imagePath, int index)
+{
+    if(!avatarCache.contains(imagePath)){
+        (void)QtConcurrent::run([=]() {
+            QPixmap asyncPixmap;
+            asyncPixmap.load(imagePath);
+            if (!asyncPixmap.isNull()) {
+                QMetaObject::invokeMethod(const_cast<ChatModel *>(this), [=]() {
+                    avatarCache.insert(imagePath, asyncPixmap);
+                    emit this->dataChanged(this->index(index, 0), this->index(index, 0));
+                }, Qt::QueuedConnection);
+            }
+        });
+    }
+}

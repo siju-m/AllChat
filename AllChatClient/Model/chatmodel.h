@@ -2,20 +2,21 @@
 #define CHATMODEL_H
 
 #include <QAbstractListModel>
+#include <QPixmap>
 
-struct Chats{
-    QString userName="";
-    QString lastMessage="";
-    QString lastMessageTime="";
-    int unreadMsgNum=0;
-    QString avatarPath="";
-};
 
 //聊天对象的数据
 class ChatModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
+    struct Chats{
+        QString userName="";
+        QString lastMessage="";
+        QString lastMessageTime="";
+        int unreadMsgNum=0;
+        QString avatarPath="";
+    };
     explicit ChatModel(QObject *parent = nullptr);
 
     enum Roles {
@@ -46,6 +47,9 @@ public:
 
     void add_unreadMsgNum(const QString &id);
     void clear_unreadMsgNum(const QString &id);//清除未读消息
+private:
+    void loadImage(const QString &imagePath, int index);
+
 signals:
     void sortEnd();
 private:
@@ -54,6 +58,7 @@ private:
     QVector<QString> m_ids;
     QString m_current_chatId;
 
+    QHash<QString, QPixmap> avatarCache;
 };
 
 #endif // CHATMODEL_H

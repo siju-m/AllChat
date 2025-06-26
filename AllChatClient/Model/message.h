@@ -14,10 +14,9 @@ public:
     Message();
     Message(MessageType type, const QString &data, const QString &time, const User &sender, const QString &chatId);
 
-    static QString getCurrentTime();
-
+    // static QString getCurrentTime();
     MessageType getType() const;
-    QString getType_string() const;
+    QString getTypeString() const;
 
     QString getContent() const;
 

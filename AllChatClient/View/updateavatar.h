@@ -20,15 +20,16 @@ public:
     ~UpdateAvatar();
 
     void setAvatarPath(const QString &path);
+    void onSuccessSetAvatar();
 
 protected:
     // 鼠标事件实现窗口拖动
     void mousePressEvent(QMouseEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
 signals:
     void send_updateAvatar(const QString &path);
     void setAvatar(const QString &path);//向外部传输路径
-    void toSetAvatar();//通知内部可以传输路径
 
 private:
     Ui::UpdateAvatar *ui;

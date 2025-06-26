@@ -1,5 +1,7 @@
 #include "datatransfer.h"
 
+#include "configmanager.h"
+
 DataTransfer::DataTransfer(QObject *parent):
     QObject(parent),
     m_currentDataLength(0),
@@ -11,7 +13,7 @@ QByteArray DataTransfer::receiveData(QTcpSocket *socket)
 {
 
     QDataStream in(socket);
-    in.setVersion(QDataStream::Qt_5_15);
+    in.setVersion(ConfigManager::dataStreamVersion());
     while(!in.atEnd()){
         if (m_currentReceivingState == WaitingForHeader) {
             in >> m_currentDataLength;

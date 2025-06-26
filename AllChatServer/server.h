@@ -22,6 +22,7 @@ enum message_type{
     AGREE_FRIEND,
     FIND_NEW_FRIEND,
     NEW_FRIEND_REULT,
+    ONLINE_STATE,
     ONLINE_LIST,
     UPDATE_AVATAR,
     UPDATE_AVATAR_RESULT,
@@ -45,7 +46,8 @@ protected:
 
 private:
     QString generateUniqueId();              // 生成唯一 ID
-    void broadcast_userOnlineList();                // 广播在线用户列表
+    void sendOnlineState(const QString &id, const bool state);
+    void sendFrdOnlineList(const QString &id);                // 发送在线用户列表
     void broadcastMessage(const QString &sender, const QString &message); // 广播消息
 
     void privateMessage(QDataStream &in,QTcpSocket *senderSocket);//转发私聊信息
@@ -59,12 +61,16 @@ private:
     void handleAddFriend_Result(QDataStream &in,QTcpSocket *senderSocket);//处理添加好友请求的结果
 
     //确认是否在线
-    bool confirm_isOnline(const QString &id);
+    // bool isOnline(const QString &id);
 
     //存储待转发消息
-    void store_forwardContents(const QByteArray &content,const QString &userId);
+    void storeForwardContents(const QByteArray &content,const QString &userId);
     //转发存储的消息
-    void send_forwardContents(const QString &userId);
+    void sendForwardContents(const QString &userId);
+    //发送好友申请列表
+    void sendApplyList(const QString &userId);
+    //更新群聊和好友列表
+    void updateContactList(const QString &userId);
     //更新用户好友列表
     void updateFriendsList(const QString &userId);
     //更新用户群聊列表
@@ -100,15 +106,15 @@ private:
     QMap<QString, QTcpSocket *> m_userIds_client;       // 用户 ID对应的客户端
     QMap<QTcpSocket *,QString> m_clients_userId;        // 客户端对应的用户 ID
     QHash<QString,QSet<QString>> m_friends;             // 每个用户对应的好友申请列表
-    QSet<QPair<QString,QString>> m_alreadyApply;        //确保每个好友申请只发送一次
+    // QSet<QPair<QString,QString>> m_alreadyApply;        //确保每个好友申请只发送一次
     // QHash<QString,QSet<QString>> m_groups;              // 群聊号对应的用户列表
 
-    //todo 服务器下线时就存在本地
     QHash<QString,QByteArray> m_forward_contents;       //转发消息
 
     DataBase *dataBase;
     DataTransfer *m_dataTransfer;
     RedisClient *m_redisClient;
+    FriendApplyCache *m_friend_apply_cache;
 
     message_type messageType;
 };

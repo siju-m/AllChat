@@ -58,8 +58,13 @@ set(SOURCES
     View/messagelistview.cpp
     Model/messagemodel.cpp
     Delegate/strangerdelegate.cpp
-    View/searchbar.cpp
+    View/Components/searchbar.cpp
     View/messagesenderview.cpp
+    Core/contactmanager.cpp
+    View/Components/searchresultlist.cpp
+    Model/messagepacket.cpp
+    View/Components/sidebar.cpp
+    Utils/commonutil.cpp
 )
 
 # 所有头文件（可选，用于 IDE 支持）
@@ -104,8 +109,13 @@ set(HEADERS
     View/messagelistview.h
     Model/messagemodel.h
     Delegate/strangerdelegate.h    
-    View/searchbar.h
+    View/Components/searchbar.h
     View/messagesenderview.h
+    Core/contactmanager.h
+    View/Components/searchresultlist.h
+    Model/messagepacket.h
+    View/Components/sidebar.h
+    Utils/commonutil.h
 )
 
 # UI 文件
@@ -127,6 +137,7 @@ add_executable(${PROJECT_NAME}
     ${HEADERS}
     ${UIS}
     ${RESOURCES}
+    Core/configmanager.h Core/configmanager.cpp
 )
 
 # 链接 Qt 库
@@ -146,17 +157,17 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     -static-libstdc++
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/bin/include)
+# target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/bin/include)
 
-# target_link_libraries(${PROJECT_NAME} "D:/data/Code/Qt/AllChat/AllChatClient/include/lib/libElaWidgetTools.a")
+# # target_link_libraries(${PROJECT_NAME} "D:/data/Code/Qt/AllChat/AllChatClient/include/lib/libElaWidgetTools.a")
 
-set(MYLIB_LIB_DIR ${CMAKE_SOURCE_DIR}/bin/lib)
-set(MYLIB_NAME ElaWidgetTools.dll)
+# set(MYLIB_LIB_DIR ${CMAKE_SOURCE_DIR}/bin/lib)
+# set(MYLIB_NAME ElaWidgetTools.dll)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${MYLIB_LIB_DIR}/${MYLIB_NAME})
+# target_link_libraries(${PROJECT_NAME} PRIVATE ${MYLIB_LIB_DIR}/${MYLIB_NAME})
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${MYLIB_LIB_DIR}/ElaWidgetTools.dll
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-)
+# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy
+#         ${MYLIB_LIB_DIR}/ElaWidgetTools.dll
+#         $<TARGET_FILE_DIR:${PROJECT_NAME}>
+# )

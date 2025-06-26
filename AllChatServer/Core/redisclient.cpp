@@ -9,13 +9,15 @@ RedisClient::RedisClient(QObject *parent)
 RedisClient::~RedisClient()
 {
     disconnectFromRedis();
+    delete m_friend_apply_cache;
+    m_friend_apply_cache = nullptr;
 }
 
 void RedisClient::exacuteCommand(QString cmd)
 {
     redisReply* pReplySet = (redisReply*)redisCommand(m_context, cmd.toStdString().c_str());
-    qDebug() << "set cmd: " << cmd;
-    qDebug() << "set reply: " << pReplySet->str;
+    // qDebug() << "set cmd: " << cmd;
+    // qDebug() << "set reply: " << pReplySet->str;
     freeReplyObject(pReplySet);
 }
 
@@ -31,7 +33,7 @@ QByteArray RedisClient::getForwardMessages(const QString &toUser) {
     redisReply *reply = (redisReply *)redisCommand(m_context, "get %s", key.toUtf8().data());
 
     messages = QByteArray(reply->str, reply->len);
-    qDebug()<< messages << messages.isEmpty();
+    // qDebug()<< messages << messages.isEmpty();
 
     freeReplyObject(reply);
     return messages;
@@ -40,6 +42,14 @@ QByteArray RedisClient::getForwardMessages(const QString &toUser) {
 void RedisClient::deleteForwardMessages(const QString &toUser) {
     QString key = QString("forward:%1").arg(toUser);
     redisCommand(m_context, "DEL %s", key.toUtf8().data());
+}
+
+FriendApplyCache *RedisClient::friendApplyCache()
+{
+    if(m_friend_apply_cache == nullptr){
+        m_friend_apply_cache = new FriendApplyCache(m_context);
+    }
+    return m_friend_apply_cache;
 }
 
 void RedisClient::connectToRedis(const QString &host, int port)

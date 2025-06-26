@@ -45,7 +45,7 @@ Responsive_form::Responsive_form(QWidget *parent)
     });
 
     scroll_bar = new Scroll_bar(this);
-    scroll_bar->move(-width() * 1.5, 0);
+    scroll_bar->move(-width() * 1.55, 0);
 
     transparent_transition_interface = new Transparent_transition_interface("你好, 欢迎!", "没有账号?", "注册", this);
     transparent_transition_interface->move(0, 0);
@@ -85,7 +85,7 @@ void Responsive_form::build_animation()
     animation2 = new QPropertyAnimation(this->scroll_bar, "pos");
     animation2->setDuration(m_animation_duration);
     animation2->setStartValue(this->scroll_bar->pos());
-    animation2->setEndValue(QPoint(this->width() / 2, 0));
+    animation2->setEndValue(QPoint(this->width() / 2*1.1, 0));
     animation2->setEasingCurve(QEasingCurve::Linear);
 
     animation3 = new QPropertyAnimation(this->transparent_transition_interface, "pos");
@@ -97,7 +97,7 @@ void Responsive_form::build_animation()
     animation4 = new QPropertyAnimation(this->transparent_transition_interface2, "pos");
     animation4->setDuration(m_animation_duration);
     animation4->setStartValue(this->transparent_transition_interface2->pos());
-    animation4->setEndValue(QPoint(this->width() / 2, 0));
+    animation4->setEndValue(QPoint(this->width() / 2*1.1, 0));
     animation4->setEasingCurve(QEasingCurve::Linear);
 
     animation5 = new QPropertyAnimation(this->registration_form, "pos");

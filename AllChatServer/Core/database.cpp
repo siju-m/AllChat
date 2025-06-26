@@ -1,5 +1,7 @@
 #include "database.h"
 
+#include "configmanager.h"
+
 DataBase::DataBase(QObject *parent):QObject(parent){}
 
 void DataBase::initDatabase() {
@@ -331,7 +333,7 @@ QByteArray DataBase::selectGroupsByUserId(const QString &id)
 
     QByteArray data;
     QDataStream out(&data, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15); // 或你当前 Qt 版本
+    out.setVersion(ConfigManager::dataStreamVersion()); // 或你当前 Qt 版本
     out << groups.size();
     for(const auto &group : groups){
         out << group.id;
@@ -395,7 +397,7 @@ QByteArray DataBase::selectGroupStrangers(const QString &userId)
 
     QByteArray data;
     QDataStream out(&data, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15); // 或你当前 Qt 版本
+    out.setVersion(ConfigManager::dataStreamVersion()); // 或你当前 Qt 版本
     out << users.size();
     for(const auto &user : users){
         out << user.id;

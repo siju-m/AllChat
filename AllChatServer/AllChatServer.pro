@@ -9,15 +9,19 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Core/configmanager.cpp \
     Core/datatransfer.cpp \
     Core/database.cpp \
+    Core/friendapplycache.cpp \
     Core/redisclient.cpp \
     main.cpp \
     server.cpp
 
 HEADERS += \
+    Core/configmanager.h \
     Core/datatransfer.h \
     Core/database.h \
+    Core/friendapplycache.h \
     Core/redisclient.h \
     server.h
 

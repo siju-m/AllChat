@@ -72,335 +72,10 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,4">
+     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,4">
       <property name="spacing">
        <number>0</number>
       </property>
-      <item>
-       <widget class="QWidget" name="sideBar" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>50</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">/* 默认 */
-QWidget#sideBar{
-	border-right: 1px solid gray;
-}
-QToolButton{   
-	border-top: 3px outset transparent;           /* 上边框宽度3像素、突出显示、颜色为透明 */
-	border-bottom: 7px outset transparent;
-	border-right: 3px outset transparent;
-	border-left: 3px outset transparent;
-}
-
-/* 鼠标悬停 */
-QToolButton:hover{
-	background-color: rgb(205, 205, 205);
-}
-
-/* 点击和按下 */
-QToolButton:pressed,QToolButton:checked{
-	border-left: 3px outset rgb(93, 95, 97);  /* 左边框宽度3像素、突出显示、颜色为深深灰 */
-	background-color: rgb(228, 228, 228);	
-}
-
-QPushButton:default {
-    border-color: navy; /* make the default button prominent */
-}
-</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item>
-          <spacer name="verticalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>10</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QWidget" name="widget_5" native="true">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="AvatarLabel" name="avatar">
-              <property name="minimumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">border-radius: 20px; /* 圆形效果，需与 QLabel 的宽度一致 */
-border: 2px solid #cccccc; /* 可选，添加边框 */
-background-color: #cccccc;</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="scaledContents">
-               <bool>true</bool>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>10</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QWidget" name="widget_6" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_6">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QToolButton" name="switchMessageList">
-              <property name="minimumSize">
-               <size>
-                <width>45</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>45</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>消息</string>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset>
-                <normalon>:/Icon/comment.png</normalon>
-               </iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>30</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QWidget" name="widget_7" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QToolButton" name="switchFriendsList">
-              <property name="minimumSize">
-               <size>
-                <width>45</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>45</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>好友</string>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset>
-                <normalon>:/Icon/users.png</normalon>
-               </iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>30</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QWidget" name="widget_8" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_8">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QToolButton" name="switchaddList">
-              <property name="minimumSize">
-               <size>
-                <width>45</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>45</width>
-                <height>40</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>申请</string>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset>
-                <normalon>:/Icon/user-add.png</normalon>
-               </iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>30</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </item>
       <item>
        <widget class="QWidget" name="viewList" native="true">
         <property name="minimumSize">
@@ -508,9 +183,9 @@ QScrollBar::sub-page:vertical {
 </string>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
-           <widget class="QWidget" name="page">
+           <widget class="QWidget" name="chat_page">
             <layout class="QVBoxLayout" name="verticalLayout_7">
              <property name="spacing">
               <number>0</number>
@@ -538,8 +213,11 @@ border: none;
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="page_3">
+           <widget class="QWidget" name="contact_page">
             <layout class="QVBoxLayout" name="verticalLayout_3">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <property name="leftMargin">
               <number>0</number>
              </property>
@@ -553,41 +231,37 @@ border: none;
               <number>0</number>
              </property>
              <item>
-              <widget class="QListView" name="friendList">
-               <property name="styleSheet">
-                <string notr="true">QListView { 
-border: none;
-}</string>
+              <widget class="QPushButton" name="btn_applyList">
+               <property name="text">
+                <string>好友通知</string>
                </property>
               </widget>
              </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="page_4">
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_5">
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
              <item>
-              <widget class="QListView" name="friendApplyList">
-               <property name="maximumSize">
+              <widget class="QPushButton" name="pushButton_2">
+               <property name="text">
+                <string>群通知</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
                 <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
+                 <width>20</width>
+                 <height>10</height>
                 </size>
                </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QListView" name="friendList">
                <property name="styleSheet">
                 <string notr="true">QListView { 
 border: none;
@@ -637,7 +311,13 @@ border: none;
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>40</height>
+                <height>48</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>48</height>
                </size>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout">
@@ -763,7 +443,7 @@ QScrollBar::sub-page:vertical {
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="page_5">
+          <widget class="QWidget" name="info_page">
            <layout class="QVBoxLayout" name="verticalLayout_9">
             <property name="leftMargin">
              <number>0</number>
@@ -779,6 +459,25 @@ QScrollBar::sub-page:vertical {
             </property>
             <item>
              <widget class="UserDetailView" name="friendInfo" native="true"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="apply_page">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QListView" name="friendApplyList">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QListView { 
+border: none;
+}</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -815,14 +514,9 @@ QScrollBar::sub-page:vertical {
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>AvatarLabel</class>
-   <extends>QLabel</extends>
-   <header>View/Components/avatarlabel.h</header>
-  </customwidget>
-  <customwidget>
    <class>SearchBar</class>
    <extends>QWidget</extends>
-   <header>View/searchbar.h</header>
+   <header>View/Components/searchbar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

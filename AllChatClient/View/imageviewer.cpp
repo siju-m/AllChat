@@ -49,7 +49,7 @@ ImageViewer::ImageViewer(const QPixmap &image, QWidget *parent)
 
 
     QVBoxLayout *layout = new QVBoxLayout(frame);
-    layout->setContentsMargins(10, 0, 10, 20);
+    layout->setContentsMargins(10, 10, 10, 20);
     DialogTitleBar *titleBar = new DialogTitleBar(this);
     connect(titleBar, &DialogTitleBar::closeWindow, this, &ImageViewer::close);
     layout->addWidget(titleBar);
@@ -167,14 +167,49 @@ void ImageViewer::wheelEvent(QWheelEvent *event) {
         m_scaleFactor *= (1.0 - zoomStep);
     }
 
-    // 限制缩放范围 (0.1x ~ 10x)
-    m_scaleFactor = qBound(0.1, m_scaleFactor, 10.0);
+    // 限制缩放范围 (0.1x ~ 6x)
+    if(m_scaleFactor<0.1 || m_scaleFactor>6.0){
+        event->accept();
+        m_scaleFactor = qBound(0.1, m_scaleFactor, 6.0);
+        return;
+    }
+
 
     // 应用缩放并保持鼠标位置不变
     updateImageDisplay();
     adjustScrollPosition(xRatio, yRatio);
 
     event->accept();
+}
+
+void ImageViewer::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        m_lastMousePos = event->pos();
+        m_isDragging = true;
+        setCursor(Qt::ClosedHandCursor);
+    }
+}
+
+void ImageViewer::mouseMoveEvent(QMouseEvent *event) {
+    if (m_isDragging) {
+        QPoint delta = event->pos() - m_lastMousePos;
+        m_lastMousePos = event->pos();
+
+        // 拖动滚动条
+        scrollArea->horizontalScrollBar()->setValue(
+            scrollArea->horizontalScrollBar()->value() - delta.x()
+            );
+        scrollArea->verticalScrollBar()->setValue(
+            scrollArea->verticalScrollBar()->value() - delta.y()
+            );
+    }
+}
+
+void ImageViewer::mouseReleaseEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        m_isDragging = false;
+        setCursor(Qt::ArrowCursor);
+    }
 }
 
 void ImageViewer::adjustScrollPosition(double xRatio, double yRatio) {

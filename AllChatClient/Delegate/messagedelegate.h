@@ -44,7 +44,7 @@ private:
                              const QSize &imageSize) const;
 
     QRect getAvatarRect(const QStyleOptionViewItem &option, bool isOutgoing) const;
-    QSize getImageSize(const QModelIndex &index) const;
+    QSize getImageSize(const QPixmap &pix) const;
     QRect getFileRect(const QStyleOptionViewItem &option, bool isOutgoing) const;
 
     QString formatFileSize(qint64 size) const;

@@ -6,7 +6,7 @@ Transparent_transition_interface::Transparent_transition_interface(QString large
     this->large_text = large_text;
     this->small_text = small_text;
 
-    this->resize(377, 520);
+    this->resize(355, 520);
 
     button = new Hollow_button(this);
     button->setCenter_text(btn_text);

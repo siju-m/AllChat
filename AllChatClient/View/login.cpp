@@ -4,10 +4,10 @@
 #include <Core/currentuser.h>
 
 
-Login::Login(ChatHistoryManager *historyManager, QObject *parent)
+Login::Login(QObject *parent)
     : QObject{parent}
     , m_dataTransfer(DataTransfer::getInstance())
-    , m_historyManager(historyManager)
+    , m_historyManager(ChatHistoryManager::getInstance())
 {
     m_login_regist_view = new Responsive_form();
     m_login_regist_view->show();
@@ -66,7 +66,7 @@ void Login::handle_registResult(CommonEnum::message_type result)
 void Login::updateUserInfo(QByteArray &data)
 {
     QDataStream in(data);
-    in.setVersion(QDataStream::Qt_5_15);
+    in.setVersion(ConfigManager::dataStreamVersion());
     CurrentUser *user = CurrentUser::getInstance();
 
     CommonEnum::message_type messageType;
@@ -77,6 +77,6 @@ void Login::updateUserInfo(QByteArray &data)
 
     user->set_userId(id);
     if(imageData.isEmpty()) return;
-    QString avatarPath = m_historyManager->storeImage(user->get_userName(),imageData);
+    QString avatarPath = m_historyManager->storeAvatar(user->get_userName(),imageData);
     user->set_avatarPath(avatarPath);
 }

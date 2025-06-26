@@ -1,12 +1,15 @@
 #ifndef DATATRANSFER_H
 #define DATATRANSFER_H
 
+#include "Model/Packet.h"
 #include "Utils/CustomTypes.h"
+
 #include <QByteArray>
 #include <QObject>
 #include <QTcpSocket>
 #include <QCoreApplication>
-#include <Model/Packet.h>
+#include <mutex>
+
 
 enum ReceivingState {
     WaitingForHeader, // 等待接收数据头
@@ -20,8 +23,12 @@ public:
     DataTransfer(const DataTransfer& obj) = delete;
     DataTransfer& operator=(const DataTransfer& obj) = delete;
     static DataTransfer* getInstance(){
-        if(m_instance == nullptr)
-            m_instance = new DataTransfer(qApp);
+        if(m_instance == nullptr){
+            std::lock_guard<std::mutex> locker(m_mutex);
+            if(m_instance == nullptr){
+                m_instance = new DataTransfer(qApp);
+            }
+        }
         return m_instance;
     }
 
@@ -43,6 +50,7 @@ private:
 
     explicit DataTransfer(QObject *parent = nullptr);
     static DataTransfer *m_instance;
+    static std::mutex m_mutex;
 
     QTcpSocket *m_socket;
 

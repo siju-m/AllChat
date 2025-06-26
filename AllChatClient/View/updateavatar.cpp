@@ -6,6 +6,8 @@
 #include <QMouseEvent>
 #include <windows.h>
 
+#include <Utils/commonutil.h>
+
 
 UpdateAvatar::UpdateAvatar(QWidget *parent)
     : QDialog(parent)
@@ -13,7 +15,6 @@ UpdateAvatar::UpdateAvatar(QWidget *parent)
     , m_avatarPath("")
 {
     ui->setupUi(this);
-    // this->setWindowFlags(Qt::CustomizeWindowHint);
     this->setWindowFlag(Qt::FramelessWindowHint);         //无边框
     this->setAttribute(Qt::WA_TranslucentBackground);     //窗口透明
     //设置投影效果
@@ -25,17 +26,12 @@ UpdateAvatar::UpdateAvatar(QWidget *parent)
     ui->frame->setGraphicsEffect(windowShadow);
     connect(ui->btnClose, &QPushButton::clicked, this, &UpdateAvatar::close);
 
+    ui->btnUpdateAvatar->setEnabled(false);
     connect(ui->btnSelectAvatar,&QPushButton::clicked,this,&UpdateAvatar::chooseAvatar);
     connect(ui->btnUpdateAvatar,&QPushButton::clicked,this,[=](){
         emit send_updateAvatar(m_avatarPath);
     });
-    connect(this,&UpdateAvatar::toSetAvatar,this,[=](){
-        // QMessageBox::information(this, "成功", "成功更换头像!");
-        // TipsBox *box = new TipsBox("成功更换头像!", SA_SUCCESS, 2, this);
-        // box->show();
-        TipsBox::showNotice("成功更换头像!", SA_SUCCESS, this);
-        emit setAvatar(m_avatarPath);
-    });
+
 }
 
 UpdateAvatar::~UpdateAvatar()
@@ -53,19 +49,15 @@ void UpdateAvatar::setAvatarPath(const QString &path)
     showAvatar(pixmap);
 }
 
+void UpdateAvatar::onSuccessSetAvatar()
+{
+    TipsBox::showNotice("成功更换头像!", SA_SUCCESS, this);
+    emit setAvatar(m_avatarPath);
+}
+
 void UpdateAvatar::showAvatar(const QPixmap &pixmap)
 {
-    QPixmap roundedPixmap(pixmap.size());
-    roundedPixmap.fill(Qt::transparent);
-
-    QPainter painter(&roundedPixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform);
-
-    QPainterPath painterPath;
-    painterPath.addEllipse(0, 0, pixmap.width(), pixmap.height());
-    painter.setClipPath(painterPath);
-    painter.drawPixmap(0, 0, pixmap);
+    QPixmap roundedPixmap = CommonUtil::getRoundPix(m_avatarPath);
 
     ui->avatar->setPixmap(roundedPixmap);
 }
@@ -75,6 +67,7 @@ void UpdateAvatar::chooseAvatar()
     QString imagePath = QFileDialog::getOpenFileName(this, "Select image File", "", "image Files (*.jpg *.png)");
     if(imagePath.isEmpty()) return;
     setAvatarPath(imagePath);
+    ui->btnUpdateAvatar->setEnabled(true);
 }
 
 void UpdateAvatar::mousePressEvent(QMouseEvent *event) {
@@ -89,4 +82,10 @@ void UpdateAvatar::mousePressEvent(QMouseEvent *event) {
     } else {
         QWidget::mousePressEvent(event);
     }
+}
+
+void UpdateAvatar::closeEvent(QCloseEvent *event)
+{
+    ui->btnUpdateAvatar->setEnabled(false);
+    QDialog::closeEvent(event);
 }

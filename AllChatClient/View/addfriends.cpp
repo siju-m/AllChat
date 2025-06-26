@@ -4,8 +4,10 @@
 
 #include <QGraphicsDropShadowEffect>
 #include <QMessageBox>
+#include <QShortcut>
 
 #include <Core/currentuser.h>
+#include <Core/contactmanager.h>
 
 AddFriends::AddFriends(QWidget *parent)
     : QDialog(parent)
@@ -23,6 +25,9 @@ AddFriends::AddFriends(QWidget *parent)
     windowShadow->setOffset(0, 0);
     ui->frame->setGraphicsEffect(windowShadow);
 
+
+    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Return), this);
+    connect(shortcut, &QShortcut::activated, this, &AddFriends::slelect_byName);
     connect(ui->titleBar, &DialogTitleBar::closeWindow, this, &AddFriends::close);
 
     connect(ui->btnSelect,&QPushButton::clicked,this,&AddFriends::slelect_byName);
@@ -39,7 +44,7 @@ void AddFriends::updateListView(QMap<QString, QString> id_name,QMap<QString,QStr
 {
     m_stranger_model->clear();
     QList<QString> ids = id_name.keys();
-    QMap<QString, User> &m_friendList = CurrentUser::getInstance()->getFriendList();
+    const QMap<QString, User> &m_friendList = ContactManager::getInstance()->friendList();
     for(auto &id:ids){
         //在列表显示
         m_stranger_model->addFriends_ToList(id_name[id],id,m_friendList.contains(id),id_avatar[id]);

@@ -41,10 +41,10 @@ void MessageModel::addMessage(const Message &msg)
 
     MessageType type = getType(msg.getType());
 
-    loadAvatar(avatarPath);
+    loadAvatar(avatarPath, rowCount());
 
     if(type==Image){
-        loadImage(content);
+        loadImage(content, rowCount());
     }
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
@@ -63,10 +63,10 @@ void MessageModel::addOlderMessage(const Message &message)
     MessageType type = getType(message.getType());
     const QString content = message.getContent();
 
-    loadAvatar(avatarPath);
+    loadAvatar(avatarPath, 0);
 
     if(type==Image){
-        loadImage(content);
+        loadImage(content, 0);
     }
 
     beginInsertRows(QModelIndex(), 0, 0);
@@ -89,6 +89,8 @@ void MessageModel::addOlderTimeMessage(const QString &time)
 }
 
 void MessageModel::clear() {
+    avatarCache.clear();
+    imageCache.clear();
     beginResetModel();  // 通知视图即将更新
     m_messages.clear();
     endResetModel();    // 通知视图更新完成
@@ -131,7 +133,7 @@ MessageType MessageModel::getType(Message::MessageType type)
     return MessageType::NONE;
 }
 
-void MessageModel::loadAvatar(const QString &avatarPath)
+void MessageModel::loadAvatar(const QString &avatarPath, int index)
 {
     if(!avatarCache.contains(avatarPath)){
         (void)QtConcurrent::run([=]() {
@@ -140,13 +142,14 @@ void MessageModel::loadAvatar(const QString &avatarPath)
             if (!asyncPixmap.isNull()) {
                 QMetaObject::invokeMethod(const_cast<MessageModel *>(this), [=]() {
                     avatarCache.insert(avatarPath, asyncPixmap);
+                    emit this->dataChanged(this->index(index, 0), this->index(index, 0));
                 }, Qt::QueuedConnection);
             }
         });
     }
 }
 
-void MessageModel::loadImage(const QString &imagePath)
+void MessageModel::loadImage(const QString &imagePath, int index)
 {
     if(!imageCache.contains(imagePath)){
         (void)QtConcurrent::run([=]() {
@@ -155,6 +158,7 @@ void MessageModel::loadImage(const QString &imagePath)
             if (!asyncPixmap.isNull()) {
                 QMetaObject::invokeMethod(const_cast<MessageModel *>(this), [=]() {
                     imageCache.insert(imagePath, asyncPixmap);
+                    emit this->dataChanged(this->index(index, 0), this->index(index, 0));
                 }, Qt::QueuedConnection);
             }
         });

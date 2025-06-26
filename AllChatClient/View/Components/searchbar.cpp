@@ -28,6 +28,14 @@ void SearchBar::initBar()
         border: 1px solid #0078d7;
         background-color: #ffffff;
     })");
+    m_inputBox->setClearButtonEnabled(true);
+    connect(m_inputBox, &QLineEdit::returnPressed, this, &SearchBar::onSearch);
+    connect(m_inputBox, &QLineEdit::textChanged, this, [=](const QString &text){
+        if (text.isEmpty()) {
+            qDebug() << "可能是点击了清除按钮";
+            emit hasClear();
+        }
+    });
 
     m_moreButton = new QPushButton(this);
     m_moreButton->setFixedSize(30, 30);
@@ -109,4 +117,12 @@ void SearchBar::initMenu()
         QPoint pos = m_moreButton->mapToGlobal(QPoint(0, m_moreButton->height()));
         menu->exec(pos);
     });
+}
+
+void SearchBar::onSearch()
+{
+    QString name = m_inputBox->text();
+    if(!name.isEmpty()){
+        emit search(name);
+    }
 }

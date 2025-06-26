@@ -41,8 +41,8 @@ public:
 
 private:
     MessageType getType(Message::MessageType type);
-    void loadAvatar(const QString &avatarPath);
-    void loadImage(const QString &imagePath);
+    void loadAvatar(const QString &avatarPath, int index);
+    void loadImage(const QString &imagePath, int index);
 
 private:
 

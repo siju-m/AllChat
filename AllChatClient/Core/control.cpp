@@ -1,24 +1,17 @@
 #include "control.h"
-#include "View/messagesenderview.h"
 
 
 Control::Control(QObject *parent)
-    : QObject{parent}
+    : QObject{parent},
+    m_historyManager(ChatHistoryManager::getInstance())
 {
-    ChatHistoryManager *historyManager = new ChatHistoryManager(this);
-
-    m_window = new MainWindow(historyManager);
-    m_login = new Login(historyManager);
-    MessageSenderView *sender = new MessageSenderView();
+    m_window = new MainWindow();
+    m_login = new Login();
 
     QObject::connect(m_login, &Login::login_success, this, [=](){
         m_login->deleteLater();
-        historyManager->initDatabase();
-
+        m_historyManager->initDatabase();
         m_window->show();
-        // sender->setFixedSize(400,200);
-        // sender->show();
-
     });
 
 }

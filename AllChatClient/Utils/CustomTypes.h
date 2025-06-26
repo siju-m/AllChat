@@ -16,7 +16,8 @@ enum message_type{
     AGREE_FRIEND,//同意好友请求
     FIND_NEW_FRIEND,//查询用户请求
     NEW_FRIEND_REULT,//查询用户结果
-    ONLINE_LIST,//在线用户列表
+    ONLINE_STATE,//在线用户状态
+    ONLINE_LIST,
     UPDATE_AVATAR,
     UPDATE_AVATAR_RESULT,
     DELETE_FRIEND,

@@ -6,11 +6,13 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <Core/configmanager.h>
 
 Server::Server(QObject *parent) :
     QTcpServer(parent) ,dataBase(new DataBase(this)),
     m_dataTransfer(new DataTransfer(this)),
-    m_redisClient(new RedisClient(this))
+    m_redisClient(new RedisClient(this)),
+    m_friend_apply_cache(m_redisClient->friendApplyCache())
 {
     dataBase->initDatabase();
 
@@ -49,33 +51,21 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
     QByteArray avatar = dataBase->getAvatar(m_clients_userId[senderSocket]);
     QByteArray packet = getPacket(LOGIN_SUCCESS,m_clients_userId[senderSocket],avatar);
     sendData(m_clients_userId[senderSocket],packet);
-    //向登录用户发送他的最新好友列表
-    updateFriendsList(m_clients_userId[senderSocket]);
-
-    // 更新群聊列表
-    updateGroupsList(m_clients_userId[senderSocket]);
+    //更新联系列表
+    updateContactList(m_clients_userId[senderSocket]);
 
     // 更新并广播在线用户列表
-    broadcast_userOnlineList();
-
+    // broadcast_userOnlineList();
+    sendOnlineState(m_clients_userId.value(senderSocket), true);
+    sendFrdOnlineList(m_clients_userId.value(senderSocket));
 
     //发送陌生人的信息
     updateGroup_strangerList(m_clients_userId[senderSocket]);
 
     //判断是否有待转发的消息
-    send_forwardContents(m_clients_userId[senderSocket]);
+    sendForwardContents(m_clients_userId[senderSocket]);
 
-    // if(m_forward_contents.contains(m_clients_userId[senderSocket]))
-    //     send_forwardContents(m_clients_userId[senderSocket]);
-    for(auto it = m_alreadyApply.begin(); it != m_alreadyApply.end(); ++it)
-    {
-        if(it->second==m_clients_userId[senderSocket]){
-            QString senderName = dataBase->selectNameById(it->first);
-            QByteArray avatar = dataBase->getAvatar(it->first);
-            QByteArray packet= getPacket(ADD_FRIEND,senderName,it->first,avatar);
-            sendData(m_clients_userId[senderSocket],packet);
-        }
-    }
+    sendApplyList(m_clients_userId[senderSocket]);
 }
 
 void Server::handleRegist(QDataStream &in, QTcpSocket *senderSocket)
@@ -113,7 +103,7 @@ void Server::onReadyRead() {
 void Server::handleData(QByteArray data,QTcpSocket *senderSocket)
 {
     QDataStream in(data);
-    in.setVersion(QDataStream::Qt_5_15);
+    in.setVersion(ConfigManager::dataStreamVersion());
 
     in >> messageType;
     switch(messageType){
@@ -189,9 +179,9 @@ void Server::handleAddFriend(QDataStream &in, QTcpSocket *senderSocket)
     //好友请求在对方在线时直接发送，不在线就等对方登录再发过去
     //不能使用之前的不在线转发方案，因为好友请求在客户端没有存储，需要每回登录都发送
     //先判断有没有好友，再判断是否重复添加
-    if(!friendsId.contains(id) && !m_alreadyApply.contains(qMakePair(m_clients_userId[senderSocket],id))){
+    if(!friendsId.contains(id) && !m_friend_apply_cache->hasAlreadyApplied(m_clients_userId[senderSocket],id)){
         //还需要判断对方是否在线
-        m_alreadyApply.insert(qMakePair(m_clients_userId[senderSocket],id));
+        m_friend_apply_cache->applyFriend(m_clients_userId[senderSocket],id);
 
         if(m_userIds_client.contains(id)){
             QByteArray avatar = dataBase->getAvatar(m_clients_userId[senderSocket]);
@@ -209,23 +199,25 @@ void Server::handleAddFriend_Result(QDataStream &in, QTcpSocket *senderSocket)
     dataBase->addFriends(m_clients_userId[senderSocket],id);
     dataBase->addFriends(id,m_clients_userId[senderSocket]);
 
-    updateFriendsList(m_clients_userId[senderSocket]);//更新同意者的好友列表
-    updateFriendsList(id);//更新请求者的好友列表
-    broadcast_userOnlineList();//更新在线状态
+    updateContactList(m_clients_userId[senderSocket]);
+    updateContactList(id);
+    // broadcast_userOnlineList();//更新在线状态
+    sendOnlineState(m_clients_userId.value(senderSocket), true);
+    sendOnlineState(id, m_userIds_client.contains(id));
 
     QByteArray packet = getPacket(messageType, m_clients_userId[senderSocket], id);
     sendData(id,packet);
     sendData(m_clients_userId[senderSocket],packet);
 
-    m_alreadyApply.remove(qMakePair(id,m_clients_userId[senderSocket]));
+    m_friend_apply_cache->removeApply(id,m_clients_userId[senderSocket]);
 }
 
-bool Server::confirm_isOnline(const QString &id)
-{
-    return m_userIds_client.contains(id);
-}
+// bool Server::isOnline(const QString &id)
+// {
+//     return m_userIds_client.contains(id);
+// }
 
-void Server::send_forwardContents(const QString &userId)
+void Server::sendForwardContents(const QString &userId)
 {
     QByteArray forwardContent = m_redisClient->getForwardMessages(userId);
     if(!forwardContent.isEmpty()){
@@ -235,6 +227,23 @@ void Server::send_forwardContents(const QString &userId)
 
     // m_userIds_client[userId]->write(m_forward_contents[userId]);
     // m_forward_contents.remove(userId);
+}
+
+void Server::sendApplyList(const QString &userId)
+{
+    QVector<QString> list = m_friend_apply_cache->getReceivedList(userId);
+    for(const auto &it : list){
+        QString senderName = dataBase->selectNameById(it);
+        QByteArray avatar = dataBase->getAvatar(it);
+        QByteArray packet= getPacket(ADD_FRIEND,senderName,it,avatar);
+        sendData(userId,packet);
+    }
+}
+
+void Server::updateContactList(const QString &userId)
+{
+    updateFriendsList(userId);
+    updateGroupsList(userId);
 }
 
 void Server::updateFriendsList(const QString &userId)
@@ -278,7 +287,7 @@ void Server::sendData(const QString &targetId, QByteArray &packet)
 {
     QByteArray outData;
     QDataStream out(&outData,QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15);
+    out.setVersion(ConfigManager::dataStreamVersion());
     out<<static_cast<qint32>(packet.size());
     out.writeRawData(packet.constData(),packet.size());
     if(m_userIds_client.contains(targetId)){
@@ -286,14 +295,14 @@ void Server::sendData(const QString &targetId, QByteArray &packet)
         m_userIds_client[targetId]->write(outData);
         m_userIds_client[targetId]->flush();
     }
-    else store_forwardContents(outData,targetId);
+    else storeForwardContents(outData,targetId);
 }
 
 void Server::sendData(QTcpSocket *senderSocket, QByteArray &packet)
 {
     QByteArray outData;
     QDataStream out(&outData,QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15);
+    out.setVersion(ConfigManager::dataStreamVersion());
     out<<static_cast<qint32>(packet.size());
     out.writeRawData(packet.constData(),packet.size());
     senderSocket->write(outData);
@@ -318,7 +327,8 @@ void Server::handle_deleteFriend(QDataStream &in, QTcpSocket *senderSocket)
     QByteArray packet = getPacket(DELETE_FRIEND,success,friendId);
     sendData(senderSocket,packet);
     //todo 通知被删除者的方式需要优化
-    updateFriendsList(friendId);
+    // updateFriendsList(friendId);
+    updateContactList(friendId);
 }
 
 void Server::handle_createGroup(QDataStream &in, QTcpSocket *senderSocket)
@@ -389,7 +399,7 @@ QString Server::getCurrentTime()
 }
 
 
-void Server::store_forwardContents(const QByteArray &content,const QString &userId)
+void Server::storeForwardContents(const QByteArray &content,const QString &userId)
 {
     QByteArray forwardContent = m_redisClient->getForwardMessages(userId);
     if(!forwardContent.isEmpty()){
@@ -405,18 +415,40 @@ void Server::store_forwardContents(const QByteArray &content,const QString &user
     // }
 }
 
-void Server::broadcast_userOnlineList() {
+// void Server::broadcast_userOnlineList() {
+//     //在线状态是广播的，有点问题
+//     QSet<QString> userId;
+//     for (auto it = m_userIds_client.begin(); it != m_userIds_client.end(); ++it) {
+//         userId.insert(it.key());
+//     }
+//     QByteArray packet = getPacket(ONLINE_LIST,userId);
+//     for (auto it = m_userIds_client.begin(); it != m_userIds_client.end(); ++it) {
+//         // qDebug()<<"更新"+it.key()+"的在线列表";
+//         sendData(it.key(),packet);
+//     }
+// }
 
-    QSet<QString> userId;
-    for (auto it = m_userIds_client.begin(); it != m_userIds_client.end(); ++it) {
-        userId.insert(it.key());
+void Server::sendOnlineState(const QString &id, const bool state)
+{
+    QByteArray packet = getPacket(ONLINE_STATE, id, state);
+    QSet<QString> friends = dataBase->selectFriends(id);
+    for(auto it = friends.begin(); it != friends.end(); ++it){
+        if(m_userIds_client.contains(*it)){
+            sendData(*it, packet);
+        }
     }
-    QByteArray packet = getPacket(ONLINE_LIST,userId);
-    for (auto it = m_userIds_client.begin(); it != m_userIds_client.end(); ++it) {
-        // qDebug()<<"更新"+it.key()+"的在线列表";
-        sendData(it.key(),packet);
-    }
+}
 
+void Server::sendFrdOnlineList(const QString &id)
+{
+    QSet<QString> friends = dataBase->selectFriends(id);
+    QSet<QString> onlineFrd;
+    for(auto it = friends.begin(); it != friends.end(); ++it){
+        if(m_userIds_client.contains(*it))
+            onlineFrd.insert(*it);
+    }
+    QByteArray packet = getPacket(ONLINE_LIST, onlineFrd);
+    sendData(id, packet);
 }
 
 void Server::onClientDisconnected() {
@@ -425,6 +457,8 @@ void Server::onClientDisconnected() {
 
     QString userName = m_clients_name[clientSocket];
 
+    //发送用户下线消息
+    sendOnlineState(m_clients_userId.value(clientSocket), false);
     // 移除用户数据
     m_clients_name.remove(clientSocket);
     m_userIds_client.remove(m_userIds_client.key(clientSocket));
@@ -434,7 +468,7 @@ void Server::onClientDisconnected() {
     qDebug() << "用户断开连接:" << userName;
 
     // 广播用户下线消息
-    broadcast_userOnlineList();
+    // broadcast_userOnlineList();
 }
 
 QString Server::generateUniqueId() {
@@ -446,7 +480,7 @@ QByteArray Server::getPacket(Args... args)
 {
     QByteArray packet;
     QDataStream stream(&packet, QIODevice::WriteOnly);
-    stream.setVersion(QDataStream::Qt_5_15);
+    stream.setVersion(ConfigManager::dataStreamVersion());
     (void)(stream<<...<< args);
     return packet;
 }

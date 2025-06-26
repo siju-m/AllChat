@@ -28,6 +28,9 @@ protected:
     // 右键菜单
     void contextMenuEvent(QContextMenuEvent *event) override ;
     void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 private:
     void adjustScrollPosition(double xRatio, double yRatio);
 
@@ -49,6 +52,9 @@ private:
     QPixmap m_currentImage;
     qreal m_scaleFactor;
     QScrollArea *scrollArea;
+
+    QPoint m_lastMousePos;
+    bool m_isDragging = false;
 };
 
 #endif // IMAGEVIEWER_H

@@ -1,6 +1,7 @@
 #ifndef REDISCLIENT_H
 #define REDISCLIENT_H
 
+#include "Core/friendapplycache.h"
 #include <QObject>
 #include <QDebug>
 
@@ -21,6 +22,8 @@ public:
     QByteArray getForwardMessages(const QString &toUser);
     void deleteForwardMessages(const QString &toUser);
 
+    FriendApplyCache *friendApplyCache();
+
 private:
     void connectToRedis(const QString &host = "127.0.0.1", int port = 6379);
     void disconnectFromRedis();
@@ -31,6 +34,7 @@ signals:
 
 private:
     redisContext *m_context;
+    FriendApplyCache *m_friend_apply_cache;
 
 };
 

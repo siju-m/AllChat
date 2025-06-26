@@ -38,10 +38,13 @@ public:
     void clear();
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
-
+private:
+    void loadImage(const QString &imagePath, int index);
 
 private:
     QVector<Friends> m_friends;
+
+    QHash<QString, QPixmap> avatarCache;
 };
 
 #endif // FRIENDSMODEL_H

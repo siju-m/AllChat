@@ -202,7 +202,7 @@ void MessageDelegate::drawImageMessage(QPainter *painter, const QStyleOptionView
                                        const QModelIndex &index, bool isOutgoing) const {
     // QPixmap image(index.data(MessageModel::ContentRole).toString());
     const QPixmap image = index.data(MessageModel::ContentRole).value<QPixmap>();
-    QSize scaledSize =getImageSize(index);
+    QSize scaledSize =getImageSize(image);
     QRect imageRect = calculateImageRect(option, isOutgoing, scaledSize);
 
     if(image.isNull()){
@@ -218,12 +218,21 @@ void MessageDelegate::drawImageMessage(QPainter *painter, const QStyleOptionView
             Qt::SmoothTransformation       // 平滑处理
             );
         scaled.setDevicePixelRatio(dpr);
+
+        QRect sourceRect(
+            (scaled.width() - imageRect.width() * dpr) / 2,
+            (scaled.height() - imageRect.height() * dpr) / 2,
+            imageRect.width() * dpr,
+            imageRect.height() * dpr
+            );
+
         // 绘制图片（带圆角裁剪）
         QPainterPath clipPath;
         painter->setPen(Qt::NoPen);
         clipPath.addRoundedRect(imageRect.adjusted(1,1,-1,-1), 8*dpr, 8*dpr);//不adjusted的话会有不连续的黑框影响美观
         painter->setClipPath(clipPath);
-        painter->drawPixmap(imageRect, scaled);
+
+        painter->drawPixmap(imageRect, scaled, sourceRect);
         painter->setClipping(false);
     }
 
@@ -252,11 +261,12 @@ bool MessageDelegate::isClickOnImage(const QPoint &pos, const QModelIndex &index
     MessageType type = static_cast<MessageType>(index.data(MessageModel::TypeRole).toInt());
     if (type != MessageType::Image) return false;
     const bool isOutgoing = index.data(MessageModel::IsOutgoingRole).toBool();
+    const QPixmap image = index.data(MessageModel::ContentRole).value<QPixmap>();
 
     // 获取图片绘制区域
     QRect imageRect = calculateImageRect(option,
                                          isOutgoing,
-                                         getImageSize(index)
+                                         getImageSize(image)
                                          );
     // 判断点击位置是否在区域内
 
@@ -362,15 +372,14 @@ QRect MessageDelegate::getAvatarRect(const QStyleOptionViewItem &option, bool is
 }
 
 // 获取图片显示尺寸（已实现）
-QSize MessageDelegate::getImageSize(const QModelIndex &index) const {
-    const int maxImageSize = 300;
-    QPixmap image(index.data(MessageModel::ContentRole).toString());
+QSize MessageDelegate::getImageSize(const QPixmap &pix) const {
+    const int maxImageSize = 200;
 
     // 保持宽高比缩放
-    return image.size().scaled(
+    return pix.size().scaled(
         maxImageSize,
         maxImageSize,
-        Qt::KeepAspectRatio
+        Qt::KeepAspectRatioByExpanding
         );
 }
 
@@ -426,7 +435,7 @@ bool MessageDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, cons
         if (isClickOnImage(clickPos,index,newOption))
         {
             // 处理按钮点击逻辑
-            QPixmap image(index.data(MessageModel::ContentRole).toString());
+            const QPixmap image = index.data(MessageModel::ContentRole).value<QPixmap>();
             emit imageClicked(image);
             return true;
         }
@@ -456,8 +465,8 @@ QSize MessageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
     }
     case MessageType::Image:{
         // 图片高度计算
-        QPixmap image(index.data(MessageModel::ContentRole).toString());
-        QSize scaledSize = image.size().scaled(300, 300, Qt::KeepAspectRatio);
+        QPixmap image = index.data(MessageModel::ContentRole).value<QPixmap>();
+        QSize scaledSize = getImageSize(image);
         return QSize(option.rect.width(), scaledSize.height() + verticalSpacing+bottumMargin);
     }
     case MessageType::Time:{

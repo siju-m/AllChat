@@ -10,7 +10,7 @@ class Login : public QObject
 {
     Q_OBJECT
 public:
-    explicit Login(ChatHistoryManager *historyManager, QObject *parent = nullptr);
+    explicit Login(QObject *parent = nullptr);
     ~Login();
 
     void loginUser(const QString &username, const QString &password);

@@ -12,10 +12,15 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QStandardPaths>
+#include "Core/contactmanager.h"
+
+ChatHistoryManager *ChatHistoryManager::m_instance;
+std::mutex ChatHistoryManager::m_mutex;
 
 ChatHistoryManager::ChatHistoryManager(QObject *parent)
     : QObject{parent},
-    m_user(CurrentUser::getInstance())
+    m_user(CurrentUser::getInstance()),
+    m_contact_mg(ContactManager::getInstance())
 {}
 
 void ChatHistoryManager::initDatabase() {
@@ -59,7 +64,7 @@ QString ChatHistoryManager::getChatHistoryFilePath() {
 QString ChatHistoryManager::getChatFilePath(QString chatId)
 {
     QString filePath = getChatHistoryFilePath();
-    if(!m_user->getGroupsIdList().contains(chatId))
+    if(!m_contact_mg->isInGroup(chatId))
     {
         filePath += "/Private";
     }
@@ -82,7 +87,7 @@ void ChatHistoryManager::addHistoryToFile(Message &msg)
     query.bindValue(":conversation_id", msg.getChatId());
     query.bindValue(":sender_id", msg.getSenderId());
     query.bindValue(":content", msg.getContent());
-    query.bindValue(":message_type", msg.getType_string());
+    query.bindValue(":message_type", msg.getTypeString());
     query.bindValue(":timestamp", msg.getDateTime());
 
     if (!query.exec()) {
@@ -90,7 +95,7 @@ void ChatHistoryManager::addHistoryToFile(Message &msg)
     }
 }
 
-QString ChatHistoryManager::storeImage(QString imageName, const QByteArray &imageData)
+QString ChatHistoryManager::saveImage(const QString &imageName, const QByteArray &imageData)
 {
     if(imageData.isEmpty()) return QString();
     QString filePath = getChatHistoryFilePath();
@@ -110,10 +115,43 @@ QString ChatHistoryManager::storeImage(QString imageName, const QByteArray &imag
     }
     //如果名字为空就用uid，有的话就是头像
     //todo 可以给图片分类，根据类别命名
-    imageName = imageName.isEmpty()?QUuid::createUuid().toString(QUuid::WithoutBraces):imageName.append("_avatar");
     QString imageFilePath = QString("%1/%2/%3.%4").arg(filePath).arg("image").arg(imageName).arg(format);
     image.save(imageFilePath);
     return imageFilePath;
+}
+
+QString ChatHistoryManager::storeAvatar(QString userName, const QByteArray &imageData)
+{
+    QString imageName = userName.append("_avatar");
+    return saveImage(imageName, imageData);
+}
+
+QString ChatHistoryManager::storeImage(const QByteArray &imageData)
+{
+    QString imageName = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    return saveImage(imageName, imageData);
+    // if(imageData.isEmpty()) return QString();
+    // QString filePath = getChatHistoryFilePath();
+
+    // QImage image;
+    // image.loadFromData(imageData);
+    // QBuffer buffer;
+    // buffer.setData(imageData);
+    // buffer.open(QIODevice::ReadOnly);  // 以只读模式打开
+    // QImageReader reader(&buffer);
+    // reader.setDecideFormatFromContent(true);
+    // QString format = QString(reader.format());//读取图片后缀名
+
+    // QDir dir(QString("%1/%2").arg(filePath).arg("image"));
+    // if (!dir.exists()) {
+    //     dir.mkpath(".");
+    // }
+    // //如果名字为空就用uid，有的话就是头像
+    // //todo 可以给图片分类，根据类别命名
+    // imageName = imageName.isEmpty()?QUuid::createUuid().toString(QUuid::WithoutBraces):imageName.append("_avatar");
+    // QString imageFilePath = QString("%1/%2/%3.%4").arg(filePath).arg("image").arg(imageName).arg(format);
+    // image.save(imageFilePath);
+    // return imageFilePath;
 }
 
 QString ChatHistoryManager::storeFile(QString fileName, const QByteArray &fileData)
@@ -181,13 +219,13 @@ void ChatHistoryManager::loadChatHistoryFromFile(QString targetId)
             {
                 sender = m_user->toUser();
             }
-            else if(m_user->getFriendList().contains(senderId))
+            else if(m_contact_mg->isFriend(senderId))
             {
-                sender = m_user->getFriendList()[senderId];
+                sender = m_contact_mg->friendById(senderId);
             }
-            else if(m_user->getStrangerList().contains(senderId))
+            else if(m_contact_mg->isStranger(senderId))
             {
-                sender = m_user->getStrangerList()[senderId];
+                sender = m_contact_mg->strangerById(senderId);
             }
             QString time = query.value(6).toDateTime().toString("yyyy-MM-dd hh:mm:ss");
 
@@ -256,31 +294,4 @@ QPair<QString, QString> ChatHistoryManager::getLastMessage(const QString &target
         qDebug() << "查询最新消息失败";
     }
     return {};
-    // QString filePath = getChatFilePath(targetId);//因为多个个客户端会运行在同一台机器上，需要接收端id加发送端用户名来作为文件名
-    // filePath+=QString("/%1_%2.txt").arg(targetId).arg(m_user->get_userName());
-    // QFile file(filePath);
-    // if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    //     // qDebug() << "没有聊天记录";
-    //     return {"",""};
-    // }
-    // QString lastLine;
-    // QTextStream in(&file);
-    // while (!in.atEnd()) {
-    //     lastLine = in.readLine();
-    // }
-    // file.close();
-    // QJsonDocument doc = QJsonDocument::fromJson(lastLine.toUtf8());
-    // QJsonObject format = doc.object();
-    // QJsonObject obj = format["data"].toObject();
-    // // 此时 lastLine 就是文件的最后一行文本
-    // // qDebug() << "最后一行:" << lastLine;
-    // QString lastMessage;
-    // QString lastMessageTime = obj["time"].toString();
-    // if(format["kinds"].toString()=="text"){
-    //     lastMessage = obj["message"].toString();
-    // }else if(format["kinds"].toString()=="image"){
-    //     lastMessage = "图片";
-    // }
-
-    // return {lastMessage,lastMessageTime};
 }

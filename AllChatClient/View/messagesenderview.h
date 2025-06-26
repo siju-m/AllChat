@@ -14,7 +14,7 @@ class MessageSenderView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MessageSenderView(QWidget *parent = nullptr, ChatHistoryManager* historyManager=nullptr);
+    explicit MessageSenderView(QWidget *parent = nullptr);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -38,7 +38,7 @@ private:
     CurrentUser* m_user;
     DataTransfer* m_dataTransfer;
     ChatHistoryManager* m_historyManager;
-    QMap<QString, User> &m_friendList;
+    ContactManager *m_contact_mg;
 };
 
 #endif // MESSAGESENDERVIEW_H

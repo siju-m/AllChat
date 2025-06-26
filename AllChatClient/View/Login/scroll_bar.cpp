@@ -25,7 +25,7 @@ void Scroll_bar::crop_corner()
     painter.setRenderHint(QPainter::Antialiasing);
 
     QPainterPath path;
-    path.addRoundedRect(0, 0, width(), height(), height() / 4, height() / 4);
+    path.addRoundedRect(0, 0, width(), height(), height() / 7, height() / 7);
     painter.setClipPath(path);
     painter.setPen(Qt::NoPen);
 

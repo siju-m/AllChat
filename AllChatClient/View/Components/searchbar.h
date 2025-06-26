@@ -14,9 +14,13 @@ public:
 signals:
     void createGroup();
     void addFriend();
+    void search(const QString &name);
+    void hasClear();
+
 private:
     void initBar();
     void initMenu();
+    void onSearch();
 
 private:
     QLineEdit* m_inputBox;

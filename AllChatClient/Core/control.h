@@ -5,7 +5,6 @@
 #include "View/login.h"
 #include <QObject>
 
-#include "ElaWidget.h"
 
 class Control : public QObject
 {
@@ -16,9 +15,9 @@ public:
 signals:
 
 private:
+    ChatHistoryManager* m_historyManager;
     MainWindow *m_window;
     Login* m_login;
-    ElaWidget* ela;
 };
 
 #endif // CONTROL_H

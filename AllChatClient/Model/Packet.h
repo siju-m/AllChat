@@ -5,6 +5,8 @@
 #include <QDataStream>
 #include <QIODevice>
 
+#include <Core/configmanager.h>
+
 class Packet
 {
 public:
@@ -12,7 +14,7 @@ public:
     template <typename... Args>
     Packet(Args&&... args) {
         QDataStream out(&m_packet, QIODevice::WriteOnly);
-        out.setVersion(QDataStream::Qt_5_15);
+        out.setVersion(ConfigManager::dataStreamVersion());
         (void)(out << ... << std::forward<Args>(args));
     }
     const QByteArray& getPacket() const;

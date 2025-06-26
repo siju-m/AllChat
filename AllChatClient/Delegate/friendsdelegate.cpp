@@ -54,49 +54,45 @@ void FriendsDelegate::draw_back(QPainter *painter, const QStyleOptionViewItem &o
 
 void FriendsDelegate::draw_avatar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    const QString avatarPath = index.data(FriendsModel::AvatarRole).toString();
+    const QPixmap avatar = index.data(FriendsModel::AvatarRole).value<QPixmap>();
     QRect itemRect = option.rect;
 
     //绘制头像
     QRect avatarRect =  QRect(itemRect.left() + 10, itemRect.top()+10, 40, 40);
-    if(avatarPath.isEmpty()){
+    if(avatar.isNull()){
         painter->setBrush(QColor(200, 200, 200));
         painter->setPen(Qt::NoPen);
         painter->drawEllipse(avatarRect);
     }else{
-        QPixmap pixmap(avatarPath);
-        if (pixmap.isNull()) {
-            qDebug() << "加载头像失败:" << avatarPath;
-        } else {
-            // 获取设备像素比（处理高DPI屏幕）
-            qreal dpr = painter->device()->devicePixelRatio();
-            QSize targetSize = avatarRect.size() * dpr;
+        // 获取设备像素比（处理高DPI屏幕）
+        qreal dpr = painter->device()->devicePixelRatio();
+        QSize targetSize = avatarRect.size() * dpr;
 
-            // 使用高质量缩放并扩展至目标区域
-            QPixmap scaled = pixmap.scaled(
-                targetSize,
-                Qt::KeepAspectRatioByExpanding, // 保持比例并扩展至目标尺寸
-                Qt::SmoothTransformation       // 平滑处理
-                );
-            scaled.setDevicePixelRatio(dpr);
+        // 使用高质量缩放并扩展至目标区域
+        QPixmap scaled = avatar.scaled(
+            targetSize,
+            Qt::KeepAspectRatioByExpanding, // 保持比例并扩展至目标尺寸
+            Qt::SmoothTransformation       // 平滑处理
+            );
+        scaled.setDevicePixelRatio(dpr);
 
-            // 设置圆形剪裁路径（确保头像显示为椭圆）
-            QPainterPath clipPath;
-            clipPath.addEllipse(avatarRect);
-            painter->setClipPath(clipPath);
+        // 设置圆形剪裁路径（确保头像显示为椭圆）
+        QPainterPath clipPath;
+        clipPath.addEllipse(avatarRect);
+        painter->setClipPath(clipPath);
 
-            // 计算居中绘制位置（避免缩放后图像偏移）
-            QPoint drawPos = avatarRect.topLeft();
-            if (scaled.width() > targetSize.width()) {
-                drawPos.setX(drawPos.x() - (scaled.width() / dpr - avatarRect.width()) / 2);
-            }
-            if (scaled.height() > targetSize.height()) {
-                drawPos.setY(drawPos.y() - (scaled.height() / dpr - avatarRect.height()) / 2);
-            }
-
-            painter->drawPixmap(drawPos, scaled);
-            painter->setClipping(false); // 关闭剪裁以免影响后续绘制
+        // 计算居中绘制位置（避免缩放后图像偏移）
+        QPoint drawPos = avatarRect.topLeft();
+        if (scaled.width() > targetSize.width()) {
+            drawPos.setX(drawPos.x() - (scaled.width() / dpr - avatarRect.width()) / 2);
         }
+        if (scaled.height() > targetSize.height()) {
+            drawPos.setY(drawPos.y() - (scaled.height() / dpr - avatarRect.height()) / 2);
+        }
+
+        painter->drawPixmap(drawPos, scaled);
+        painter->setClipping(false); // 关闭剪裁以免影响后续绘制
+
     }
 }
 
@@ -119,7 +115,6 @@ void FriendsDelegate::draw_name(QPainter *painter, const QStyleOptionViewItem &o
 
 void FriendsDelegate::draw_onlineState(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-
     onlineState_type onlineState = (onlineState_type)index.data(FriendsModel::OnlineRole).toInt();
     // qDebug()<<onlineState;
     painter->setRenderHint(QPainter::Antialiasing); // 开启抗锯齿

@@ -1,10 +1,12 @@
 #include "messagesenderview.h"
+#include "Core/contactmanager.h"
 #include "Utils/CustomTypes.h"
 #include <QFileDialog>
 #include <QShortcut>
 #include <qboxlayout.h>
+#include <Utils/commonutil.h>
 
-MessageSenderView::MessageSenderView(QWidget *parent, ChatHistoryManager* historyManager)
+MessageSenderView::MessageSenderView(QWidget *parent)
     : QWidget{parent},
     m_topBtnSize(25),
     m_btnFile(new QPushButton(this)),
@@ -13,8 +15,8 @@ MessageSenderView::MessageSenderView(QWidget *parent, ChatHistoryManager* histor
     m_msgEdit(new QPlainTextEdit(this)),
     m_user(CurrentUser::getInstance()),
     m_dataTransfer(DataTransfer::getInstance()),
-    m_historyManager(historyManager),
-    m_friendList(m_user->getFriendList())
+    m_historyManager(ChatHistoryManager::getInstance()),
+    m_contact_mg(ContactManager::getInstance())
 {
     initUI();
 
@@ -164,7 +166,7 @@ void MessageSenderView::onSendClicked() {//发送按钮的槽函数
     }else return;
 
     Packet data;
-    if(m_friendList.contains(chatId)){
+    if(m_contact_mg->isFriend(chatId)){
         data = Packet(CommonEnum::CHAT, chatId, m_msgEdit->toPlainText());
     }else{
         QString type("TEXT");
@@ -173,7 +175,7 @@ void MessageSenderView::onSendClicked() {//发送按钮的槽函数
     m_dataTransfer->sendData(data);
 
     QString textMessage = m_msgEdit->toPlainText();
-    Message msg(Message::Text, textMessage, Message::getCurrentTime(), m_user->toUser(), chatId);
+    Message msg(Message::Text, textMessage, CommonUtil::getCurrentTime(), m_user->toUser(), chatId);
     emit sendMsg(msg);
     m_msgEdit->clear(); // 清空输入框
 }
@@ -196,7 +198,7 @@ void MessageSenderView::sendImage() {//发送图片的槽函数
     imageFile.close();
 
     Packet data;
-    if(m_friendList.contains(chatId)){
+    if(m_contact_mg->isFriend(chatId)){
         data = Packet(CommonEnum::IMAGE,chatId, imageData);
     }else{
         QString type("IMAGE");
@@ -205,8 +207,8 @@ void MessageSenderView::sendImage() {//发送图片的槽函数
     m_dataTransfer->sendData(data);
 
 
-    imagePath = m_historyManager->storeImage("", imageData);
-    Message msg(Message::Image, imagePath, Message::getCurrentTime(), m_user->toUser(), chatId);
+    imagePath = m_historyManager->storeImage(imageData);
+    Message msg(Message::Image, imagePath, CommonUtil::getCurrentTime(), m_user->toUser(), chatId);
     emit sendMsg(msg);
 
 }
@@ -235,7 +237,7 @@ void MessageSenderView::sendFile()
     m_dataTransfer->sendData(data);
 
     QString path = m_historyManager->storeFile(fileName, fileData);
-    Message msg(Message::File, path, Message::getCurrentTime(), m_user->toUser(), chatId);
+    Message msg(Message::File, path, CommonUtil::getCurrentTime(), m_user->toUser(), chatId);
     emit sendMsg(msg);
 }
 

@@ -48,24 +48,24 @@ User CurrentUser::toUser()
     return User(m_userName, m_userId, m_avatarPath, true);
 }
 
-QMap<QString, User> &CurrentUser::getFriendList()
-{
-    return m_friendList;
-}
+// QMap<QString, User> &CurrentUser::getFriendList()
+// {
+//     return m_friendList;
+// }
 
-QMap<QString, User> &CurrentUser::getStrangerList()
-{
-    return m_strangerList;
-}
+// QMap<QString, User> &CurrentUser::getStrangerList()
+// {
+//     return m_strangerList;
+// }
 
-QSet<QString> &CurrentUser::getGroupsIdList()
-{
-    return m_groups_idList;
-}
+// QSet<QString> &CurrentUser::getGroupsIdList()
+// {
+//     return m_groups_idList;
+// }
 
-QMap<QString, Group> &CurrentUser::getGroupList()
-{
-    return m_groups;
-}
+// QMap<QString, Group> &CurrentUser::getGroupList()
+// {
+//     return m_groups;
+// }
 
 

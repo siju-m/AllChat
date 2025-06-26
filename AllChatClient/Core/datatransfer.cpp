@@ -1,7 +1,9 @@
 #include "datatransfer.h"
+#include "Core/configmanager.h"
 #include <QMessageBox>
 
 DataTransfer* DataTransfer::m_instance = nullptr;
+std::mutex DataTransfer::m_mutex;
 
 DataTransfer::DataTransfer(QObject *parent):
     QObject(parent),
@@ -10,7 +12,6 @@ DataTransfer::DataTransfer(QObject *parent):
     m_receivedBytes(0),
     m_currentReceivingState(WaitingForHeader)
 {
-
     connect(m_socket, &QTcpSocket::readyRead, this, &DataTransfer::onReadyRead);
     connect(m_socket, &QTcpSocket::disconnected, this, &DataTransfer::onDisconnected);
     ConnectServer();
@@ -39,7 +40,7 @@ void DataTransfer::onDisconnected()
 void DataTransfer::handle_Data(QByteArray data)
 {
     QDataStream in(data);
-    in.setVersion(QDataStream::Qt_5_15);
+    in.setVersion(ConfigManager::dataStreamVersion());
 
     CommonEnum::message_type type;
     in >> type;
@@ -63,7 +64,7 @@ void DataTransfer::onReadyRead()
 {
 
     QDataStream in(m_socket);
-    in.setVersion(QDataStream::Qt_5_15);
+    in.setVersion(ConfigManager::dataStreamVersion());
     while(!in.atEnd()){
         if (m_currentReceivingState == WaitingForHeader) {
             in >> m_currentDataLength;
@@ -108,7 +109,7 @@ void DataTransfer::sendData(const Packet &pkt)
     QByteArray packet = pkt.getPacket();
     QByteArray data;
     QDataStream out(&data, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15);
+    out.setVersion(ConfigManager::dataStreamVersion());
     out<<static_cast<qint32>(packet.size());
     out.writeRawData(packet.constData(),packet.size());
     m_socket->write(data);

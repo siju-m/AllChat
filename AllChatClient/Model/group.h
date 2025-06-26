@@ -7,7 +7,7 @@
 class Group
 {
 public:
-    Group(QString groupId, QString groupName, int memberCount, QString avatarPath = "");
+    Group(QString groupId="", QString groupName="", int memberCount=0, QString avatarPath = "");
 
     QString groupId();
     QString groupName();
