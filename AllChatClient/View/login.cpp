@@ -71,12 +71,7 @@ void Login::updateUserInfo(QByteArray &data)
 
     CommonEnum::message_type messageType;
     in >> messageType;
-    QByteArray imageData;
     QString id;
-    in >>id>> imageData;
-
+    in >>id;
     user->set_userId(id);
-    if(imageData.isEmpty()) return;
-    QString avatarPath = m_historyManager->storeAvatar(user->get_userName(),imageData);
-    user->set_avatarPath(avatarPath);
 }

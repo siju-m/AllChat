@@ -33,8 +33,8 @@ signals:
     void redisDisconnected();
 
 private:
-    redisContext *m_context;
-    FriendApplyCache *m_friend_apply_cache;
+    redisContext *m_context = nullptr;
+    FriendApplyCache *m_friend_apply_cache = nullptr;
 
 };
 

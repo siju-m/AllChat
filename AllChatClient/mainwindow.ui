@@ -183,7 +183,7 @@ QScrollBar::sub-page:vertical {
 </string>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="chat_page">
             <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -203,7 +203,7 @@ QScrollBar::sub-page:vertical {
               <number>0</number>
              </property>
              <item>
-              <widget class="QListView" name="chatList">
+              <widget class="ChatListView" name="chatList">
                <property name="styleSheet">
                 <string notr="true">QListView { 
 border: none;
@@ -518,6 +518,11 @@ border: none;
    <extends>QWidget</extends>
    <header>View/Components/searchbar.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ChatListView</class>
+   <extends>QListView</extends>
+   <header>View/chatlistview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

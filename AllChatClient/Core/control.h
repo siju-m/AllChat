@@ -15,9 +15,9 @@ public:
 signals:
 
 private:
-    ChatHistoryManager* m_historyManager;
+    ChatHistoryManager *m_historyManager;
     MainWindow *m_window;
-    Login* m_login;
+    Login *m_login;
 };
 
 #endif // CONTROL_H

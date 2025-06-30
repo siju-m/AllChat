@@ -8,12 +8,20 @@
 #include <QUuid>
 #include <QSet>
 #include <QCryptographicHash>
+#include <mutex>
 
 class DataBase : public QObject
 {
 public:
-    DataBase(QObject *parent = nullptr);
-
+    static DataBase* getInstance(){
+        if(m_instance == nullptr){
+            std::lock_guard<std::mutex> locker(m_mutex);
+            if(m_instance == nullptr){
+                m_instance = new DataBase();
+            }
+        }
+        return m_instance;
+    }
 
     // 初始化数据库
     void initDatabase();
@@ -53,6 +61,15 @@ public:
     // 查询群成员数量
     int getGroupMemberCount(const QString &groupId);
 
+private:
+    DataBase(const DataBase& obj) = delete;
+    DataBase& operator=(const DataBase& obj) = delete;
+    DataBase(QObject *parent = nullptr);
+
+private:
+    static DataBase* m_instance;
+    static std::mutex m_mutex;
 };
+
 
 #endif // DATABASE_H

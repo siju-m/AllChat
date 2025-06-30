@@ -1,4 +1,5 @@
 #include "UserDetailView.h"
+#include "Core/avatarmanager.h"
 #include "ui_UserDetailView.h"
 
 #include <QPainter>
@@ -23,13 +24,13 @@ UserDetailView::~UserDetailView()
     delete ui;
 }
 
-void UserDetailView::showAvatar(const QString &path)
+void UserDetailView::showAvatar(const QString &id)
 {
-    QPixmap pixmap(path);
-    if(pixmap.isNull()){
+    QPixmap *pixmap = AvatarManager::getInstance()->getAvatar(id);
+    if(pixmap == nullptr){
         return;
     }
-    QPixmap roundedPixmap(pixmap.size());
+    QPixmap roundedPixmap(pixmap->size());
     roundedPixmap.fill(Qt::transparent);
 
     QPainter painter(&roundedPixmap);
@@ -37,9 +38,9 @@ void UserDetailView::showAvatar(const QString &path)
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
     QPainterPath painterPath;
-    painterPath.addEllipse(0, 0, pixmap.width(), pixmap.height());
+    painterPath.addEllipse(0, 0, pixmap->width(), pixmap->height());
     painter.setClipPath(painterPath);
-    painter.drawPixmap(0, 0, pixmap);
+    painter.drawPixmap(0, 0, *pixmap);
 
     ui->avatar->setPixmap(roundedPixmap);
 }
@@ -47,12 +48,10 @@ void UserDetailView::showAvatar(const QString &path)
 void UserDetailView::showUserInfo(const QString &id, const User &user)
 {
     QString name = user.getUserName();
-    QString avatarPath = user.getAvatarPath();
     bool state = user.getOnlineState();
     this->show();
     this->setEnabled(true);
-    m_userInfo = {name,id,state,avatarPath};
-    showAvatar(avatarPath);
+    showAvatar(id);
     QFont font;
     font.setFamily("Arial");  // 设置字体
     font.setPointSize(12);    // 设置字号

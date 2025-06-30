@@ -109,7 +109,6 @@ void MessageListView::addMessage(const Message &message)
 
 void MessageListView::addOlderMessage(const QVector<Message> &messages)
 {
-
     // 插入前记录当前滚动位置
     QScrollBar* vScroll = this->verticalScrollBar();
     const int oldScrollPos = vScroll->value();

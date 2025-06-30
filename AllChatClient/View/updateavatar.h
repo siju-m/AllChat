@@ -19,7 +19,7 @@ public:
     explicit UpdateAvatar(QWidget *parent = nullptr);
     ~UpdateAvatar();
 
-    void setAvatarPath(const QString &path);
+    void loadUserAvatar();
     void onSuccessSetAvatar();
 
 protected:
@@ -27,17 +27,19 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
 
+private:
+    void chooseAvatar();
+    void setThisAvatar(const QString &path);
+    void onUpdateAvatar();
+    void showAvatar(const QPixmap &pixmap);
+
 signals:
-    void send_updateAvatar(const QString &path);
-    void setAvatar(const QString &path);//向外部传输路径
+    void sendUpdateAvatar(const QPixmap &path);
+    void setAvatar(const QPixmap &pix);//向外部传输路径
 
 private:
     Ui::UpdateAvatar *ui;
-    QString m_avatarPath;
-    void showAvatar(const QPixmap &pixmap);
-
-private slots:
-    void chooseAvatar();
+    QPixmap m_pix;
 };
 
 #endif // UPDATEAVATAR_H

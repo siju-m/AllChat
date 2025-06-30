@@ -30,14 +30,14 @@ signals:
 
 private:
     int m_topBtnSize;
-    QPushButton* m_btnFile;
-    QPushButton* m_btnImage;
-    QPushButton* m_btnSend;
-    QPlainTextEdit* m_msgEdit;
+    QPushButton *m_btnFile;
+    QPushButton *m_btnImage;
+    QPushButton *m_btnSend;
+    QPlainTextEdit *m_msgEdit;
 
-    CurrentUser* m_user;
-    DataTransfer* m_dataTransfer;
-    ChatHistoryManager* m_historyManager;
+    CurrentUser *m_user;
+    DataTransfer *m_dataTransfer;
+    ChatHistoryManager *m_historyManager;
     ContactManager *m_contact_mg;
 };
 

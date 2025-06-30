@@ -100,11 +100,6 @@ Message::ChatType Message::getChatType()
     return m_chatType;
 }
 
-QString Message::getAvatarPath() const
-{
-    return m_sender.getAvatarPath();
-}
-
 QString Message::getSenderId() const
 {
     return m_sender.getUserId();

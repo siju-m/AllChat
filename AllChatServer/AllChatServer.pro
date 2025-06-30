@@ -1,6 +1,6 @@
 QT       += core gui sql
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network httpserver
 
 CONFIG += c++17
 
@@ -13,6 +13,7 @@ SOURCES += \
     Core/datatransfer.cpp \
     Core/database.cpp \
     Core/friendapplycache.cpp \
+    Core/httpservermanager.cpp \
     Core/redisclient.cpp \
     main.cpp \
     server.cpp
@@ -22,6 +23,7 @@ HEADERS += \
     Core/datatransfer.h \
     Core/database.h \
     Core/friendapplycache.h \
+    Core/httpservermanager.h \
     Core/redisclient.h \
     server.h
 

@@ -1,11 +1,14 @@
 #include "chatmodel.h"
+#include "Core/avatarmanager.h"
 
 #include <QDateTime>
 #include <qtconcurrentrun.h>
 
 ChatModel::ChatModel(QObject *parent)
     : QAbstractListModel{parent}
-{}
+{
+    // CommonUtil::bindModelToAvatarUpdates(this, [=](int row){return m_ids[row];}, AvatarRole);
+}
 
 int ChatModel::rowCount(const QModelIndex &parent) const
 {
@@ -24,25 +27,41 @@ QVariant ChatModel::data(const QModelIndex &index, int role) const
     case LastMessageRole: return msg.lastMessage;
     case LastMessageTimeRole: return msg.lastMessageTime;
     case UnreadMsgNumRole: return msg.unreadMsgNum;
-    case AvatarRole: return avatarCache.contains(msg.avatarPath)?avatarCache.value(msg.avatarPath):QPixmap();
+    case AvatarRole:{
+        QPixmap *pix = AvatarManager::getInstance()->getAvatar(m_ids[index.row()]);
+        if (pix != nullptr) {
+            return *pix;
+        } else {
+            // 异步请求头像，加载完后刷新当前项
+            AvatarManager::getInstance()->getAvatar(m_ids[index.row()], [=](const QPixmap &pix) {
+                ChatModel* that = const_cast<ChatModel*>(this);
+                QMetaObject::invokeMethod(that, [that, index]() {
+                    emit that->dataChanged(index, index, {AvatarRole});
+                }, Qt::QueuedConnection);
+            });
+            return QPixmap(); // 返回默认图或空图
+        }
+    }
+    // case AvatarRole: return avatarCache.contains(msg.avatarPath)?avatarCache.value(msg.avatarPath):QPixmap();
     default: return QVariant();
     }
 }
 
-void ChatModel::addChat_toList(const QString &userName, const QString &id, const QString &lastMessage, const QString &lastMessageTime,const int &unreadMsgNum, const QString &avatarPath)
+void ChatModel::addChat_toList(const QString &userName, const QString &id, const QString &lastMessage, const QString &lastMessageTime,const int &unreadMsgNum)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
-    loadImage(avatarPath, rowCount());
+    // loadImage(avatarPath, rowCount());
+    // loadAvatar(id, rowCount());
 
     m_ids.append(id);
-    m_id_chats[id] = {userName, lastMessage,lastMessageTime,unreadMsgNum,avatarPath};
+    m_id_chats[id] = {userName, lastMessage,lastMessageTime,unreadMsgNum};
     sortListByTime();
 
     endInsertRows();
 }
 
-void ChatModel::updateLastMessage(QString targetId, const QString &message, const QString &lastMessageTime)
+void ChatModel::updateLastMessage(const QString targetId, const QString &message, const QString &lastMessageTime)
 {
     if(!m_id_chats.contains(targetId)) return;
     int targetRow  = m_ids.indexOf(targetId);
@@ -74,7 +93,7 @@ void ChatModel::clear()
 {
     if (m_id_chats.isEmpty()) return;
 
-    avatarCache.clear();
+    // avatarCache.clear();
     beginRemoveRows(QModelIndex(), 0, m_id_chats.size()-1); // 通知视图删除开始
     m_id_chats.clear();
     m_ids.clear();
@@ -149,18 +168,11 @@ void ChatModel::clear_unreadMsgNum(const QString &id)
     emit dataChanged(index,index,{row});
 }
 
-void ChatModel::loadImage(const QString &imagePath, int index)
-{
-    if(!avatarCache.contains(imagePath)){
-        (void)QtConcurrent::run([=]() {
-            QPixmap asyncPixmap;
-            asyncPixmap.load(imagePath);
-            if (!asyncPixmap.isNull()) {
-                QMetaObject::invokeMethod(const_cast<ChatModel *>(this), [=]() {
-                    avatarCache.insert(imagePath, asyncPixmap);
-                    emit this->dataChanged(this->index(index, 0), this->index(index, 0));
-                }, Qt::QueuedConnection);
-            }
-        });
-    }
-}
+
+// void ChatModel::loadAvatar(const QString &userId, int index)
+// {
+//     AvatarManager::getInstance()->getAvatar(userId, [=](const QPixmap &pix){
+//         avatarCache.insert(userId, pix);
+//         emit this->dataChanged(this->index(index, 0), this->index(index, 0));
+//     });
+// }

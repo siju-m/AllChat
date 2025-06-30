@@ -15,7 +15,6 @@ public:
         QString lastMessage="";
         QString lastMessageTime="";
         int unreadMsgNum=0;
-        QString avatarPath="";
     };
     explicit ChatModel(QObject *parent = nullptr);
 
@@ -31,8 +30,8 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
 
-    void addChat_toList(const QString &userName,const QString &id,const QString &lastMessage,const QString &lastMessageTime,const int &unreadMsgNum, const QString &avatarPath="");
-    void updateLastMessage(QString targetId,const QString &message,const QString &lastMessageTime);
+    void addChat_toList(const QString &userName,const QString &id,const QString &lastMessage,const QString &lastMessageTime,const int &unreadMsgNum);
+    void updateLastMessage(const QString targetId,const QString &message,const QString &lastMessageTime);
     QString getLastMsgTime(const QString &targetId);
     void removeItem(const QString &targetId);
     void clear();
@@ -48,7 +47,7 @@ public:
     void add_unreadMsgNum(const QString &id);
     void clear_unreadMsgNum(const QString &id);//清除未读消息
 private:
-    void loadImage(const QString &imagePath, int index);
+    // void loadAvatar(const QString &userId, int index);
 
 signals:
     void sortEnd();
@@ -58,7 +57,7 @@ private:
     QVector<QString> m_ids;
     QString m_current_chatId;
 
-    QHash<QString, QPixmap> avatarCache;
+    // QHash<QString, QPixmap> avatarCache;
 };
 
 #endif // CHATMODEL_H

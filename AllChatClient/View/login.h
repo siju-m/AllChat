@@ -26,8 +26,8 @@ signals:
     void login_success();
 
 private:
-    Responsive_form* m_login_regist_view;
-    DataTransfer* m_dataTransfer;
+    Responsive_form *m_login_regist_view;
+    DataTransfer *m_dataTransfer;
     ChatHistoryManager *m_historyManager;
 };
 

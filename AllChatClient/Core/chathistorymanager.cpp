@@ -61,24 +61,6 @@ QString ChatHistoryManager::getChatHistoryFilePath() {
     return dir.path();
 }
 
-QString ChatHistoryManager::getChatFilePath(QString chatId)
-{
-    QString filePath = getChatHistoryFilePath();
-    if(!m_contact_mg->isInGroup(chatId))
-    {
-        filePath += "/Private";
-    }
-    else
-    {
-        filePath += "/Group";
-    }
-    QDir dir(filePath);
-    if (!dir.exists()) {
-        dir.mkpath(".");
-    }
-    return dir.path();
-}
-
 void ChatHistoryManager::addHistoryToFile(Message &msg)
 {
     QSqlQuery query;

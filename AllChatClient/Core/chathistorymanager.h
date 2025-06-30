@@ -12,9 +12,7 @@ class ChatHistoryManager : public QObject
 {
     Q_OBJECT
 public:
-    ChatHistoryManager(const ChatHistoryManager& obj) = delete;
-    ChatHistoryManager& operator=(const ChatHistoryManager& obj) = delete;
-    static ChatHistoryManager* getInstance(){
+    static ChatHistoryManager *getInstance(){
         if(m_instance == nullptr){
             std::lock_guard<std::mutex> locker(m_mutex);
             if(m_instance == nullptr){
@@ -26,8 +24,6 @@ public:
 
     // 获取聊天记录在文件中的路径
     QString getChatHistoryFilePath();
-    // 获取聊天文件夹路径
-    QString getChatFilePath(QString chatId);
     void addHistoryToFile(Message &msg);
 
     QString storeImage(const QByteArray &imageData);
@@ -39,6 +35,8 @@ public:
     void initDatabase();
 
 private:
+    ChatHistoryManager(const ChatHistoryManager& obj) = delete;
+    ChatHistoryManager& operator=(const ChatHistoryManager& obj) = delete;
     explicit ChatHistoryManager(QObject *parent = nullptr);
     QString saveImage(const QString &imageName, const QByteArray &imageData);
 

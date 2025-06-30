@@ -2,7 +2,12 @@
 
 #include "configmanager.h"
 
-DataBase::DataBase(QObject *parent):QObject(parent){}
+DataBase* DataBase::m_instance;
+std::mutex DataBase::m_mutex;
+
+DataBase::DataBase(QObject *parent):QObject(parent){
+    initDatabase();
+}
 
 void DataBase::initDatabase() {
     // QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");

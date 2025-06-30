@@ -1,4 +1,5 @@
 #include "FriendApplyCache.h"
+#include "qdebug.h"
 
 FriendApplyCache::FriendApplyCache(redisContext* context)
     : m_context(context) {}
@@ -53,8 +54,13 @@ QStringList FriendApplyCache::getSentList(const QString& user) {
 }
 
 QStringList FriendApplyCache::getReceivedList(const QString& user) {
+    QByteArray userUtf8 = user.toUtf8();
+    if (!m_context || m_context->err) {
+        qDebug() << "Redis连接失败:" << m_context->errstr;
+        return QStringList();
+    }
     redisReply* reply = (redisReply*)redisCommand(m_context,
-                                                    "SMEMBERS friend:apply:recv:%s", user.toUtf8().data());
+                                                    "SMEMBERS friend:apply:recv:%s", userUtf8.constData());
 
     QStringList result;
     if (reply && reply->type == REDIS_REPLY_ARRAY) {

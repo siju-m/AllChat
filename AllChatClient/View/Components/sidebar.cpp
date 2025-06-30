@@ -3,6 +3,7 @@
 #include <QBuffer>
 #include <QVBoxLayout>
 
+#include "Core/avatarmanager.h"
 #include "Core/currentuser.h"
 #include "Core/datatransfer.h"
 #include "Model/Packet.h"
@@ -80,36 +81,33 @@ SideBar::SideBar(QWidget *parent)
     });
     m_sideBar_btnGroup->button(0)->setChecked(true);
 
+
+    connect(m_updateAvatar,&UpdateAvatar::sendUpdateAvatar,this,&SideBar::onSendUpdateAvatar);
+    connect(m_updateAvatar,&UpdateAvatar::setAvatar,this,&SideBar::onSetAvatar);
+    connect(this, &SideBar::successSetAvatar, m_updateAvatar, &UpdateAvatar::onSuccessSetAvatar);
     connect(m_avatar,&AvatarLabel::clicked, this,[=](){
-        connect(m_updateAvatar,&UpdateAvatar::send_updateAvatar,this,&SideBar::onSendUpdateAvatar);
-        connect(m_updateAvatar,&UpdateAvatar::setAvatar,this,&SideBar::onSetAvatar);
-        connect(this, &SideBar::successSetAvatar, m_updateAvatar, &UpdateAvatar::onSuccessSetAvatar);
-        m_updateAvatar->setAvatarPath(CurrentUser::getInstance()->get_avatarPath());
+        m_updateAvatar->loadUserAvatar();
         m_updateAvatar->exec();
     });
 }
 
-// void SideBar::setAvatar(const QPixmap &pix)
-// {
-//     m_avatar->setPixmap(pix);
-// }
-
-void SideBar::onSetAvatar(const QString &path)
+void SideBar::showAvatar()
 {
-    if(m_last_avatar.first.isEmpty() || m_last_avatar.first!=path){
-        (void)QtConcurrent::run([=]() {
-            QPixmap roundedPixmap = CommonUtil::getRoundPix(path);
-            if (!roundedPixmap.isNull()) {
-                QMetaObject::invokeMethod(const_cast<SideBar *>(this), [=]() {
-                    m_last_avatar = {path, roundedPixmap};
-                    m_avatar->setPixmap(roundedPixmap);
-                }, Qt::QueuedConnection);
-            }
-        });
-    }else{
-        m_avatar->setPixmap(m_last_avatar.second);
-    }
+    AvatarManager::getInstance()->getAvatar(CurrentUser::getInstance()->get_userId(), [=](const QPixmap &pix){
+        if(pix.isNull()){
+            return;
+        }
+        QPixmap roundedPixmap = CommonUtil::getRoundPix(pix);
+        m_avatar->setPixmap(roundedPixmap);
+    });
 
+
+}
+
+void SideBar::onSetAvatar(const QPixmap &pixmap)
+{
+    QPixmap roundedPixmap = CommonUtil::getRoundPix(pixmap);
+    m_avatar->setPixmap(roundedPixmap);
     // setAvatar(roundedPixmap);
 }
 
@@ -146,18 +144,16 @@ void SideBar::hideApplyRedDot()
     }
 }
 
-void SideBar::onSendUpdateAvatar(const QString &path)
+void SideBar::showEvent(QShowEvent *event)
 {
-    if(path.isEmpty())
-        return;
-    QFile imageFile(path);
-    if (!imageFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "无法打开头像图片文件";
-        return;
-    }
-    imageFile.close();
+    QWidget::showEvent(event);
 
-    QPixmap pix = CommonUtil::getSquarePix(path);
+    showAvatar();
+}
+
+void SideBar::onSendUpdateAvatar(const QPixmap &pixmap)
+{
+    QPixmap pix = CommonUtil::getSquarePix(pixmap);
     QByteArray imageData;
     QBuffer buffer(&imageData);
     buffer.open(QIODevice::WriteOnly);
@@ -166,6 +162,7 @@ void SideBar::onSendUpdateAvatar(const QString &path)
     Packet packet(CommonEnum::UPDATE_AVATAR,imageData);
     DataTransfer::getInstance()->sendData(packet);
 
-    QString newPath = ChatHistoryManager::getInstance()->storeAvatar(CurrentUser::getInstance()->get_userName(), imageData);
-    CurrentUser::getInstance()->set_avatarPath(newPath);
+
+    // QString newPath = ChatHistoryManager::getInstance()->storeAvatar(CurrentUser::getInstance()->get_userName(), imageData);
+    // CurrentUser::getInstance()->set_avatarPath(newPath);
 }

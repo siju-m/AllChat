@@ -23,8 +23,8 @@ private:
     void onSearch();
 
 private:
-    QLineEdit* m_inputBox;
-    QPushButton* m_moreButton;
+    QLineEdit *m_inputBox;
+    QPushButton *m_moreButton;
 };
 
 #endif // SEARCHBAR_H

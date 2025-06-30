@@ -21,10 +21,9 @@ public:
         QString name;
         QString id;
         bool state;
-        QString avatarPath;
     };
 
-    void showAvatar(const QString &path);
+    void showAvatar(const QString &id);
     void showUserInfo(const QString &id,const User &user);
     void hideUserInfo();
 signals:

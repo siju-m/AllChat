@@ -65,6 +65,10 @@ set(SOURCES
     Model/messagepacket.cpp
     View/Components/sidebar.cpp
     Utils/commonutil.cpp
+    Core/configmanager.cpp
+    Core/httpmanager.cpp
+    Core/avatarmanager.cpp
+    View/chatlistview.cpp
 )
 
 # 所有头文件（可选，用于 IDE 支持）
@@ -116,6 +120,10 @@ set(HEADERS
     Model/messagepacket.h
     View/Components/sidebar.h
     Utils/commonutil.h
+    Core/configmanager.h
+    Core/httpmanager.h
+    Core/avatarmanager.h
+    View/chatlistview.h
 )
 
 # UI 文件
@@ -137,7 +145,7 @@ add_executable(${PROJECT_NAME}
     ${HEADERS}
     ${UIS}
     ${RESOURCES}
-    Core/configmanager.h Core/configmanager.cpp
+
 )
 
 # 链接 Qt 库

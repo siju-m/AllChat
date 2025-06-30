@@ -31,7 +31,6 @@ public:
 
     ChatType getChatType();
 
-    QString getAvatarPath() const;
     QString getSenderId() const;
     QString getSenderName() const;
     QString getPlainText() const;

@@ -33,6 +33,5 @@ void SearchResultList::addItem(const User &user)
 {
     m_frd_model->addFriends_ToList(user.getUserName(),
                                    user.getUserId(),
-                                   user.getOnlineState()?StateEnum::ONLINE:StateEnum::OFFLINE,
-                                   user.getAvatarPath());
+                                   user.getOnlineState()?StateEnum::ONLINE:StateEnum::OFFLINE);
 }

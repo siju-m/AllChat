@@ -10,8 +10,8 @@ ContactManager::ContactManager(QObject *parent) :
     m_historyManager(nullptr)
 {}
 
-void ContactManager::updateUserList(const QMap<QString, QString> &newUserList,const QMap<QString,QByteArray> &new_idAvatar) {
-
+void ContactManager::updateUserList(const QMap<QString, QString> &newUserList)
+{
     QSet<QString> newUserSet;
     const auto &newKeys = newUserList.keys();
     for(auto &it:newKeys)
@@ -42,21 +42,17 @@ void ContactManager::updateUserList(const QMap<QString, QString> &newUserList,co
     const auto &keys = m_friendList.keys();
     for(auto &id:keys){
         User frd = m_friendList.value(id);
-        QString avatarPath = new_idAvatar[id].size()?m_historyManager->storeAvatar(frd.getUserName(),new_idAvatar[id]):"";
-        setFriendAvatar(id, avatarPath);
 
         emit addFriendModel(frd.getUserName(),
                             id,
-                            StateEnum::onlineState_type(frd.getOnlineState()?StateEnum::ONLINE:StateEnum::OFFLINE),
-                            avatarPath);
+                            StateEnum::onlineState_type(frd.getOnlineState()?StateEnum::ONLINE:StateEnum::OFFLINE));
 
         QPair<QString,QString> lastMessage = m_historyManager->getLastMessage(id);
         emit addChatModel(frd.getUserName(),
                           id,
                           lastMessage.first,
                           lastMessage.second,
-                          0,
-                          avatarPath);
+                          0);
     }
 }
 
@@ -98,12 +94,6 @@ void ContactManager::setFriendState(const QString& userId, bool state)
 {
     if(m_friendList.contains(userId))
         m_friendList[userId].setOnlineState(state);
-}
-
-void ContactManager::setFriendAvatar(const QString &userId, const QString &avatar)
-{
-    if(m_friendList.contains(userId))
-        m_friendList[userId].setAvatarPath(avatar);
 }
 
 User ContactManager::strangerById(const QString &userId) const

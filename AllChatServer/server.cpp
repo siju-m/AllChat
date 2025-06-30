@@ -9,18 +9,21 @@
 #include <Core/configmanager.h>
 
 Server::Server(QObject *parent) :
-    QTcpServer(parent) ,dataBase(new DataBase(this)),
+    QTcpServer(parent) ,dataBase(DataBase::getInstance()),
     m_dataTransfer(new DataTransfer(this)),
     m_redisClient(new RedisClient(this)),
-    m_friend_apply_cache(m_redisClient->friendApplyCache())
+    m_friend_apply_cache(m_redisClient->friendApplyCache()),
+    m_http_manager(new HttpServerManager())
 {
-    dataBase->initDatabase();
+    // dataBase->initDatabase();
+    m_http_manager->startServer(8088);
 
     connect(m_dataTransfer,&DataTransfer::handleData,this,&Server::handleData);
 }
 
 Server::~Server()
 {
+    delete m_http_manager;
 }
 
 bool Server::loginUser(QTcpSocket *socket,const QString &username, const QString &password) {
@@ -48,8 +51,7 @@ void Server::handleLogin(QDataStream &in, QTcpSocket *senderSocket)
         return;
     }
 
-    QByteArray avatar = dataBase->getAvatar(m_clients_userId[senderSocket]);
-    QByteArray packet = getPacket(LOGIN_SUCCESS,m_clients_userId[senderSocket],avatar);
+    QByteArray packet = getPacket(LOGIN_SUCCESS,m_clients_userId[senderSocket]);
     sendData(m_clients_userId[senderSocket],packet);
     //更新联系列表
     updateContactList(m_clients_userId[senderSocket]);
@@ -249,8 +251,9 @@ void Server::updateContactList(const QString &userId)
 void Server::updateFriendsList(const QString &userId)
 {
     QMap<QString,QString> id_name = dataBase->selectFriendsId_name(userId);
-    QMap<QString,QByteArray> id_avatar = dataBase->getFriendsAvatar(userId);
-    QByteArray packet = getPacket(USER_LIST,id_name,id_avatar);
+    // QMap<QString,QByteArray> id_avatar = dataBase->getFriendsAvatar(userId);
+    QByteArray packet = getPacket(USER_LIST,id_name);
+    // QByteArray packet = getPacket(USER_LIST,id_name,id_avatar);
     sendData(userId,packet);
 }
 
@@ -313,9 +316,16 @@ void Server::handle_updateAvatar(QDataStream &in, QTcpSocket *senderSocket)
 {
     QByteArray avatar;
     in>>avatar;
-    bool success = dataBase->updateAvatar(m_clients_userId[senderSocket],avatar);
-    QByteArray packet = getPacket(UPDATE_AVATAR_RESULT,success);
+    bool success = dataBase->updateAvatar(m_clients_userId[senderSocket], avatar);
+    QByteArray packet = getPacket(UPDATE_AVATAR_RESULT, success);
     sendData(senderSocket,packet);
+    if(success){
+        QByteArray packet = getPacket(REFRESH_AVATAR, m_clients_userId[senderSocket]);
+        QSet<QString> friends = dataBase->selectFriends(m_clients_userId[senderSocket]);
+        for(auto it = friends.begin(); it != friends.end(); ++it){
+            sendData(*it, packet);
+        }
+    }
 }
 
 void Server::handle_deleteFriend(QDataStream &in, QTcpSocket *senderSocket)

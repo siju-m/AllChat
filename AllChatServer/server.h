@@ -8,24 +8,26 @@
 #include <QUuid>
 #include <Core/datatransfer.h>
 #include "Core/database.h"
+#include "Core/httpservermanager.h"
 #include <Core/redisclient.h>
 
 enum message_type{
-    IMAGE,
-    LOGIN,
-    REGISTER,
-    CHAT,
-    LOGIN_SUCCESS,LOGIN_FAILED,
-    REGISTER_SUCCESS,REGISTER_FAILED,
-    USER_LIST,
-    ADD_FRIEND,
-    AGREE_FRIEND,
-    FIND_NEW_FRIEND,
-    NEW_FRIEND_REULT,
-    ONLINE_STATE,
+    IMAGE,//图片消息
+    LOGIN,//登录请求
+    REGISTER,//注册请求
+    CHAT,//聊天消息
+    LOGIN_SUCCESS,LOGIN_FAILED,//登陆结果
+    REGISTER_SUCCESS,REGISTER_FAILED,//注册结果
+    USER_LIST,//用户列表消息
+    ADD_FRIEND,//添加好友消息
+    AGREE_FRIEND,//同意好友请求
+    FIND_NEW_FRIEND,//查询用户请求
+    NEW_FRIEND_REULT,//查询用户结果
+    ONLINE_STATE,//在线用户状态
     ONLINE_LIST,
     UPDATE_AVATAR,
     UPDATE_AVATAR_RESULT,
+    REFRESH_AVATAR,
     DELETE_FRIEND,
     CREATE_GROUP,
     GROUP_LIST,
@@ -48,7 +50,6 @@ private:
     QString generateUniqueId();              // 生成唯一 ID
     void sendOnlineState(const QString &id, const bool state);
     void sendFrdOnlineList(const QString &id);                // 发送在线用户列表
-    void broadcastMessage(const QString &sender, const QString &message); // 广播消息
 
     void privateMessage(QDataStream &in,QTcpSocket *senderSocket);//转发私聊信息
     void privateImage(QDataStream &in,QTcpSocket *senderSocket);//转发私聊图片
@@ -117,6 +118,7 @@ private:
     FriendApplyCache *m_friend_apply_cache;
 
     message_type messageType;
+    HttpServerManager *m_http_manager;
 };
 
 #endif // SERVER_H

@@ -41,7 +41,7 @@ public:
 
 private:
     MessageType getType(Message::MessageType type);
-    void loadAvatar(const QString &avatarPath, int index);
+    // void loadAvatar(const QString &userId, int index);
     void loadImage(const QString &imagePath, int index);
 
 private:
@@ -51,14 +51,14 @@ private:
         QString content;
         bool isOutgoing;
         QString userName;
-        QString avatarPath;
+        QString senderId;
         QString time;
     };
 
     QVector<ModelMessage> m_messages;
     QHash<QString,QString> m_temp_lastMsgTime;//存聊天对象消息时间的临时变量，避免一直排序
 
-    QHash<QString, QPixmap> avatarCache;
+    // QHash<QString, QPixmap> avatarCache;
     QHash<QString, QPixmap> imageCache;
 };
 

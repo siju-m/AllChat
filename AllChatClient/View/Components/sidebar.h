@@ -13,15 +13,18 @@ class SideBar : public QWidget
 public:
     explicit SideBar(QWidget *parent = nullptr);
 
-    // void setAvatar(const QPixmap &pix);
-    void onSetAvatar(const QString &path);
+    void showAvatar();
+    void onSetAvatar(const QPixmap &pixmap);
     void switchToChat();
 
     void showApplyRedDot();
     void hideApplyRedDot();
 
+protected:
+    void showEvent(QShowEvent* event) override;
+
 private:
-    void onSendUpdateAvatar(const QString &path);
+    void onSendUpdateAvatar(const QPixmap &pixmap);
 
 signals:
     void curIndex(int index);

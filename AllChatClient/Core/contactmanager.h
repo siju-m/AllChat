@@ -16,9 +16,7 @@ class ContactManager: public QObject
 {
     Q_OBJECT
 public:
-    ContactManager(const ContactManager& obj) = delete;
-    ContactManager& operator=(const ContactManager& obj) = delete;
-    static ContactManager* getInstance(){
+    static ContactManager *getInstance(){
         if(m_instance == nullptr){
             std::lock_guard<std::mutex> locker(m_mutex);
             if(m_instance == nullptr){
@@ -27,8 +25,7 @@ public:
         }
         return m_instance;
     }
-
-    void updateUserList(const QMap<QString, QString> &newUserList,const QMap<QString,QByteArray> &new_idAvatar);
+    void updateUserList(const QMap<QString, QString> &newUserList);
 
     bool isFriend(const QString& userId) const;
     bool isStranger(const QString& userId) const;
@@ -38,7 +35,6 @@ public:
     void addFriend(const QString& userId, const User &user);
     void removeFriend(const QString& userId);
     void setFriendState(const QString& userId, bool state);
-    void setFriendAvatar(const QString& userId, const QString& avatar);
 
     User strangerById(const QString& userId) const;
     void addStranger(const QString& userId, const User &user);
@@ -54,10 +50,12 @@ public:
 
 signals:
     void clearModel();
-    void addChatModel(const QString &userName,const QString &id,const QString &lastMessage,const QString &lastMessageTime,const int &unreadMsgNum, const QString &avatarPath="");
-    void addFriendModel(const QString &userName,const QString &id,const StateEnum::onlineState_type &onlineState, const QString &avatarPath="");
+    void addChatModel(const QString &userName,const QString &id,const QString &lastMessage,const QString &lastMessageTime,const int &unreadMsgNum);
+    void addFriendModel(const QString &userName,const QString &id,const StateEnum::onlineState_type &onlineState);
 
 private:
+    ContactManager(const ContactManager& obj) = delete;
+    ContactManager& operator=(const ContactManager& obj) = delete;
     ContactManager(QObject *parent = nullptr);
 
 private:

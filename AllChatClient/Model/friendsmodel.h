@@ -8,7 +8,6 @@ struct Friends{
     QString userName;
     QString id;
     StateEnum::onlineState_type onlineState = StateEnum::OFFLINE;
-    QString avatarPath;
 };
 
 //好友数据
@@ -28,7 +27,7 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const override;
 
-    void addFriends_ToList(const QString &userName,const QString &id,const StateEnum::onlineState_type &onlineState, const QString &avatarPath="");
+    void addFriends_ToList(const QString &userName,const QString &id,const StateEnum::onlineState_type &onlineState);
 
     void updateOnlineState(QString targetId,const StateEnum::onlineState_type &onlineState);
 
@@ -39,12 +38,12 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 private:
-    void loadImage(const QString &imagePath, int index);
+    // void loadAvatar(const QString &userId, int index);
 
 private:
     QVector<Friends> m_friends;
 
-    QHash<QString, QPixmap> avatarCache;
+    // QHash<QString, QPixmap> avatarCache;
 };
 
 #endif // FRIENDSMODEL_H

@@ -22,7 +22,7 @@ class DataTransfer : public QObject
 public:
     DataTransfer(const DataTransfer& obj) = delete;
     DataTransfer& operator=(const DataTransfer& obj) = delete;
-    static DataTransfer* getInstance(){
+    static DataTransfer *getInstance(){
         if(m_instance == nullptr){
             std::lock_guard<std::mutex> locker(m_mutex);
             if(m_instance == nullptr){

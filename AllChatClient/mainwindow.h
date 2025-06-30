@@ -45,23 +45,17 @@ public:
     void initHistoryManager();
     void initSideBar();
     void initFriendsList();
-    void initChatList();
     void initFriendApplyList();
-
-    // void showAvatar(const QString &path);//绘制侧边栏的头像
-    // QPixmap getRoundPix(const QString &path);
-
     void handle_message(QDataStream &in);
     void receiveImage(QDataStream &in);
 
-    // void updateUserList(const QMap<QString, QString> &newUserList ,const QMap<QString,QByteArray> &new_idAvatar); //更新用户列表
     void onClearModel();
     void handleUserList(QDataStream &in);//接收好友数据
     void handleFrdOnlineList(QDataStream &in);//接收在线用户列表
     void handleFrdOnlineState(QDataStream &in);
 
     void storeMessageToFile(const Message &msg);//将聊天记录存在文件中
-    void loadChatHistoryFromFile(QString targetId);//从文件中加载聊天记录
+    void loadChatHistory(QString targetId);//从文件中加载聊天记录
 
     void addMessage_toList(const Message &message);
 
@@ -86,8 +80,8 @@ public:
     void handle_GroupList(QDataStream &in);
     void handle_groupChat(QDataStream &in);
     void handle_strangerList(QDataStream &in);
-
     void handle_privateFile(QDataStream &in);
+    void handle_refreshAvatar(QDataStream &in);
 
     void initTray();
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -101,7 +95,6 @@ public:
     void onSwitchView(int index);
 
 protected:
-    void showEvent(QShowEvent* event) override;
     void closeEvent(QCloseEvent *event) override;
 
 signals:
@@ -111,8 +104,6 @@ private:
     Ui::MainWindow *ui;
 
     CurrentUser *m_user;
-    // QButtonGroup *m_sideBar_btnGroup;//管理侧边栏按钮
-    // UpdateAvatar *m_updateAvatar;
     AddFriends m_add_friends;//添加好友窗口
 
     ChatHistoryManager *m_historyManager;
@@ -120,7 +111,7 @@ private:
     ContactManager *m_contact_manager;
 
     FriendsModel *m_friends_model;//存储好友数据
-    ChatModel *m_chat_model;//聊天对象数据
+    // ChatModel *m_chat_model;//聊天对象数据
     StrangerModel *m_apply_model;//存储申请添加好友的用户数据
 
     QSystemTrayIcon *m_trayIcon;   // 托盘图标
